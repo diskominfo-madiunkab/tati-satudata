@@ -22,7 +22,7 @@ services:
         networks:
             - sdi-madiun-network
             - postgres_apps_net
-            - ckannet
+            - ckan-docker_ckannet
 
     # Nginx Service
     sdi-madiun-nginx:
@@ -30,16 +30,19 @@ services:
         image: nginx:alpine
         restart: unless-stopped
         tty: true
+        ports:
+            - 9040:9040
         volumes:
             - ./:/var/www
             - ./dockerconf/nginx.app.conf:/etc/nginx/conf.d/app.conf
         networks:
             - sdi-madiun-network
+            - ckan-docker_ckannet
 
 networks:
     postgres_apps_net:
         external: true
     sdi-madiun-network:
         name: sdi-madiun-network
-    ckannet:
+    ckan-docker_ckannet:
         external: true
