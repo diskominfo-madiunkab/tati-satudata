@@ -1,0 +1,200 @@
+@extends('pages.main.layout')
+
+@php
+if ($data->relationLoaded('verifikasi')) {
+$variables = ['berkas'];
+foreach ($variables as $var) {
+$$var = $data->verifikasi->firstWhere('category', $var);
+}
+}
+@endphp
+
+@section('content')
+
+<div class="pagetitle">
+    <h1>Verifikasi Berkas - {{$data->nama_data}}</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Daftar Verifikasi Data</li>
+            <li class="breadcrumb-item active">{{$data->nama_data}}</li>
+        </ol>
+    </nav>
+</div><!-- End Page Title -->
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            {{-- @php
+            dd($$var->comment);
+            @endphp --}}
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">Berkas Data</div>
+                    <div class="table-responsive">
+                        <table class="table table-stripped datatable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nama</th>
+                                    <th>Tgl. Unggah</th>
+                                    @if($data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI)
+                                    <th>Aksi</th>
+                                    @endif
+                                    @if (isset($$var) && !empty($$var->comment))
+                                    <th>Komentar</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($existingBerkas as $berkas)
+                                @php
+                                $v = $data->verifikasi->firstWhere('field', $berkas['id']);
+                                @endphp
+                                <tr>
+                                    <td>{{$loop->iteration}}</td>
+                                    <td>
+                                        <a href="{{$berkas['previewUrl']}}" target="_new">{{$berkas['name'] ?? '-'}} <i
+                                                class="bi bi-link"></i></a>
+<<<<<<< HEAD
+                                        <p>{{$berkas['previewUrl']}}</p>
+=======
+                                        {{-- <p>{{$berkas['officeLive']}}</p> --}}
+                                        <iframe src="{{$berkas['officeLive']}}" frameborder="0"
+                                            style="width:100%;min-height:640px;"></iframe>
+                                    </td>
+                                    <td>{{$berkas['created_at'] ? $berkas['created_at']->format('d/m/Y H:i') : '-'}}
+                                    </td>
+                                    <td>
+                                        {{-- <div class="btn-group-sm">
+                                            <button
+                                                class="btn @if($data->status_id == \App\Models\Data::STATUS_REVISI || $data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI) btn-actions btn-accept @endif btn-sm {{$v && $v->accepted ? 'btn-success' : 'btn-outline-success'}}"
+                                                data-name="{{$berkas['id']}}">Setuju <i
+                                                    class="bi bi-check"></i></button>
+                                            <button
+                                                class="btn @if($data->status_id == \App\Models\Data::STATUS_REVISI || $data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI) btn-actions btn-reject @endif btn-sm {{$v && !$v->accepted ? 'btn-danger' : 'btn-outline-danger'}}"
+                                                data-name="{{$berkas['id']}}">Revisi <i class="bi bi-x"></i></button>
+                                            <button class="btn btn-comment btn-sm btn-outline-primary"
+                                                data-name="{{$berkas['id']}}"><i class="bi bi-chat-dots"></i>
+                                                Komentar</button>
+                                        </div> --}}
+                                        <div class="btn-group-sm">
+
+                                            {{-- @php
+                                            dd($v->comment);
+                                            @endphp --}}
+                                            @if($data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI)
+                                            <button
+                                                class="btn @if($data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI) btn-actions btn-accept @endif btn-sm {{$v && $v->accepted ? 'btn-success' : 'btn-outline-success'}}"
+                                                data-name="{{$berkas['id']}}">Setuju <i
+                                                    class="bi bi-check"></i></button>
+                                            <button
+                                                class="btn @if($data->status_id == \App\Models\Data::STATUS_PROSES_VERIFIKASI) btn-actions btn-reject @endif btn-sm {{$v && !$v->accepted ? 'btn-danger' : 'btn-outline-danger'}}"
+                                                data-name="{{$berkas['id']}}">Revisi <i class="bi bi-x"></i></button>
+                                            {{-- <button class="btn btn-comment btn-sm btn-outline-primary"
+                                                data-name="{{$berkas['id']}}"><i class="bi bi-chat-dots"></i>
+                                                Komentar</button> --}}
+                                            @endif
+
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (isset($v) && !empty($v->comment))
+                                        {{$v->comment}}
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
+
+@push('js')
+<script>
+    $(function() {
+        $('button.btn-actions').on('click', function (e) {
+            e.preventDefault();
+            let isAccept = $(this).hasClass('btn-accept');
+            let isReject = $(this).hasClass('btn-reject');
+            if(isAccept || isReject){
+                Swal.fire({
+                    title: 'Apakah Anda yakin ingin mengkonfirmasi?',
+                    showCancelButton: true,
+                    confirmButtonText: isAccept ? 'Ya, Setuju' : 'Ya, Revisi',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: isAccept ? '#28a745' : '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '{{route('verifikasi.verify', $data->id)}}',
+                            method: 'PATCH',
+                            data: {
+                                category: 'berkas',
+                                accepted: isAccept ? 1 : 0,
+                                field: $(this).data('name')
+                            }
+                        })
+                        .then((r) => {
+                            let inputValue = '';
+                            if (r.comment) {
+                            inputValue = r.comment;
+                            }
+                            Swal.fire({
+                                title: 'Komentar untuk field ini',
+                                input: 'textarea',
+                                inputValue: inputValue,
+                                inputAttributes: {
+                                    autocapitalize: 'off',
+                                    spellCheck: false,
+                                },
+                                showCancelButton: true,
+                                confirmButtonText: 'Simpan',
+                                showLoaderOnConfirm: true,
+                                preConfirm: (comment) => {
+                                    return $.post('{{route('verifikasi.komentar', $data->id)}}', {field: $(this).data('name'), comment: comment, category: 'berkas'})
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(response.message)
+                                            }
+                                            return response;
+                                        })
+                                        .catch(error => {
+                                            Swal.showValidationMessage(`Request gagal: ${error}`)
+                                        })
+                                },
+                                allowOutsideClick: () => !Swal.isLoading()
+                            }).then((result) => {
+                                console.log(result);
+                                Toast.fire({icon: result.value.ok ? 'success' : 'error', title: result.value.message});
+                                location.reload(); // Merefresh halaman setelah memberikan komentar
+                            });
+                        })
+                        .catch(() => Toast.fire({icon: 'error', title: 'Gagal menyimpan perubahan'}));
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: '{{route('verifikasi.verify', $data->id)}}',
+                    method: 'PATCH',
+                    data: {
+                        category: 'berkas',
+                        accepted: null,
+                        field: $(this).data('name')
+                    }
+                })
+                .then((r) => {
+                    Toast.fire({icon: r.ok ? 'success' : 'error', title: r.message});
+                    location.reload(); // Merefresh halaman setelah memberikan komentar
+                })
+                .catch(() => Toast.fire({icon: 'error', title: 'Gagal menyimpan perubahan'}));
+            }
+        });
+    });
+</script>
+@endpush
