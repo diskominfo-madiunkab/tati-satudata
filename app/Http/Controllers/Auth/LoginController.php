@@ -50,7 +50,6 @@ class LoginController extends Controller
         } elseif ($user->hasRole('produsen')) {
             return redirect()->route('d_produsen');
         }
-
         return redirect()->to('/');
     }
 

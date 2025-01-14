@@ -9,6 +9,7 @@ use App\Models\MasterTahun;
 use Illuminate\Http\Request;
 use App\Exports\RekapOPDExport;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +34,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $user = Auth::user();
+        if ($user->hasRole('administrator')) {
+            return redirect()->route('d_administrator');
+        } elseif ($user->hasRole('walidata') || $user->hasRole('pembina')) {
+            return redirect()->route('d_walidata');
+        } elseif ($user->hasRole('produsen')) {
+            return redirect()->route('d_produsen');
+        }
+        return redirect()->to('/');
     }
 
     public function dashboardAdmin(Request $request)

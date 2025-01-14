@@ -404,7 +404,7 @@ class Data extends Model implements HasMedia
     }
 
 
-    public function data_tolak_walidata()
+    public static function data_tolak_walidata()
     {
         $year = date('Y');
         return DB::table("data")
