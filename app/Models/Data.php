@@ -80,6 +80,11 @@ class Data extends Model implements HasMedia
         return $this->hasMany(VisualData::class, 'id_data', 'id');
     }
 
+    public function visualtable()
+    {
+        return $this->hasMany(VisualTable::class, 'id_data', 'id');
+    }
+
     public function status()
     {
         return $this->belongsTo(Status::class);

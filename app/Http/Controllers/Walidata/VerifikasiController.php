@@ -104,7 +104,7 @@ class VerifikasiController extends Controller
     {
         $data = Data::with(['opd', 'berkas', 'verifikasi' => fn($q) => $q->category('berkas')])->findOrFail($id);
         // dd($data);
-        $officeLiveUrl = 'https://view.officeapps.live.com/op/view.aspx?src=https://data.madiunkab.go.id';
+        $officeLiveUrl = 'https://view.officeapps.live.com/op/view.aspx?src=';
         $existingBerkas = $data->berkas->transform(function ($b) use ($data, $officeLiveUrl) {
             $fileExtension = pathinfo($b->name, PATHINFO_EXTENSION);
             $fileType = $fileExtension === 'csv' ? 'CSV' : 'XLSX';

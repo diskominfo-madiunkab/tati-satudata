@@ -14,6 +14,6 @@ class VisualTable extends Model
 
     public function header()
     {
-        return $this->hasMany(VisualHeader::class);
+        return $this->hasMany(VisualHeader::class, 'id_namatabel');
     }
 }

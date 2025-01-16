@@ -16,4 +16,9 @@ class VisualData extends Model
     {
         return $this->belongsTo(Data::class);
     }
+
+    public function header()
+    {
+        return $this->hasMany(VisualHeader::class);
+    }
 }

@@ -27,7 +27,7 @@ class Opd extends Model
         return $this->hasMany(Data::class);
     }
 
-    public function data_opd()
+    public static function data_opd()
     {
         return $users = Opd::Select('*')
             ->get();

@@ -19,7 +19,7 @@ class VisualHeader extends Model
 
     public function isi()
     {
-        return $this->hasMany(VisualIsi::class);
+        return $this->hasMany(VisualIsi::class, 'id_header');
     }
 
     public function grafik()
