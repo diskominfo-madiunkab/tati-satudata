@@ -260,23 +260,20 @@ class HomeController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with([
-                Alert::error('Gagal!', join("\n", $validator->getMessageBag()->all()))
-            ]);
+            Alert::error('Gagal!', join("\n", $validator->getMessageBag()->all()));
+            return redirect()->back();
         }
 
         if (!password_verify($request->get('old_password'), auth()->user()->password)) {
-            return redirect()->back()->with([
-                Alert::error('Gagal!', 'Password Anda yang sekarang tidak valid')
-            ]);
+            Alert::error('Gagal!', 'Password Anda yang sekarang tidak valid');
+            return redirect()->back();
         }
 
         auth()->user()->update([
             'password' => app('hash')->make($request->get('password'))
         ]);
 
-        return redirect()->back()->with([
-            Alert::success('Berhasil', 'Password Anda berhasil diubah')
-        ]);
+        Alert::success('Berhasil', 'Password Anda berhasil diubah');
+        return redirect()->back();
     }
 }

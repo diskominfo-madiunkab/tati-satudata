@@ -358,8 +358,8 @@
                                                     </div>
 
                                                     {{-- <a href="{{url()->previous('d_' . auth()->user()->role->name)}}"
-                                                    --}} <a
-                                                        href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan' }}"
+                                                    --}} <a {{-- href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan' }}" --}}
+                                                        href="{{ url()->previous() }}"
                                                         class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
                                                         Kembali</a>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfografisController;
+use App\Http\Controllers\ListExcelController;
 use App\Http\Controllers\MasterTahunController;
 use App\Http\Controllers\OpdController;
 use App\Http\Controllers\PengumpulanController;
@@ -67,6 +68,7 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 
 
 
+Route::get('/download-excel-list', [ListExcelController::class, 'index'])->name('download-excel-list');
 Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::get('/d_administrator', [HomeController::class, 'dashboardAdmin'])->name('d_administrator');
     Route::post('/filter_tahun_admin', [DataController::class, 'data_filter_tahun'])->name('filter_tahun_admin');
@@ -165,14 +167,14 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::get('/publikasi-admin/download/{id}', [PublikasiGuestController::class, 'download'])->name('publication.download');
 });
 
-Route::middleware(['role:walidata|pembina|walidatapendukung', 'auth:web'])->group(function () {
+Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'auth:web'])->group(function () {
     Route::get('/d_walidata', [HomeController::class, 'dashboardWalidata'])->name('d_walidata');
     Route::get('/d_walidata/rekap', [HomeController::class, 'dashboardRekapOPD'])->name('rekap_walidata');
     Route::get('/d_walidata/rekap/excel', [HomeController::class, 'dashboardRekapOPDExcel'])->name('rekap_walidata_excel');
 
     Route::get('/data_walidata/draft', [DataController::class, 'index'])->name('walidata.draft');
     Route::post('/filter_tahun', [DataController::class, 'data_filter_tahun'])->name('filter_tahun');
-    Route::post('//data_walidata/search', [DataController::class, 'searchData'])->name('search_data');
+    Route::post('/data_walidata/search', [DataController::class, 'searchData'])->name('search_data');
     Route::post('/filter_insert_data_tahun_lalu', [DataController::class, 'data_filter_tahun_lalu'])->name('filter_tahun_lalu');
     Route::get('/data_walidata/create', [DataController::class, 'create'])->middleware(['role:walidata|walidatapendukung'])->name('data_walidata.create');
     Route::get('/data_walidata/draft/api', [DataController::class, 'apiData'])->name('walidata.draft.api');
@@ -275,7 +277,7 @@ Route::middleware(['role:walidata|pembina|walidatapendukung', 'auth:web'])->grou
     Route::get('/data_walidata/detail-data-standar/{id}', [DataController::class, 'detailDataStandar'])->name('walidata.data.detailDataStandar');
 });
 
-Route::middleware(['role:produsen|pembina', 'auth:web'])->group(function () {
+Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(function () {
     Route::get('/d_produsen', [HomeController::class, 'dashboardProdusen'])->name('d_produsen');
     Route::get('/data_produsen/draft', [DataController::class, 'index'])->name('draft.produsen');
     Route::post('/filter_tahun_produsen', [DataController::class, 'data_filter_tahun'])->name('filter_tahun_produsen');

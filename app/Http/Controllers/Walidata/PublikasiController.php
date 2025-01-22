@@ -464,15 +464,13 @@ class PublikasiController extends Controller
         $data = Data::with(['publikasi', 'opd'])->findOrFail($id);
 
         if ($data->status_id != Data::STATUS_SIAP_PUBLIKASI) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Status data belum siap untuk dipublikasi')
-            ]);
+            Alert::error('Gagal', 'Status data belum siap untuk dipublikasi');
+            return redirect()->back();
         }
 
         if (empty($data->publikasi) || empty($data->publikasi->org_id)) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Data publikasi kosong')
-            ]);
+            Alert::error('Gagal', 'Data publikasi kosong');
+            return redirect()->back();
         }
 
         try {
@@ -480,9 +478,8 @@ class PublikasiController extends Controller
             ini_set('max_execution_time', 0);
             $group = CkanApi::group()->show($data->publikasi->group_id);
             if (!$group || empty($group['result'])) {
-                return redirect()->back()->with([
-                    Alert::error('Gagal', 'Grup tidak ditemukan di CKAN')
-                ]);
+                Alert::error('Gagal', 'Grup tidak ditemukan di CKAN');
+                return redirect()->back();
             }
 
             // dd($group);
@@ -581,16 +578,14 @@ class PublikasiController extends Controller
             DB::rollBack();
 
             $errorMsg = isset($responseBody['error']) && isset($responseBody['error']['name']) ? implode(PHP_EOL, $responseBody['error']['name']) : $exception->getMessage();
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Gagal mempublikasi data, Response CKAN tidak valid: ' . $exception->getCode() . ' | ' . $errorMsg)
-            ]);
+            Alert::error('Gagal', 'Gagal mempublikasi data, Response CKAN tidak valid: ' . $exception->getCode() . ' | ' . $errorMsg);
+            return redirect()->back();
         }
 
 
         // dd($dd);
-        return redirect()->back()->with([
-            Alert::success('Berhasil', 'Data berhasil dipublikasi ke CKAN.')
-        ]);
+        Alert::success('Berhasil', 'Data berhasil dipublikasi ke CKAN.');
+        return redirect()->back();
     }
 
 
@@ -603,9 +598,8 @@ class PublikasiController extends Controller
         // dd($data->indikator);
 
         if (!in_array($data->status_id, [Data::STATUS_TERPUBLIKASI, Data::STATUS_SIAP_PUBLIKASI])) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Data belum siap/terpublikasi')
-            ]);
+            Alert::error('Gagal', 'Data belum siap/terpublikasi');
+            return redirect()->back();
         }
 
         if (in_array(strtolower($data->jenis_data), ['variabel', 'indikator'])) {
@@ -638,9 +632,8 @@ class PublikasiController extends Controller
         file_put_contents($tmpArchivePath, NULL);
 
         if ($archive->open($tmpArchivePath, ZipArchive::CREATE) !== TRUE) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Gagal membuat berkas zip')
-            ]);
+            Alert::error('Gagal', 'Gagal membuat berkas zip');
+            return redirect()->back();
         }
 
         $archive->addFile($filePath, 'Informasi Data.xlsx');
