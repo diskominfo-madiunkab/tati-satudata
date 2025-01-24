@@ -1476,7 +1476,6 @@ class DataController extends Controller
             }
         }
         // dd($seriesDataLine);
-
         $kategori = json_encode($kategori);
         $axis_y = json_encode($axis_y);
         $axis_x = json_encode($axis_x);

@@ -355,7 +355,7 @@
                 <div class="service-slider-area owl-carousel">
                     @foreach ($boxvalue as $dt)
                         <div class="service-card-2"
-                            style="height: 40vh; background-color: #f8f9fa; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                            style="min-height: 40vh; background-color: #f8f9fa; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
                             <div style="flex-grow: 1;">
                                 <div style="margin-top: -15px;">
                                     {!! $dt->logo !!}
@@ -369,9 +369,9 @@
                                     style="font-size: 40px; display: block; margin-top: 10px;">{{ $dt->ringkasan_nilai }}</b>
                                 <p style="font-size: 16px; color: #6c757d;">{{ $dt->satuan }}</p>
                             </div>
-                            <a class="read-more-btn"
+                            {{-- <a class="read-more-btn"
                                 style="margin-top: 15px; color: #fff; background-color: #007bff; padding: 10px 20px; border-radius: 25px; text-decoration: none; display: inline-block;"
-                                href="{{ route('dataset.show', $dt->data->publikasi->dataset_id) }}">Lihat data</a>
+                                href="{{ route('dataset.show', $dt->data->publikasi->dataset_id) }}">Lihat data</a> --}}
                         </div>
                     @endforeach
                 </div>
@@ -529,9 +529,9 @@
                     url: '{{ url('reload-captcha') }}',
                     success: function(data) {
                         var timestamp = new Date()
-                    .getTime(); // Generate unique timestamp to prevent caching
+                            .getTime(); // Generate unique timestamp to prevent caching
                         $('.captcha span img').attr('src', data.captcha + '?' +
-                        timestamp); // Update the captcha image URL with timestamp
+                            timestamp); // Update the captcha image URL with timestamp
                     }
                 });
             });

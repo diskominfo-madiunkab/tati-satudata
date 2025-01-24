@@ -689,7 +689,6 @@ class PengumpulanController extends Controller
             $data->load('verifikasi');
         }
         $document = Document::where('type', 'INDIKATOR')->get();
-
         return view('pages.contents.produsen.pengumpulan.form-indikator', compact('data', 'existingData', 'getdata', 'document'));
     }
 
@@ -709,9 +708,8 @@ class PengumpulanController extends Controller
         $import = new MetadataIndikatorImport($data->id, $data->nama_data);
         $import->model($meta->all());
 
-        return redirect()->back()->with([
-            Alert::success('Berhasil', 'Import metadata berhasil. Silahkan periksa kembali hasil import metadata')
-        ]);
+        Alert::success('Berhasil', 'Import metadata berhasil. Silahkan periksa kembali hasil import metadata');
+        return redirect()->back();
     }
 
     public function simpanIndikator($id, Request $request)
