@@ -139,10 +139,10 @@ dd();
     // Cek status dan sesuaikan URL
     if (status === 'publikasi') {
     url = "{{ url('/data_produsen/penyebarluasan') }}";
-    
+
     }else if (status === 'terpublikasi') {
     url = "{{ url('/data_produsen/penyebarluasan/terpublikasi') }}";
-    
+
     }else if (status === 'siap-publikasi') {
     url = "{{ route('produsen.verifikasi.sesuai') }}";
     }
@@ -157,16 +157,16 @@ dd();
         $('#opd').val(localStorage.getItem('opd')).trigger('change');
         }
         }
-        
+
         // Save filter values to local storage when changed
         $('#tahun').on('change', function() {
         localStorage.setItem('tahun', $(this).val());
         });
-        
+
         $('#opd').on('change', function() {
         localStorage.setItem('opd', $(this).val());
         });
-        
+
         // Apply filters from local storage on page load
         setFiltersFromLocalStorage();
           var table = $('#id-table').DataTable({
@@ -196,7 +196,7 @@ dd();
             { "data": "jenis_data" },
             { "data": "sumber_data" },
             { "data": "tahun" },
-            { "data": "opd.nama_opd" }, 
+            { "data": "opd.nama_opd" },
             { "data": "updated_at" },
             {
             "data": "prioritas",
@@ -210,7 +210,7 @@ dd();
                 buttonsHtml += '<i style="color:orange" class="bi bi-star-fill"></i>';
                 }
                 buttonsHtml += '</div>';
-            
+
             return buttonsHtml;
             }
             },
@@ -229,10 +229,10 @@ dd();
                     } else {
                     }
                 }
-              
+
                 buttonsHtml += '<a class="btn btn-outline-primary btn-sm" href="/data_produsen/detail-data/' + full.id + '"><i class="bi bi-eye"></i>Detail Data</a>';
                 buttonsHtml += '</div>';
-            
+
             return buttonsHtml;
             }
             }
@@ -242,7 +242,7 @@ dd();
             $('#opd, #tahun').change(function() {
             table.draw();
             });
-            
+
             $(document).ready(function() {
             const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -306,7 +306,7 @@ dd();
             var role = '{{ $role }}';
             var STATUS_SIAP_PUBLIKASI = '{{\App\Models\Data::STATUS_SIAP_PUBLIKASI}}';
             var STATUS_TERPUBLIKASI = '{{\App\Models\Data::STATUS_TERPUBLIKASI}}';
-            
+
             var formData = {
                 tahun : $('#tahun').val(),
                 status : status,
@@ -345,7 +345,7 @@ dd();
                         if(datas.length == null){
                         divdatakosong.style.display = 'none';
                         }
-                    
+
                         var tableRow = '<tr>' +
                             '<td>' + (i + 1) + '</td>' +
                             '<td>' + datas.nama_data + '</td>' +
@@ -365,12 +365,12 @@ dd();
                             }
 
                         tableRow += '</div>' +
-                                '</td>' + 
+                                '</td>' +
                             '</tr>';
 
                             $('#isiTable').append(tableRow);
                     })
-                    
+
                 }
             })
         }
@@ -380,13 +380,13 @@ dd();
         var searchValue = $(this).val().toLowerCase();
         filterTable(searchValue);
         });
-        
+
         function filterTable(value) {
         $('#isiTable tr').filter(function() {
         $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
         }
-        
+
         $('#searchInput').keyup(function() {
         var searchValue = $(this).val().toLowerCase();
         filterTable(searchValue);
@@ -395,7 +395,7 @@ dd();
         var role = '{{ $role }}';
         var STATUS_SIAP_PUBLIKASI = '{{\App\Models\Data::STATUS_SIAP_PUBLIKASI}}';
         var STATUS_TERPUBLIKASI = '{{\App\Models\Data::STATUS_TERPUBLIKASI}}';
-        
+
         var formData = {
         tahun : $('#tahun').val(),
         status : status,
@@ -429,14 +429,14 @@ dd();
         success: function success(result) {
         console.log(result);
         $('#isiTable').empty();
-        
+
         var no = 1;
         var first = true;
         result.data.forEach(function(datas, i) {
         if(datas.length == null){
         divdatakosong.style.display = 'none';
         }
-        
+
         var tableRow = '<tr>' +
             '<td>' + (i + 1) + '</td>' +
             '<td>' + datas.nama_data + '</td>' +
@@ -454,14 +454,14 @@ dd();
                     } else {
                     tableRow += '<a class="btn btn-outline-primary btn-sm" href="/data_walidata/detail-data/'+ datas.id +'"><i class="bi bi-eye"></i> Informasi Data</a>';
                     }
-        
+
                     tableRow += '</div>' +
                 '</td>' +
             '</tr>';
-        
+
         $('#isiTable').append(tableRow);
         })
-        
+
         }
         })
 

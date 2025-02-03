@@ -725,9 +725,7 @@ class PengumpulanController extends Controller
             'metode_image' => 'nullable|image'
         ]);
 
-
         $formData = $request->all();
-
         if ($request->hasFile('metode_image')) {
             $formData['metode'] = $request->file('metode_image')->storeAs('public/exports/' . Str::slug($data->nama_data), $request->file('metode_image')->getClientOriginalName());
         }
