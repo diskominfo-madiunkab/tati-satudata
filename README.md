@@ -7,6 +7,30 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Tentang SDI Kab Madiun
+
+SDI Kabupaten Madiun merupakan platform batu Data Indonesia dari Kabupaten Madiun untuk sebagai media penyelenggaraan Satu Data Kabupaten Madiun, mulai dari perencanaan data, pengumpulan data, pemeriksaan data, dan penyebarluasan data.
+
+## Kebutuhan Sistem
+
+- PHP 8.2
+- MariaDB
+- Nginx
+- Laravel 11
+- Docker
+
+## Tutorial Deployment
+
+- git clone 
+- cd sdi-madiun
+- docker compose up -d
+- Masuk container laravelnya
+- composer install
+- cp .env.example .env
+- php artisan key:generate
+- Sesuaikan DB pada .env
+- php artisan migrate --seed
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
