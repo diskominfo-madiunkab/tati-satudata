@@ -3,7 +3,6 @@ services:
     #PHP Service
     sdi-madiun:
         container_name: sdi-madiun
-        network_mode: host
         build:
             context: ./dockerconf
             args:
@@ -37,3 +36,6 @@ services:
         networks:
             - sdi-madiun-network
 
+networks:
+    sdi-madiun-network:
+        name: sdi-madiun-network
