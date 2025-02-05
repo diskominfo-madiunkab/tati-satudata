@@ -37,6 +37,3 @@ services:
         networks:
             - sdi-madiun-network
 
-networks:
-    sdi-madiun-network:
-        name: sdi-madiun-network
