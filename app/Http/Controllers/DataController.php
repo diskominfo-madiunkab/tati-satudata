@@ -20,14 +20,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use RealRashid\SweetAlert\Facades\Alert;
-use SweetAlert;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Http;
-
 
 class DataController extends Controller
 {
@@ -46,6 +44,7 @@ class DataController extends Controller
             $opd = $opdsQuery->get();
             $status = '3';
             $tahun = MasterTahun::where('is_active', 1)->get();
+
             return view('pages.contents.administrator.indexdata', compact('data', 'opd', 'tahun', 'status'));
         } elseif (Auth::user()->role_id == '2' || Auth::user()->role_id == 4 || Auth::user()->role_id == 5) {
             // dd(Auth::user()->role_id);
@@ -58,13 +57,13 @@ class DataController extends Controller
             $opd = $opdsQuery->get();
             $status = '3';
             // $data2 = Data::data_draft_walidata();
-            $data = Cache::remember('data:pengumpulan:proses:' . auth()->user()->opd_id, 30, fn() => Data::whereIn('status_id', [Data::STATUS_DRAFT])
-                ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
+            $data = Cache::remember('data:pengumpulan:proses:'.auth()->user()->opd_id, 30, fn () => Data::whereIn('status_id', [Data::STATUS_DRAFT])
+                ->when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))
                 ->with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan'])
                 ->where('tahun', $year)
                 ->latest()
                 ->get());
-            $data = Cache::remember('data:pengumpulan:proses:' . auth()->user()->opd_id, 30, function () use ($year) {
+            $data = Cache::remember('data:pengumpulan:proses:'.auth()->user()->opd_id, 30, function () {
                 return Data::whereIn('status_id', [Data::STATUS_DRAFT])
                     ->when(auth()->user()->hasAnyRole('produsen'), function ($query) {
                         $query->where(function ($query) {
@@ -80,18 +79,18 @@ class DataController extends Controller
 
             if ($request->ajax()) {
                 $query =
-                    DB::table("data")
-                    ->join("opds", function ($join) {
-                        $join->on("data.opd_id", "=", "opds.id");
-                    })
-                    ->join("status", function ($join) {
-                        $join->on("data.status_id", "=", "status.id");
-                    })
-                    ->join("users", function ($join) {
-                        $join->on("data.user_id", "=", "users.id");
-                    })
-                    ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "data.opd_id", "data.id", "data_prioritas", "data.kodeindikator")
-                    ->where('status_id', '=', Data::STATUS_DRAFT);
+                    DB::table('data')
+                        ->join('opds', function ($join) {
+                            $join->on('data.opd_id', '=', 'opds.id');
+                        })
+                        ->join('status', function ($join) {
+                            $join->on('data.status_id', '=', 'status.id');
+                        })
+                        ->join('users', function ($join) {
+                            $join->on('data.user_id', '=', 'users.id');
+                        })
+                        ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'data.opd_id', 'data.id', 'data_prioritas', 'data.kodeindikator')
+                        ->where('status_id', '=', Data::STATUS_DRAFT);
                 if (Auth::user()->role_id == 4) {
                     $query->where(function ($q) {
                         $q->where('data.opd_id', auth()->user()->opd_id)
@@ -111,7 +110,6 @@ class DataController extends Controller
                 // } elseif ($request->opd == null && $request->tahun != null) {
                 //     $query->where('tahun', $request->tahun);
                 // }
-
 
                 $data = $query->orderBy('tahun', 'DESC')->get();
 
@@ -145,25 +143,23 @@ class DataController extends Controller
             $status = '3';
             if ($request->ajax()) {
                 $query =
-                    DB::table("data")
-                    ->join("opds", function ($join) {
-                        $join->on("data.opd_id", "=", "opds.id");
-                    })
-                    ->join("status", function ($join) {
-                        $join->on("data.status_id", "=", "status.id");
-                    })
-                    ->join("users", function ($join) {
-                        $join->on("data.user_id", "=", "users.id");
-                    })
-                    ->select("nama_opd", "tahun", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id", "data_prioritas")
-                    ->where('status_id', Data::STATUS_DRAFT)
-                    ->where('opds.id', '=', Auth::user()->opd_id);
-
+                    DB::table('data')
+                        ->join('opds', function ($join) {
+                            $join->on('data.opd_id', '=', 'opds.id');
+                        })
+                        ->join('status', function ($join) {
+                            $join->on('data.status_id', '=', 'status.id');
+                        })
+                        ->join('users', function ($join) {
+                            $join->on('data.user_id', '=', 'users.id');
+                        })
+                        ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                        ->where('status_id', Data::STATUS_DRAFT)
+                        ->where('opds.id', '=', Auth::user()->opd_id);
 
                 if ($request->tahun != null) {
                     $query->where('tahun', $request->tahun);
                 }
-
 
                 $data = $query->orderBy('tahun', 'DESC')->get();
                 // Tambahkan nomor urut secara manual pada setiap baris data
@@ -191,9 +187,9 @@ class DataController extends Controller
     {
         $data = Data::findOrFail($id);
         $progress = $data->calculateProgress();
+
         return response()->json(['progress' => $progress]);
     }
-
 
     public function filterData(Request $request)
     {
@@ -221,7 +217,6 @@ class DataController extends Controller
         return response()->json($filteredData);
     }
 
-
     public function data_filter_tahun(Request $request)
     {
         // dd($request->all());
@@ -233,10 +228,11 @@ class DataController extends Controller
                 ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
             $opd = $opdsQuery->get();
             $tahun = MasterTahun::where('is_active', 1)->get();
-            return response()->json(array(
-                "success" => true,
-                "data" => $data
-            ));
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
             // return view('pages.contents.administrator.indexdata', compact('data', 'opd'));
         } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
             if ($status == 1) {
@@ -254,10 +250,11 @@ class DataController extends Controller
             $opdsQuery = Opd::select('id', 'nama_opd')
                 ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
             $opd = $opdsQuery->get();
-            return response()->json(array(
-                "success" => true,
-                "data" => $data
-            ));
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
             // return view('pages.contents.walidata.indexdata', compact('data', 'file', 'tahun'));
         } elseif (Auth::user()->role_id == '3') {
             if ($status == 1) {
@@ -274,10 +271,11 @@ class DataController extends Controller
                 ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
             $opd = $opdsQuery->get();
             $tahun = MasterTahun::where('is_active', 1)->get();
-            return response()->json(array(
-                "success" => true,
-                "data" => $data
-            ));
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
             // return view('pages.contents.produsen.indexdata', compact('data', 'draft'));
         }
     }
@@ -351,33 +349,32 @@ class DataController extends Controller
         $year = date('Y') - 1;
         $get_data = Data::data_draft_walidata();
         $data =
-            DB::table("data")
-            ->join("opds", function ($join) {
-                $join->on("data.opd_id", "=", "opds.id");
-            })
-            ->join("status", function ($join) {
-                $join->on("data.status_id", "=", "status.id");
-            })
-            ->join("users", function ($join) {
-                $join->on("data.user_id", "=", "users.id");
-            })
-            ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id",)
-            ->where('tahun', '=', $year)
-            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
-            ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
+            DB::table('data')
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
+                })
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
+                })
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
+                })
+                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+                ->where('tahun', '=', $year)
+                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
         // ->get();
-        if (!empty($request->opd)) {
+        if (! empty($request->opd)) {
             $data = $data->where('opds.id', $request->opd)->get();
         } else {
             $data = $data->get();
         }
 
-
         // dd($data);
-        return response()->json(array(
-            "success" => true,
-            "data" => $data
-        ));
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ]);
     }
 
     public function show()
@@ -388,13 +385,16 @@ class DataController extends Controller
             $opdsQuery = Opd::select('id', 'nama_opd')
                 ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
             $opd = $opdsQuery->get();
-            return view('pages.contents.administrator.indexdata', compact('data', 'opd',));
+
+            return view('pages.contents.administrator.indexdata', compact('data', 'opd'));
         } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
             $data = Data::data_draft_walidata();
+
             return view('pages.contents.walidata.indexdata', compact('data'));
         } elseif (Auth::user()->role_id == '3') {
             $data = Data::data_produsen();
             $draft = Data::get_draft()->count();
+
             return view('pages.contents.produsen.indexdata', compact('data', 'draft'));
         }
     }
@@ -411,21 +411,21 @@ class DataController extends Controller
         $get_data = Data::data_draft_walidata();
         // dd($get_data->pluck('nama_data'));
         $data_tahun =
-            DB::table("data")
-            ->join("opds", function ($join) {
-                $join->on("data.opd_id", "=", "opds.id");
-            })
-            ->join("status", function ($join) {
-                $join->on("data.status_id", "=", "status.id");
-            })
-            ->join("users", function ($join) {
-                $join->on("data.user_id", "=", "users.id");
-            })
-            ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id",)
-            ->where('tahun', '=', $year)
-            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
-            ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
-            ->get();
+            DB::table('data')
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
+                })
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
+                })
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
+                })
+                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+                ->where('tahun', '=', $year)
+                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
+                ->get();
         // $data_tahun = Data::whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI, Data::STATUS_SETUJU])
         //     ->with(['opd', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan'])
         //     ->get();
@@ -439,13 +439,17 @@ class DataController extends Controller
         // get e-walidata
         $response = Http::withToken('4ddba5c8f23a81e75d62731ce590a661')
             ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
-                'kodepemda' => '3519'
+                'kodepemda' => '3519',
             ]);
         $sipd = $response->json();
-        // dd($sipd);
+        // dd($sipd, $response);
+        if (! $response->ok()) {
+            $sipd = [];
+        }
 
         return view('pages.contents.walidata.createdata', compact('data_tahun', 'opd', 'data', 'sumber', 'tahun', 'sipd'));
     }
+
     public function fetch_data_sipd(Request $request)
     {
 
@@ -466,22 +470,21 @@ class DataController extends Controller
     {
         $get_data = Data::data_draft_walidata();
         $query =
-            DB::table("data")
-            ->join("opds", function ($join) {
-                $join->on("data.opd_id", "=", "opds.id");
-            })
-            ->join("status", function ($join) {
-                $join->on("data.status_id", "=", "status.id");
-            })
-            ->join("users", function ($join) {
-                $join->on("data.user_id", "=", "users.id");
-            })
-            ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id",)
-
-            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+            DB::table('data')
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
+                })
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
+                })
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
+                })
+                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
             // ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
-            ->whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
-            ->orderBy('tahun', 'DESC');
+                ->whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
+                ->orderBy('tahun', 'DESC');
         if ($request->tahun != null) {
             $query->where('tahun', $request->tahun);
         }
@@ -491,6 +494,7 @@ class DataController extends Controller
         }
 
         $data = $query->orderBy('tahun', 'DESC')->get();
+
         return DataTables::of($data)
             ->make(true);
     }
@@ -505,6 +509,7 @@ class DataController extends Controller
         // dd($existingData);
         if ($existingData > 0) {
             Alert::error('Gagal', 'Data sudah terdaftar pada sistem');
+
             return back();
         }
         // dd($request);
@@ -525,25 +530,29 @@ class DataController extends Controller
         // dd($create);
 
         if ($create) {
-            activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: ' . $create->nama_data);
+            activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: '.$create->nama_data);
 
             if (Auth::user()->role_id == '1') {
                 Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+
                 return redirect('/data_produsen/draft');
             }
 
             return redirect('/home');
         }
         Alert::error('Gagal', 'Gagal menambahkan Data!');
+
         return
             back()
-            ->withInput();
+                ->withInput();
     }
 
     public function add_data_tahun_lalu(Request $request)
@@ -568,16 +577,17 @@ class DataController extends Controller
             ]);
         }
         Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+
         return redirect('/data_walidata/draft');
     }
-
 
     public function restore(Request $request, $id)
     {
         $data = Data::findOrFail($id);
 
-        if (!in_array($data->status_id, [Data::STATUS_SETUJU, Data::STATUS_TOLAK])) {
+        if (! in_array($data->status_id, [Data::STATUS_SETUJU, Data::STATUS_TOLAK])) {
             Alert::error('Gagal', 'Data tidak dapat direstore, status harus setuju/tolak');
+
             return back();
         }
 
@@ -591,14 +601,17 @@ class DataController extends Controller
                 activity()
                     ->performedOn($data)->log('Merestore Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Direstore!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 activity()->performedOn($data)->log('Merestore Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Direstore!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Merestore Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Direstore!');
+
                 return redirect('/data_produsen/draft');
             }
 
@@ -606,6 +619,7 @@ class DataController extends Controller
         }
 
         Alert::error('Gagal', 'Data Gagal Direstore!');
+
         return back()
             ->withInput();
     }
@@ -618,6 +632,7 @@ class DataController extends Controller
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
         $opd = $opdsQuery->get();
+
         return view('pages.contents.walidata.detaildata', compact('data', 'opd', 'detail'));
     }
 
@@ -630,6 +645,7 @@ class DataController extends Controller
         $opd = $opdsQuery->get();
         $sumber = SumberData::where('is_active', 1)->get();
         $tahun = MasterTahun::where('is_active', 1)->get();
+
         return view('pages.contents.walidata.editdata', compact('tahun', 'data', 'sumber', 'opd'));
     }
 
@@ -652,26 +668,29 @@ class DataController extends Controller
             if (Auth::user()->role_id == '1') {
                 activity()->performedOn($data)->log('Mengedit Daftar Data');
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 activity()
                     ->performedOn($data)
                     ->log('Mengedit Daftar Data');
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Mengedit Daftar Data');
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
+
                 return redirect('/data_produsen/draft');
             }
 
             return redirect('/home');
         }
         Alert::error('Gagal', 'Gagal memperbarui Data!');
+
         return back()
             ->withInput();
     }
-
 
     public function destroy($id)
     {
@@ -680,20 +699,23 @@ class DataController extends Controller
 
         if ($data) {
             if (Auth::user()->role_id == '1') {
-                activity()->log('Menghapus Daftar Data ' . $nama_data);
+                activity()->log('Menghapus Daftar Data '.$nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
 
-                activity()->performedOn($data)->log('Menghapus Daftar Data ' . $nama_data);
+                activity()->performedOn($data)->log('Menghapus Daftar Data '.$nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
-                activity()->log('Menghapus Daftar Data' . $nama_data);
+                activity()->log('Menghapus Daftar Data'.$nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
+
                 return redirect('/data_produsen/draft');
             }
 
@@ -701,6 +723,7 @@ class DataController extends Controller
         }
 
         Alert::error('Gagal', 'Gagal memperbarui Data!');
+
         return back()
             ->withInput();
     }
@@ -719,17 +742,17 @@ class DataController extends Controller
         if ($request->ajax()) {
             $year = date('Y');
             // $year = '2022';
-            $query = DB::table("data")
-                ->join("opds", function ($join) {
-                    $join->on("data.opd_id", "=", "opds.id");
+            $query = DB::table('data')
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
                 })
-                ->join("status", function ($join) {
-                    $join->on("data.status_id", "=", "status.id");
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
                 })
-                ->join("users", function ($join) {
-                    $join->on("data.user_id", "=", "users.id");
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
                 })
-                ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "progress", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id", "data_prioritas")
+                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'progress', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
                 ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
             if (Auth::user()->role_id == 4) {
                 $query->where(function ($q) {
@@ -773,6 +796,7 @@ class DataController extends Controller
                 })
                 ->make(true);
         }
+
         return view('pages.contents.walidata.indexdata_setuju', compact('data', 'status', 'tahun', 'opd'));
     }
 
@@ -788,17 +812,17 @@ class DataController extends Controller
         if ($request->ajax()) {
             $year = date('Y');
             // $year = '2022';
-            $query = DB::table("data")
-                ->join("opds", function ($join) {
-                    $join->on("data.opd_id", "=", "opds.id");
+            $query = DB::table('data')
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
                 })
-                ->join("status", function ($join) {
-                    $join->on("data.status_id", "=", "status.id");
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
                 })
-                ->join("users", function ($join) {
-                    $join->on("data.user_id", "=", "users.id");
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
                 })
-                ->select("data_prioritas", "tahun", "nama_opd", "nama_data", "jenis_data", "progress", "sumber_data", "status_id", "status", "alasan", "name", "user_id", "opds.id", "data.id")
+                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'progress', 'sumber_data', 'status_id', 'status', 'alasan', 'name', 'user_id', 'opds.id', 'data.id')
                 ->where('status_id', '=', Data::STATUS_TOLAK);
             if (Auth::user()->role_id == 4) {
                 $query->where(function ($q) {
@@ -842,12 +866,14 @@ class DataController extends Controller
                 })
                 ->make(true);
         }
+
         return view('pages.contents.walidata.indexdata_tolak', compact('data', 'status', 'tahun', 'opd'));
     }
 
     public function get_all_opd()
     {
         $get_all = Data::data_produsen_setuju_all();
+
         return view('pages.contents.walidata.indexall_opd', compact('get_all'));
     }
 
@@ -884,7 +910,6 @@ class DataController extends Controller
         //         }
         //     }
 
-
         //     $data = $query->orderBy('tahun', 'DESC')->get();
         //     // Tambahkan nomor urut secara manual pada setiap baris data
         //     $no = 1;
@@ -903,7 +928,6 @@ class DataController extends Controller
         // }
         return view('pages.contents.walidata.index_get_opd', compact('data', 'opd', 'draft', 'tahun'));
     }
-
 
     public function getData(Request $request)
     {
@@ -952,14 +976,17 @@ class DataController extends Controller
             if (Auth::user()->role_id == '1') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_produsen/draft');
             } else {
                 return redirect('/home');
@@ -967,10 +994,10 @@ class DataController extends Controller
         }
 
         Alert::error('Gagal', 'Data Gagal Disetujui!');
+
         return back()
             ->withInput();
     }
-
 
     public function setuju_data(Request $request)
     {
@@ -984,14 +1011,17 @@ class DataController extends Controller
             if (Auth::user()->role_id == '1') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Menyetujui Daftar Data');
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
+
                 return redirect('/data_produsen/draft');
             } else {
                 return redirect('/home');
@@ -999,6 +1029,7 @@ class DataController extends Controller
         }
 
         Alert::error('Gagal', 'Data Gagal Disetujui!');
+
         return back()
             ->withInput();
     }
@@ -1017,20 +1048,25 @@ class DataController extends Controller
             if (Auth::user()->role_id == '1') {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_produsen/draft');
             }
+
             return redirect('/home');
         }
 
         Alert::error('Gagal', 'Gagal Menolak Data dan Memberi Alasan!');
+
         return back()
             ->withInput();
     }
@@ -1049,28 +1085,33 @@ class DataController extends Controller
             if (Auth::user()->role_id == '1') {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
                 activity()->performedOn($data)->log('Menolak Daftar Data');
                 Alert::success('Berhasil', 'Berhasil Menolak Data dan Memberi Alasan!');
+
                 return redirect('/data_produsen/draft');
             }
+
             return redirect('/home');
         }
 
         Alert::error('Gagal', 'Gagal Menolak Data dan Memberi Alasan!');
+
         return back()
             ->withInput();
     }
 
-
     public function verifikasi_data()
     {
         $verifikasi = Data::verifikasi_data();
+
         return view('pages.contents.produsen.indexverifikasi', compact('verifikasi'));
     }
 
@@ -1080,31 +1121,29 @@ class DataController extends Controller
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
         $opd = $opdsQuery->get();
-        $data = Cache::remember('data:setujui:' . auth()->user()->opd_id, 30, fn() => Data::selesai_konfirmasi());
+        $data = Cache::remember('data:setujui:'.auth()->user()->opd_id, 30, fn () => Data::selesai_konfirmasi());
         $draft = Data::get_draft()->count();
         $status = '1';
         $tahun = MasterTahun::where('is_active', 1)->get();
         if ($request->ajax()) {
             $query =
-                DB::table("data")
-                ->join("opds", function ($join) {
-                    $join->on("data.opd_id", "=", "opds.id");
-                })
-                ->join("status", function ($join) {
-                    $join->on("data.status_id", "=", "status.id");
-                })
-                ->join("users", function ($join) {
-                    $join->on("data.user_id", "=", "users.id");
-                })
-                ->select("nama_opd", "tahun", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "user_id", "opds.id", "data.id", "data_prioritas")
-                ->where('opds.id', '=', auth()->user()->opd_id)
-                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
-
+                DB::table('data')
+                    ->join('opds', function ($join) {
+                        $join->on('data.opd_id', '=', 'opds.id');
+                    })
+                    ->join('status', function ($join) {
+                        $join->on('data.status_id', '=', 'status.id');
+                    })
+                    ->join('users', function ($join) {
+                        $join->on('data.user_id', '=', 'users.id');
+                    })
+                    ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                    ->where('opds.id', '=', auth()->user()->opd_id)
+                    ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
 
             if ($request->tahun != null) {
                 $query->where('tahun', $request->tahun);
             }
-
 
             $data = $query->orderBy('tahun', 'DESC')->get();
             // Tambahkan nomor urut secara manual pada setiap baris data
@@ -1123,6 +1162,7 @@ class DataController extends Controller
                 })
                 ->make(true);
         }
+
         return view('pages.contents.produsen.indexdata', compact('data', 'draft', 'status', 'tahun', 'opd'));
     }
 
@@ -1138,25 +1178,23 @@ class DataController extends Controller
         $tahun = MasterTahun::where('is_active', 1)->get();
         if ($request->ajax()) {
             $query =
-                DB::table("data")
-                ->join("opds", function ($join) {
-                    $join->on("data.opd_id", "=", "opds.id");
-                })
-                ->join("status", function ($join) {
-                    $join->on("data.status_id", "=", "status.id");
-                })
-                ->join("users", function ($join) {
-                    $join->on("data.user_id", "=", "users.id");
-                })
-                ->select("nama_opd", "tahun", "nama_data", "jenis_data", "sumber_data", "status_id", "status", "name", "alasan", "user_id", "opds.id", "data.id", "data_prioritas")
-                ->where('status_id', '=', Data::STATUS_TOLAK)
-                ->where('opds.id', '=', Auth::user()->opd_id);
-
+                DB::table('data')
+                    ->join('opds', function ($join) {
+                        $join->on('data.opd_id', '=', 'opds.id');
+                    })
+                    ->join('status', function ($join) {
+                        $join->on('data.status_id', '=', 'status.id');
+                    })
+                    ->join('users', function ($join) {
+                        $join->on('data.user_id', '=', 'users.id');
+                    })
+                    ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'alasan', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                    ->where('status_id', '=', Data::STATUS_TOLAK)
+                    ->where('opds.id', '=', Auth::user()->opd_id);
 
             if ($request->tahun != null) {
                 $query->where('tahun', $request->tahun);
             }
-
 
             $data = $query->orderBy('tahun', 'DESC')->get();
             // Tambahkan nomor urut secara manual pada setiap baris data
@@ -1175,6 +1213,7 @@ class DataController extends Controller
                 })
                 ->make(true);
         }
+
         return view('pages.contents.produsen.indexdata', compact('data', 'draft', 'status', 'tahun', 'opd'));
     }
 
@@ -1189,11 +1228,12 @@ class DataController extends Controller
         $path = base_path('public/assets/img/logo.png');
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data1 = file_get_contents($path);
-        $pict = 'data:image/' . $type . ';base64,' . base64_encode($data1);
+        $pict = 'data:image/'.$type.';base64,'.base64_encode($data1);
         $opd = Opd::where('id', '=', $id)->firstOrFail();
         $adminOPD = Opd::where('nama_opd', 'Adminstrator')->firstOrFail();
 
         $pdf = PDF::loadView('pages.contents.pdf', compact('data', 'tahun', 'today', 'pict', 'opd', 'adminOPD'));
+
         return $pdf->setPaper('a4', 'portrait')->setOptions(['defaultFont' => 'serif'])->stream();
     }
 
@@ -1217,11 +1257,10 @@ class DataController extends Controller
         $path = base_path('public/assets/img/logo.png');
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data1 = file_get_contents($path);
-        $pict = 'data:image/' . $type . ';base64,' . base64_encode($data1);
+        $pict = 'data:image/'.$type.';base64,'.base64_encode($data1);
 
         if ($id == 'all') {
             $pdf = PDF::loadView('pages.contents.pdf_all', compact('data', 'hari', 'dt', 'tgl', 'bln', 'tahun', 'pict', 'request_tahun'));
-
 
             return $pdf->setPaper('a4', 'landscape')->setOptions(['defaultFont' => 'serif'])->stream();
         } else {
@@ -1230,7 +1269,6 @@ class DataController extends Controller
             $opd = Opd::where('id', '=', $id)->firstOrFail();
             $pdf = PDF::loadView('pages.contents.pdf', compact('data', 'today', 'pict', 'opd', 'adminOPD', 'request_tahun'));
 
-
             return $pdf->setPaper('a4')->setOptions(['defaultFont' => 'serif'])->stream();
         }
     }
@@ -1238,6 +1276,7 @@ class DataController extends Controller
     public function notif()
     {
         $notif = Data::causer_id();
+
         return view('pages.contents.walidata.notif', compact('notif'));
     }
 
@@ -1256,21 +1295,21 @@ class DataController extends Controller
     public function importData(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls',
         ]);
 
         try {
             Excel::import(new DataImport, $request->file('file'));
             Alert::success('Berhasil', 'Data berhasil diimport');
+
             return back();
         } catch (\Exception $exception) {
             Log::error($exception->getMessage(), ['importData', $exception->getCode()]);
-            Alert::error('Gagal', $exception->getMessage() . PHP_EOL . '. Pastikan Anda menggunakan template yang tepat.');
+            Alert::error('Gagal', $exception->getMessage().PHP_EOL.'. Pastikan Anda menggunakan template yang tepat.');
+
             return back();
         }
     }
-
-
 
     public function detailData($id)
     {
@@ -1292,7 +1331,6 @@ class DataController extends Controller
             foreach ($namaTabels as $namaTabel) {
                 $table = VisualTable::where('id', $namaTabel->id)->where('id_data', $id)->first();
 
-
                 if ($table) {
                     // Mengambil data header terurut berdasarkan urutan menyamping
                     $headers = VisualHeader::where('id_namatabel', $table->id)
@@ -1305,7 +1343,6 @@ class DataController extends Controller
                         ->get()
                         ->groupBy('urutan_kebawah');
 
-
                     // Mengambil data isi terurut berdasarkan urutan kebawah
                     $rows_grafik = VisualIsi::where('id_namatabel', $table->id)
                         ->orderBy('id_header')
@@ -1316,7 +1353,7 @@ class DataController extends Controller
                         'table' => $table,
                         'headers' => $headers,
                         'rows_grafik' => $rows_grafik,
-                        'rows' => $rows
+                        'rows' => $rows,
                     ];
                     break;
                 }
@@ -1395,7 +1432,7 @@ class DataController extends Controller
         // dd($existingData);
 
         foreach ($existingData as $item) {
-            if ($item->header == "Tahun") {
+            if ($item->header == 'Tahun') {
                 $kategori = VisualIsi::where(
                     'id_header',
                     $item->kategori
@@ -1412,7 +1449,7 @@ class DataController extends Controller
                     ->toArray();
             }
 
-            if ($item->axis_x_header == "Tahun") {
+            if ($item->axis_x_header == 'Tahun') {
                 $axis_x = VisualIsi::where('id_header', $item->axis_x)
                     ->orderBy('id_header')
                     ->pluck('isi')
@@ -1426,7 +1463,7 @@ class DataController extends Controller
                     ->toArray();
             }
 
-            if ($item->axis_y_header == "Tahun") {
+            if ($item->axis_y_header == 'Tahun') {
                 $axis_y = VisualIsi::where('id_header', $item->axis_y)
                     ->orderBy('id_header')
                     ->pluck('isi')
@@ -1440,37 +1477,37 @@ class DataController extends Controller
             }
 
             foreach ($kategori as $index => $name) {
-                if ($item->header == "Tahun") {
+                if ($item->header == 'Tahun') {
                     $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
                     $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
                     $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
 
                     $seriesData[$item->id][] = [
                         'name' => $name,
-                        'data' => $data1
+                        'data' => $data1,
                     ];
                 } else {
                     $seriesData[$item->id][] = [
                         'name' => $name,
-                        'data' => array_map('intval', explode(',', $axis_y[$index]))
+                        'data' => array_map('intval', explode(',', $axis_y[$index])),
                     ];
                 }
             }
 
             foreach ($axis_x as $index => $name) {
-                if ($item->header == "Tahun") {
+                if ($item->header == 'Tahun') {
                     $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
                     $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
                     $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
 
                     $seriesDataLine[$item->id][] = [
                         'name' => $name,
-                        'data' => $data1
+                        'data' => $data1,
                     ];
                 } else {
                     $seriesDataLine[$item->id][] = [
                         'name' => $name,
-                        'data' => array_map('intval', explode(',', $axis_y[$index]))
+                        'data' => array_map('intval', explode(',', $axis_y[$index])),
                     ];
                 }
             }
@@ -1524,7 +1561,6 @@ class DataController extends Controller
             foreach ($namaTabels as $namaTabel) {
                 $table = VisualTable::where('id', $namaTabel->id)->where('id_data', $id)->first();
 
-
                 if ($table) {
                     // Mengambil data header terurut berdasarkan urutan menyamping
                     $headers = VisualHeader::where('id_namatabel', $table->id)
@@ -1537,7 +1573,6 @@ class DataController extends Controller
                         ->get()
                         ->groupBy('urutan_kebawah');
 
-
                     // Mengambil data isi terurut berdasarkan urutan kebawah
                     $rows_grafik = VisualIsi::where('id_namatabel', $table->id)
                         ->orderBy('id_header')
@@ -1548,7 +1583,7 @@ class DataController extends Controller
                         'table' => $table,
                         'headers' => $headers,
                         'rows_grafik' => $rows_grafik,
-                        'rows' => $rows
+                        'rows' => $rows,
                     ];
                     break;
                 }
@@ -1627,7 +1662,7 @@ class DataController extends Controller
         // dd($existingData);
 
         foreach ($existingData as $item) {
-            if ($item->header == "Tahun") {
+            if ($item->header == 'Tahun') {
                 $kategori = VisualIsi::where(
                     'id_header',
                     $item->kategori
@@ -1644,7 +1679,7 @@ class DataController extends Controller
                     ->toArray();
             }
 
-            if ($item->axis_x_header == "Tahun") {
+            if ($item->axis_x_header == 'Tahun') {
                 $axis_x = VisualIsi::where('id_header', $item->axis_x)
                     ->orderBy('id_header')
                     ->pluck('isi')
@@ -1658,7 +1693,7 @@ class DataController extends Controller
                     ->toArray();
             }
 
-            if ($item->axis_y_header == "Tahun") {
+            if ($item->axis_y_header == 'Tahun') {
                 $axis_y = VisualIsi::where('id_header', $item->axis_y)
                     ->orderBy('id_header')
                     ->pluck('isi')
@@ -1672,37 +1707,37 @@ class DataController extends Controller
             }
 
             foreach ($kategori as $index => $name) {
-                if ($item->header == "Tahun") {
+                if ($item->header == 'Tahun') {
                     $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
                     $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
                     $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
 
                     $seriesData[$item->id][] = [
                         'name' => $name,
-                        'data' => $data1
+                        'data' => $data1,
                     ];
                 } else {
                     $seriesData[$item->id][] = [
                         'name' => $name,
-                        'data' => array_map('intval', explode(',', $axis_y[$index]))
+                        'data' => array_map('intval', explode(',', $axis_y[$index])),
                     ];
                 }
             }
 
             foreach ($axis_x as $index => $name) {
-                if ($item->header == "Tahun") {
+                if ($item->header == 'Tahun') {
                     $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
                     $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
                     $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
 
                     $seriesDataLine[$item->id][] = [
                         'name' => $name,
-                        'data' => $data1
+                        'data' => $data1,
                     ];
                 } else {
                     $seriesDataLine[$item->id][] = [
                         'name' => $name,
-                        'data' => array_map('intval', explode(',', $axis_y[$index]))
+                        'data' => array_map('intval', explode(',', $axis_y[$index])),
                     ];
                 }
             }
@@ -1746,6 +1781,7 @@ class DataController extends Controller
 
             ]);
             Alert::success('Berhasil', 'Data dijadikan Data Prioritas');
+
             return back();
         } elseif (($data->data_prioritas == 1)) {
             $data->update([
@@ -1753,9 +1789,10 @@ class DataController extends Controller
 
             ]);
             Alert::info('Peringatan', 'Data dijadikan Bukan Data Prioritas');
-            return
-                back();
+
+            return back();
         }
+
         return redirect('/tahun');
     }
 
@@ -1768,6 +1805,7 @@ class DataController extends Controller
 
             ]);
             Alert::success('Berhasil', 'Data dijadikan Data Prioritas');
+
             return back();
         } elseif (($data->data_prioritas == 1)) {
             $data->update([
@@ -1775,8 +1813,10 @@ class DataController extends Controller
 
             ]);
             Alert::info('Peringatan', 'Data dijadikan Bukan Data Prioritas');
+
             return back();
         }
+
         return redirect('/tahun');
     }
 }

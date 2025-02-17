@@ -1,0 +1,48 @@
+version: "3"
+services:
+    #PHP Service
+    sdi-madiun:
+        container_name: sdi-madiun
+        build:
+            context: ./dockerconf
+            args:
+                uid: 1004
+                user: nabil
+            dockerfile: Dockerfile
+        image: "backend"
+        restart: unless-stopped
+        tty: true
+        environment:
+            SERVICE_NAME: sdi-madiun
+            SERVICE_TAGS: dev
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./dockerconf/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - sdi-madiun-network
+            - ckan-docker_ckannet
+            - postgres_apps_net
+
+    # Nginx Service
+    sdi-madiun-nginx:
+        container_name: sdi-madiun-nginx
+        image: nginx:alpine
+        restart: unless-stopped
+        tty: true
+        ports:
+            - 9040:9040
+        volumes:
+            - ./:/var/www
+            - ./dockerconf/nginx.app.staging.conf:/etc/nginx/conf.d/app.conf
+        networks:
+            - sdi-madiun-network
+            - ckan-docker_ckannet
+
+networks:
+    sdi-madiun-network:
+        name: sdi-madiun-network
+    postgres_apps_net:
+        external: true
+    ckan-docker_ckannet:
+        external: true

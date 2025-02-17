@@ -64,6 +64,7 @@ class PortalController extends Controller
 
     public function index()
     {
+        return redirect()->route('login');
         // visitor
 
         // $ch = curl_init();
