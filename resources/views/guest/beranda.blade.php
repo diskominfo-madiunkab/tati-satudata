@@ -247,7 +247,7 @@
                                 </div>
                                 <div class="col-lg-5 col-md-6 col-sm-6 col-6">
                                     <div class="fun-facts-card fun-facts-card-2">
-                                        <a href="http://katalog-data.madiunkab.go.id/organization/" target="_blank">
+                                        <a href="http://ckan-data.madiunkab.go.id/organization/" target="_blank">
                                             <i class="flaticon-government-building"></i>
                                             <h2><span class="odometer"
                                                     data-count="{{ $opd }}">{{ $opd }}</span>

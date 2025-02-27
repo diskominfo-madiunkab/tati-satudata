@@ -519,7 +519,7 @@ class PublikasiController extends Controller
             // dd($dataset['result']['id']);
 
             // URL API CKAN
-            $apiUrl = 'https://katalog-data.madiunkab.go.id/api/3/action/package_create';
+            $apiUrl = 'https://ckan-data.madiunkab.go.id/api/3/action/package_create';
 
             // API Key CKAN (ganti dengan API key yang sesuai)
             $apiKey = 'ca8c7114-12c2-4b3f-a7d5-12ca85a73f60';

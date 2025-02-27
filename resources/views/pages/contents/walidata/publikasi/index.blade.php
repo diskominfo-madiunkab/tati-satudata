@@ -271,7 +271,7 @@
                             if (full.status_id == 9) {
                                 if (full.publikasi && full.publikasi.slug) {
                                     buttonsHtml +=
-                                        '<a href="https://katalog-data.madiunkab.go.id/dataset/' +
+                                        '<a href="https://ckan-data.madiunkab.go.id/dataset/' +
                                         full.publikasi.slug +
                                         '" class="btn btn-outline-primary btn-sm" target="_new">CKAN <i class="bi bi-app-indicator"></i></a>';
                                     buttonsHtml +=
@@ -439,7 +439,7 @@
                             if (datas.status_id == STATUS_TERPUBLIKASI) {
                                 if (datas.publikasi && datas.publikasi.slug) {
                                     tableRow +=
-                                        '<a href="https://katalog-data.madiunkab.go.id/dataset/' +
+                                        '<a href="https://ckan-data.madiunkab.go.id/dataset/' +
                                         datas.publikasi.slug +
                                         '" class="btn btn-outline-primary btn-sm" target="_new">CKAN <i class="bi bi-app-indicator"></i></a>';
                                 }
@@ -547,7 +547,7 @@
                             if (datas.status_id == STATUS_TERPUBLIKASI) {
                                 if (datas.publikasi && datas.publikasi.slug) {
                                     tableRow +=
-                                        '<a href="https://katalog-data.madiunkab.go.id/dataset/' +
+                                        '<a href="https://ckan-data.madiunkab.go.id/dataset/' +
                                         datas.publikasi.slug +
                                         '" class="btn btn-outline-primary btn-sm" target="_new">CKAN <i class="bi bi-app-indicator"></i></a>';
                                 }
