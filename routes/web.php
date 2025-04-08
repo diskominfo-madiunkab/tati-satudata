@@ -277,6 +277,8 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/data_walidata/detail-data-standar/{id}', [DataController::class, 'detailDataStandar'])->name('walidata.data.detailDataStandar');
 });
 
+Route::post('/storeDataByFilter', [PengumpulanController::class, 'storeDataByFilter'])->middleware(['auth:web'])->name('chart.storeDataByFilter');
+
 Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(function () {
     Route::get('/d_produsen', [HomeController::class, 'dashboardProdusen'])->name('d_produsen');
     Route::get('/data_produsen/draft', [DataController::class, 'index'])->name('draft.produsen');
@@ -309,7 +311,6 @@ Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(fu
 
 
     Route::get('/data_produsen/pengumpulan/{id}/data', [PengumpulanController::class, 'detailData'])->name('pengumpulan.visual.grafik');
-    Route::post('/storeDataByFilter', [PengumpulanController::class, 'storeDataByFilter'])->name('chart.storeDataByFilter');
     Route::get('/data_produsen/pengumpulan/{id}/indikator', [PengumpulanController::class, 'indikator'])->name('indikator');
     Route::post('/data_produsen/pengumpulan/{id}/simpan-indikator', [PengumpulanController::class, 'simpanIndikator'])->name('simpan-indikator');
     Route::post('/data_produsen/pengumpulan/{id}/upload-indikator', [PengumpulanController::class, 'importIndikator'])->name('import-indikator');

@@ -36,7 +36,7 @@ class SendFilesToCKAN implements ShouldQueue
         Storage::makeDirectory('public/exports/' . Str::slug($this->data->nama_data));
 
         $jenisData = strtolower($this->data->jenis_data);
-        $metadataPath = Storage::path('public/exports/' . Str::slug($this->data->nama_data) . '/Metadata.xlsx');
+        $metadataPath = Storage::path('public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun . '/Metadata.xlsx');
         if ($jenisData === 'indikator') {
             $metadata = new IndikatorExport($this->data->indikator, $this->data->opd);
         } else if ($jenisData === 'variabel') {
@@ -48,7 +48,7 @@ class SendFilesToCKAN implements ShouldQueue
             if ($metadata->export($metadataPath)) {
                 $sendToCKAN = CkanApi::resource()->create([
                     'package_id' => $this->datasetId,
-                    'url' => asset(Storage::url('public/exports/' . Str::slug($this->data->nama_data) . '/Metadata.xlsx')),
+                    'url' => asset(Storage::url('public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun . '/Metadata.xlsx')),
                     'name' => 'Metadata.xlsx',
                     'format' => 'XLSX',
                     'mimetype' => MimeType::fromExtension('xlsx')

@@ -53,8 +53,8 @@ class GroupController extends Controller
 
         //upload image
         $image = $request->file('image_url');
-        $image->storeAs('public/groups', $image->hashName());
-        $public_path = asset('storage/groups/' . $image->hashName());
+        $path = $image->storeAs('public/groups', $image->hashName());
+        $public_path = Storage::url($path);
         // convert slug
         $slug = Str::slug($request->input('name_group'));
         // timestamp
@@ -80,7 +80,6 @@ class GroupController extends Controller
         //     Log::error('Gagal publikasi data: ' . json_encode($dataset), ['Publikasi']);
         //     throw new \Exception('Error tidak diketahui');
         // }
-        // dd($dataset);
 
         if ($dataset) {
             //redirect dengan pesan sukses
@@ -144,8 +143,16 @@ class GroupController extends Controller
             ]);
         } else {
             $image = $request->file('image_url');
-            $image->storeAs('public/groups', $image->hashName());
-            $public_path = asset('storage/groups/' . $image->hashName());
+
+            $find =  CkanApi::group()->show($id);
+            $data = $find['result'];
+
+            if (Storage::exists('public/groups/' . array_reverse(explode('/', $data['image_display_url']))[0])) {
+                Storage::delete('public/groups/' . array_reverse(explode('/', $data['image_display_url']))[0]);
+            }
+
+            $path = $image->storeAs('public/groups', $image->hashName());
+            $public_path = Storage::url($path);
 
             $data = CkanApi::group()->update([
                 'id' => $id,

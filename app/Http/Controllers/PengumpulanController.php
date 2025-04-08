@@ -602,13 +602,14 @@ class PengumpulanController extends Controller
         ]);
 
         $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($id);
+        dd($data);
 
         if ($data->status_id != Data::STATUS_SETUJU && $data->status_id != Data::STATUS_REVISI) {
             return response()->json(['message' => 'invalid'], 403);
         }
 
         $fileName = $request->file('berkas')->getClientOriginalName();
-        $storedPath = $request->file('berkas')->storeAs('public/exports/' . Str::slug($data->nama_data), $fileName);
+        $storedPath = $request->file('berkas')->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', $fileName);
 
         if (!$storedPath) {
             return response([], 500);

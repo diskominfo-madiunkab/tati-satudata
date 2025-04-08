@@ -713,11 +713,17 @@
                                 </div>
                             @endif
 
-                            {{-- <a
-                            href="{{url()->previous('d_' . (auth()->user()->hasAnyRole('produsen') ? 'produsen' : 'walidata'))}}"
-                            class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a> --}}
-                            <a {{-- href="{{auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan'}}" --}} href="{{ url()->previous() }}"
-                                class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                            {{-- <a href="{{ url()->previous('d_' . (auth()->user()->hasAnyRole('produsen') ? 'produsen' : 'walidata')) }}"
+                                class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a> --}}
+                            @if ($data->status_id == 7)
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/verifikasi/revisi' : '/data_walidata/verifikasi/revisi' }}"
+                                    class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @else
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan' }}"
+                                    class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @endif
 
                         </form><!-- End General Form Elements -->
 

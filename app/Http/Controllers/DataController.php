@@ -57,13 +57,13 @@ class DataController extends Controller
             $opd = $opdsQuery->get();
             $status = '3';
             // $data2 = Data::data_draft_walidata();
-            $data = Cache::remember('data:pengumpulan:proses:'.auth()->user()->opd_id, 30, fn () => Data::whereIn('status_id', [Data::STATUS_DRAFT])
-                ->when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))
+            $data = Cache::remember('data:pengumpulan:proses:' . auth()->user()->opd_id, 30, fn() => Data::whereIn('status_id', [Data::STATUS_DRAFT])
+                ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
                 ->with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan'])
                 ->where('tahun', $year)
                 ->latest()
                 ->get());
-            $data = Cache::remember('data:pengumpulan:proses:'.auth()->user()->opd_id, 30, function () {
+            $data = Cache::remember('data:pengumpulan:proses:' . auth()->user()->opd_id, 30, function () {
                 return Data::whereIn('status_id', [Data::STATUS_DRAFT])
                     ->when(auth()->user()->hasAnyRole('produsen'), function ($query) {
                         $query->where(function ($query) {
@@ -80,17 +80,17 @@ class DataController extends Controller
             if ($request->ajax()) {
                 $query =
                     DB::table('data')
-                        ->join('opds', function ($join) {
-                            $join->on('data.opd_id', '=', 'opds.id');
-                        })
-                        ->join('status', function ($join) {
-                            $join->on('data.status_id', '=', 'status.id');
-                        })
-                        ->join('users', function ($join) {
-                            $join->on('data.user_id', '=', 'users.id');
-                        })
-                        ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'data.opd_id', 'data.id', 'data_prioritas', 'data.kodeindikator')
-                        ->where('status_id', '=', Data::STATUS_DRAFT);
+                    ->join('opds', function ($join) {
+                        $join->on('data.opd_id', '=', 'opds.id');
+                    })
+                    ->join('status', function ($join) {
+                        $join->on('data.status_id', '=', 'status.id');
+                    })
+                    ->join('users', function ($join) {
+                        $join->on('data.user_id', '=', 'users.id');
+                    })
+                    ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'data.opd_id', 'data.id', 'data_prioritas', 'data.kodeindikator')
+                    ->where('status_id', '=', Data::STATUS_DRAFT);
                 if (Auth::user()->role_id == 4) {
                     $query->where(function ($q) {
                         $q->where('data.opd_id', auth()->user()->opd_id)
@@ -144,18 +144,18 @@ class DataController extends Controller
             if ($request->ajax()) {
                 $query =
                     DB::table('data')
-                        ->join('opds', function ($join) {
-                            $join->on('data.opd_id', '=', 'opds.id');
-                        })
-                        ->join('status', function ($join) {
-                            $join->on('data.status_id', '=', 'status.id');
-                        })
-                        ->join('users', function ($join) {
-                            $join->on('data.user_id', '=', 'users.id');
-                        })
-                        ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
-                        ->where('status_id', Data::STATUS_DRAFT)
-                        ->where('opds.id', '=', Auth::user()->opd_id);
+                    ->join('opds', function ($join) {
+                        $join->on('data.opd_id', '=', 'opds.id');
+                    })
+                    ->join('status', function ($join) {
+                        $join->on('data.status_id', '=', 'status.id');
+                    })
+                    ->join('users', function ($join) {
+                        $join->on('data.user_id', '=', 'users.id');
+                    })
+                    ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                    ->where('status_id', Data::STATUS_DRAFT)
+                    ->where('opds.id', '=', Auth::user()->opd_id);
 
                 if ($request->tahun != null) {
                     $query->where('tahun', $request->tahun);
@@ -350,19 +350,19 @@ class DataController extends Controller
         $get_data = Data::data_draft_walidata();
         $data =
             DB::table('data')
-                ->join('opds', function ($join) {
-                    $join->on('data.opd_id', '=', 'opds.id');
-                })
-                ->join('status', function ($join) {
-                    $join->on('data.status_id', '=', 'status.id');
-                })
-                ->join('users', function ($join) {
-                    $join->on('data.user_id', '=', 'users.id');
-                })
-                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
-                ->where('tahun', '=', $year)
-                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
-                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
+            ->join('opds', function ($join) {
+                $join->on('data.opd_id', '=', 'opds.id');
+            })
+            ->join('status', function ($join) {
+                $join->on('data.status_id', '=', 'status.id');
+            })
+            ->join('users', function ($join) {
+                $join->on('data.user_id', '=', 'users.id');
+            })
+            ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+            ->where('tahun', '=', $year)
+            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+            ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
         // ->get();
         if (! empty($request->opd)) {
             $data = $data->where('opds.id', $request->opd)->get();
@@ -412,20 +412,20 @@ class DataController extends Controller
         // dd($get_data->pluck('nama_data'));
         $data_tahun =
             DB::table('data')
-                ->join('opds', function ($join) {
-                    $join->on('data.opd_id', '=', 'opds.id');
-                })
-                ->join('status', function ($join) {
-                    $join->on('data.status_id', '=', 'status.id');
-                })
-                ->join('users', function ($join) {
-                    $join->on('data.user_id', '=', 'users.id');
-                })
-                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
-                ->where('tahun', '=', $year)
-                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
-                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
-                ->get();
+            ->join('opds', function ($join) {
+                $join->on('data.opd_id', '=', 'opds.id');
+            })
+            ->join('status', function ($join) {
+                $join->on('data.status_id', '=', 'status.id');
+            })
+            ->join('users', function ($join) {
+                $join->on('data.user_id', '=', 'users.id');
+            })
+            ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+            ->where('tahun', '=', $year)
+            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+            ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
+            ->get();
         // $data_tahun = Data::whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI, Data::STATUS_SETUJU])
         //     ->with(['opd', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan'])
         //     ->get();
@@ -437,7 +437,7 @@ class DataController extends Controller
         // dd($data_tahun);
 
         // get e-walidata
-        $response = Http::withToken('4ddba5c8f23a81e75d62731ce590a661')
+        $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
             ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
                 'kodepemda' => '3519',
             ]);
@@ -471,20 +471,20 @@ class DataController extends Controller
         $get_data = Data::data_draft_walidata();
         $query =
             DB::table('data')
-                ->join('opds', function ($join) {
-                    $join->on('data.opd_id', '=', 'opds.id');
-                })
-                ->join('status', function ($join) {
-                    $join->on('data.status_id', '=', 'status.id');
-                })
-                ->join('users', function ($join) {
-                    $join->on('data.user_id', '=', 'users.id');
-                })
-                ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
-                ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
+            ->join('opds', function ($join) {
+                $join->on('data.opd_id', '=', 'opds.id');
+            })
+            ->join('status', function ($join) {
+                $join->on('data.status_id', '=', 'status.id');
+            })
+            ->join('users', function ($join) {
+                $join->on('data.user_id', '=', 'users.id');
+            })
+            ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
+            ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
             // ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])
-                ->whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
-                ->orderBy('tahun', 'DESC');
+            ->whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
+            ->orderBy('tahun', 'DESC');
         if ($request->tahun != null) {
             $query->where('tahun', $request->tahun);
         }
@@ -530,7 +530,7 @@ class DataController extends Controller
         // dd($create);
 
         if ($create) {
-            activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: '.$create->nama_data);
+            activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: ' . $create->nama_data);
 
             if (Auth::user()->role_id == '1') {
                 Alert::success('Berhasil', 'Berhasil menambahkan Data!');
@@ -552,7 +552,7 @@ class DataController extends Controller
 
         return
             back()
-                ->withInput();
+            ->withInput();
     }
 
     public function add_data_tahun_lalu(Request $request)
@@ -662,6 +662,7 @@ class DataController extends Controller
             'jadwal_rilis' => $request->jadwal_rilis,
             'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
             'status_id' => $get_statusdata,
+            'tahun' => $request->tahun,
         ]);
 
         if ($data) {
@@ -699,20 +700,20 @@ class DataController extends Controller
 
         if ($data) {
             if (Auth::user()->role_id == '1') {
-                activity()->log('Menghapus Daftar Data '.$nama_data);
+                activity()->log('Menghapus Daftar Data ' . $nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
 
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
 
-                activity()->performedOn($data)->log('Menghapus Daftar Data '.$nama_data);
+                activity()->performedOn($data)->log('Menghapus Daftar Data ' . $nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
 
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
-                activity()->log('Menghapus Daftar Data'.$nama_data);
+                activity()->log('Menghapus Daftar Data' . $nama_data);
                 $data->delete();
                 Alert::success('Berhasil', 'Berhasil Menghapus Data!');
 
@@ -1121,25 +1122,25 @@ class DataController extends Controller
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
         $opd = $opdsQuery->get();
-        $data = Cache::remember('data:setujui:'.auth()->user()->opd_id, 30, fn () => Data::selesai_konfirmasi());
+        $data = Cache::remember('data:setujui:' . auth()->user()->opd_id, 30, fn() => Data::selesai_konfirmasi());
         $draft = Data::get_draft()->count();
         $status = '1';
         $tahun = MasterTahun::where('is_active', 1)->get();
         if ($request->ajax()) {
             $query =
                 DB::table('data')
-                    ->join('opds', function ($join) {
-                        $join->on('data.opd_id', '=', 'opds.id');
-                    })
-                    ->join('status', function ($join) {
-                        $join->on('data.status_id', '=', 'status.id');
-                    })
-                    ->join('users', function ($join) {
-                        $join->on('data.user_id', '=', 'users.id');
-                    })
-                    ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
-                    ->where('opds.id', '=', auth()->user()->opd_id)
-                    ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
+                })
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
+                })
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
+                })
+                ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                ->where('opds.id', '=', auth()->user()->opd_id)
+                ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
 
             if ($request->tahun != null) {
                 $query->where('tahun', $request->tahun);
@@ -1179,18 +1180,18 @@ class DataController extends Controller
         if ($request->ajax()) {
             $query =
                 DB::table('data')
-                    ->join('opds', function ($join) {
-                        $join->on('data.opd_id', '=', 'opds.id');
-                    })
-                    ->join('status', function ($join) {
-                        $join->on('data.status_id', '=', 'status.id');
-                    })
-                    ->join('users', function ($join) {
-                        $join->on('data.user_id', '=', 'users.id');
-                    })
-                    ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'alasan', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
-                    ->where('status_id', '=', Data::STATUS_TOLAK)
-                    ->where('opds.id', '=', Auth::user()->opd_id);
+                ->join('opds', function ($join) {
+                    $join->on('data.opd_id', '=', 'opds.id');
+                })
+                ->join('status', function ($join) {
+                    $join->on('data.status_id', '=', 'status.id');
+                })
+                ->join('users', function ($join) {
+                    $join->on('data.user_id', '=', 'users.id');
+                })
+                ->select('nama_opd', 'tahun', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'alasan', 'user_id', 'opds.id', 'data.id', 'data_prioritas')
+                ->where('status_id', '=', Data::STATUS_TOLAK)
+                ->where('opds.id', '=', Auth::user()->opd_id);
 
             if ($request->tahun != null) {
                 $query->where('tahun', $request->tahun);
@@ -1228,7 +1229,7 @@ class DataController extends Controller
         $path = base_path('public/assets/img/logo.png');
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data1 = file_get_contents($path);
-        $pict = 'data:image/'.$type.';base64,'.base64_encode($data1);
+        $pict = 'data:image/' . $type . ';base64,' . base64_encode($data1);
         $opd = Opd::where('id', '=', $id)->firstOrFail();
         $adminOPD = Opd::where('nama_opd', 'Adminstrator')->firstOrFail();
 
@@ -1257,7 +1258,7 @@ class DataController extends Controller
         $path = base_path('public/assets/img/logo.png');
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data1 = file_get_contents($path);
-        $pict = 'data:image/'.$type.';base64,'.base64_encode($data1);
+        $pict = 'data:image/' . $type . ';base64,' . base64_encode($data1);
 
         if ($id == 'all') {
             $pdf = PDF::loadView('pages.contents.pdf_all', compact('data', 'hari', 'dt', 'tgl', 'bln', 'tahun', 'pict', 'request_tahun'));
@@ -1305,7 +1306,7 @@ class DataController extends Controller
             return back();
         } catch (\Exception $exception) {
             Log::error($exception->getMessage(), ['importData', $exception->getCode()]);
-            Alert::error('Gagal', $exception->getMessage().PHP_EOL.'. Pastikan Anda menggunakan template yang tepat.');
+            Alert::error('Gagal', $exception->getMessage() . PHP_EOL . '. Pastikan Anda menggunakan template yang tepat.');
 
             return back();
         }
@@ -1428,8 +1429,6 @@ class DataController extends Controller
         $kategori = [];
         $seriesData = [];
         $seriesDataLine = [];
-
-        // dd($existingData);
 
         foreach ($existingData as $item) {
             if ($item->header == 'Tahun') {

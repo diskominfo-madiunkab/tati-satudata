@@ -29,7 +29,7 @@ trait RestApiTrait
         $this->setActionUri($uri);
 
         try {
-            $response = $this->client->get($this->uri, ['query' => $data]);
+            $response = $this->client->get($this->uri, ['query' => $data, 'verify' => !app()->environment('local')]);
         } catch (ClientException $e) {
             $response = $e->getResponse();
         } catch (ServerException $e) {
@@ -84,8 +84,8 @@ trait RestApiTrait
         $this->setActionUri($uri);
 
         try {
-            $response = $this->client->post($this->uri, ['json' => $data]);
-        } catch (ClientException|ServerException $e) {
+            $response = $this->client->post($this->uri, ['json' => $data, 'verify' => !app()->environment('local')]);
+        } catch (ClientException | ServerException $e) {
             $response = $e->getResponse();
         }
 

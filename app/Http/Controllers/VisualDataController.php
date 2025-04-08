@@ -91,9 +91,9 @@ class VisualDataController extends Controller
             $fileExtension = $file->getClientOriginalExtension();
 
             // Save the original file first
-            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
             $originalFileName = $file->getClientOriginalName();
-            $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data), $originalFileName);
+            $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', $originalFileName);
 
             if (!$originalStoredPath) {
                 return response([], 500);
@@ -133,8 +133,8 @@ class VisualDataController extends Controller
 
                 // Store the CSV file in the desired location
                 $csvFileName = pathinfo($originalFileName, PATHINFO_FILENAME) . '.csv';
-                $csvStoredPath = 'public/exports/' . Str::slug($data->nama_data) . '/' . $csvFileName;
-                Storage::putFileAs('public/exports/' . Str::slug($data->nama_data), new \Illuminate\Http\File($csvPath), $csvFileName);
+                $csvStoredPath = 'public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/'  . $csvFileName;
+                Storage::putFileAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', new \Illuminate\Http\File($csvPath), $csvFileName);
 
                 if (!Storage::exists($csvStoredPath)) {
                     return response([], 500);
@@ -230,7 +230,7 @@ class VisualDataController extends Controller
             $fileExtension = $file->getClientOriginalExtension();
 
             // Save the original file first
-            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
             $originalFileName = $file->getClientOriginalName();
             $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data), $originalFileName);
 
@@ -368,7 +368,7 @@ class VisualDataController extends Controller
             // dd($fileExtension);
             if ($fileExtension == 'csv') {
                 // dd('siniiii');
-                $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+                $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
                 $fileName = $request->file('berkas')->getClientOriginalName();
                 $storedPath = $request->file('berkas')->storeAs('public/exports/' . Str::slug($data->nama_data), $fileName);
                 if (!$storedPath) {
@@ -455,7 +455,7 @@ class VisualDataController extends Controller
                     }
                 }
             }
-            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
 
             $fileName = $request->file('berkas')->getClientOriginalName();
             $storedPath = $request->file('berkas')->storeAs('public/exports/' . Str::slug($data->nama_data), $fileName);
@@ -734,7 +734,7 @@ class VisualDataController extends Controller
 
 
 
-        $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn ($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+        $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
 
         if ($data->status_id != Data::STATUS_SETUJU && $data->status_id != Data::STATUS_REVISI) {
             return response()->json(['message' => 'invalid'], 403);

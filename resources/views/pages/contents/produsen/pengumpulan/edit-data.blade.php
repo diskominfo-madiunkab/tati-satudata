@@ -303,8 +303,18 @@ dd($data);
                                 @endif
                             </div>
 
-                            {{-- <a href="{{url()->previous('d_' . auth()->user()->role->name)}}" --}} <a {{-- href="{{auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan'}}" --}} href="{{ url()->previous() }}"
-                                class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                            {{-- <a href="{{url()->previous('d_' . auth()->user()->role->name)}}" --}}
+                            @if ($data->status_id == 7)
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/verifikasi/revisi' : '/data_walidata/verifikasi/revisi' }}"
+                                    {{-- href="{{ url()->previous() }}" --}} class="btn btn-outline-secondary"><i
+                                        class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @else
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/pengumpulan' : '/data_walidata/pengumpulan' }}"
+                                    {{-- href="{{ url()->previous() }}" --}} class="btn btn-outline-secondary"><i
+                                        class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @endif
 
                         </div>
                     </div>

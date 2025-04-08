@@ -471,12 +471,10 @@
                                                                     </select>
 
                                                                     <br>
-                                                                    @if (auth()->user()->hasAnyRole('produsen') && ($data->status_id == 10 || $data->status_id == 7))
-                                                                        <button type="submit"
-                                                                            id="btn-submit{{ $k }}"
-                                                                            class="btn btn-success"> Tampilkan
-                                                                        </button>
-                                                                    @endif
+                                                                    <button type="submit"
+                                                                        id="btn-submit{{ $k }}"
+                                                                        class="btn btn-success"> Tampilkan
+                                                                    </button>
                                                                 </form>
                                                             </div>
                                                         </div>

@@ -15,8 +15,8 @@ class GroupRepository extends BaseRepository
     public function all($data = [])
     {
         $defaults = [
-            'limit' => $this->per_page,
-            'offset' => 0,
+            // 'limit' => 1000,
+            // 'offset' => 0,
             'all_fields' => true
         ];
 

@@ -8,7 +8,9 @@ use App\Models\GrafikData;
 use App\Models\MasterTahun;
 use App\Models\Opd;
 use App\Models\Verifikasi;
+use App\Models\VisualHeader;
 use App\Models\VisualIsi;
+use App\Models\VisualTable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -105,6 +107,7 @@ class VerifikasiController extends Controller
         $data = Data::with(['opd', 'berkas', 'verifikasi' => fn($q) => $q->category('berkas')])->findOrFail($id);
         // dd($data);
         $officeLiveUrl = 'https://view.officeapps.live.com/op/view.aspx?src=';
+        // $officeLiveUrl = 'https://docs.google.com/viewer?embedded=true&url=';
         $existingBerkas = $data->berkas->transform(function ($b) use ($data, $officeLiveUrl) {
             $fileExtension = pathinfo($b->name, PATHINFO_EXTENSION);
             $fileType = $fileExtension === 'csv' ? 'CSV' : 'XLSX';
@@ -120,6 +123,45 @@ class VerifikasiController extends Controller
         })->toArray();
         // $dd = Storage::url($existingBerkas['path']);
         // dd($existingBerkas);
+
+        $namaTabels = VisualTable::all();
+        // dd($namaTabels);
+        $tables = []; // Initialize an empty array
+        $headers = []; // Initialize an empty array
+        $rows = []; // Initialize an empty array
+
+        if ($namaTabels->isNotEmpty()) {
+            foreach ($namaTabels as $namaTabel) {
+                $table = VisualTable::where('id', $namaTabel->id)->where('id_data', $id)->first();
+
+                if ($table) {
+                    // Mengambil data header terurut berdasarkan urutan menyamping
+                    $headers = VisualHeader::where('id_namatabel', $table->id)
+                        ->orderBy('urutan_menyamping')
+                        ->get();
+
+                    // Mengambil data isi terurut berdasarkan urutan kebawah
+                    $rows = VisualIsi::where('id_namatabel', $table->id)
+                        ->orderBy('urutan_kebawah')
+                        ->get()
+                        ->groupBy('urutan_kebawah');
+
+                    // Mengambil data isi terurut berdasarkan urutan kebawah
+                    $rows_grafik = VisualIsi::where('id_namatabel', $table->id)
+                        ->orderBy('id_header')
+                        ->get()
+                        ->groupBy('id_header');
+
+                    $tables[] = [
+                        'table' => $table,
+                        'headers' => $headers,
+                        'rows_grafik' => $rows_grafik,
+                        'rows' => $rows,
+                    ];
+                    break;
+                }
+            }
+        }
 
         $existingBerkasIds = array_column($existingBerkas, 'id');
         // dd($existingBerkasIds);
@@ -253,7 +295,7 @@ class VerifikasiController extends Controller
         $axis_y = json_encode($axis_y);
         $axis_x = json_encode($axis_x);
 
-        return view('pages.contents.walidata.verifikasi.berkas', compact('data', 'existingBerkas', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'seriesDataLine'));
+        return view('pages.contents.walidata.verifikasi.berkas', compact('data', 'existingBerkas', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'seriesDataLine', 'tables'));
     }
 
     public function variabel($id)

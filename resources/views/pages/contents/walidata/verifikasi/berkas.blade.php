@@ -46,7 +46,7 @@
                                 </thead>
                                 <tbody>
 
-                                    @foreach ($existingBerkas as $berkas)
+                                    @foreach ($existingBerkas as $k => $berkas)
                                         @php
 
                                             $v = $data->verifikasi->firstWhere('field', $berkas['id']);
@@ -58,55 +58,7 @@
                                                     target="_new">{{ $berkas['name'] ?? '-' }} <i
                                                         class="bi bi-link"></i></a>
                                                 {{-- <p>{{$berkas['officeLive']}}</p> --}}
-                                                @if ($berkas['fileType'] == 'XLSX')
-                                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                                        <li class="nav-item" role="presentation">
-                                                            <button class="nav-link active" id="home-tab"
-                                                                data-bs-toggle="tab"
-                                                                data-bs-target="#home{{ $berkas['id'] }}" type="button"
-                                                                role="tab" aria-controls="home"
-                                                                aria-selected="true">Preview</button>
-                                                        </li>
-                                                        @if ($existingData)
-                                                            <li class="nav-item" role="presentation">
-                                                                <button class="nav-link" id="profile-tab"
-                                                                    data-bs-toggle="tab"
-                                                                    data-bs-target="#profile{{ $berkas['id'] }}"
-                                                                    type="button" role="tab" aria-controls="profile"
-                                                                    aria-selected="false">Grafik</button>
-                                                            </li>
-                                                        @endif
-                                                    </ul>
 
-                                                    <div class="tab-content pt-2" id="myTabContent">
-                                                        <div class="tab-pane fade show active" id="home{{ $berkas['id'] }}"
-                                                            role="tabpanel" aria-labelledby="home-tab">
-                                                            <iframe src="{{ $berkas['officeLive'] }}" frameborder="0"
-                                                                style="width:100%;min-height:640px;"></iframe>
-                                                        </div>
-                                                        <div class="tab-pane fade" id="profile{{ $berkas['id'] }}"
-                                                            role="tabpanel" aria-labelledby="profile-tab">
-                                                            @if ($existingData)
-                                                                <!-- Column Chart -->
-                                                                <h5 class="card-title">Grafik Data {{ $data->nama_data }}
-                                                                </h5>
-                                                                <div>
-                                                                    <label for="chartTypeSelect">Pilih Jenis Grafik:</label>
-                                                                    <select id="chartTypeSelect">
-                                                                        <option value="bar">Bar Chart</option>
-                                                                        <option value="line">Line Chart</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <div id="chartContainer">
-                                                                    <div id="chart"></div>
-                                                                </div>
-                                                                {{-- <div id="columnChart{{ $loop->index }}"></div>
-                                                <div id="lineChart{{ $loop->index }}"></div> --}}
-                                                            @endif
-                                                        </div>
-                                                    </div><!-- End Default Tabs -->
-                                                @endif
 
                                                 <!-- End Column Chart -->
                                             </td>
@@ -155,12 +107,178 @@
                                                 @endif
                                             </td>
                                         </tr>
+                                        @if ($berkas['fileType'] == 'XLSX')
+                                            <tr>
+                                                <td></td>
+                                                <td colspan="4">
+                                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                                        <li class="nav-item" role="presentation">
+                                                            <button class="nav-link active" id="home-tab"
+                                                                data-bs-toggle="tab"
+                                                                data-bs-target="#home{{ $berkas['id'] }}" type="button"
+                                                                role="tab" aria-controls="home"
+                                                                aria-selected="true">Preview</button>
+                                                        </li>
+                                                        @if ($existingData)
+                                                            <li class="nav-item" role="presentation">
+                                                                <button class="nav-link" id="profile-tab"
+                                                                    data-bs-toggle="tab"
+                                                                    data-bs-target="#profile{{ $berkas['id'] }}"
+                                                                    type="button" role="tab" aria-controls="profile"
+                                                                    aria-selected="false">Grafik</button>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
+
+                                                    <div class="tab-content pt-2" id="myTabContent">
+                                                        <div class="tab-pane fade show active" id="home{{ $berkas['id'] }}"
+                                                            role="tabpanel" aria-labelledby="home-tab">
+                                                            <iframe src="{{ $berkas['officeLive'] }}" frameborder="0"
+                                                                style="width:100%;min-height:640px;"></iframe>
+                                                        </div>
+                                                        <div class="tab-pane fade" id="profile{{ $berkas['id'] }}"
+                                                            role="tabpanel" aria-labelledby="profile-tab">
+                                                            @if ($existingData)
+                                                                <!-- Column Chart -->
+                                                                <h5 class="card-title">Grafik Data {{ $data->nama_data }}
+                                                                </h5>
+                                                                <div class="row">
+                                                                    <div class="col-md-9">
+                                                                        <div>
+                                                                            <label for="chartTypeSelect">Pilih Jenis
+                                                                                Grafik:</label>
+                                                                            <select id="chartTypeSelect">
+                                                                                <option value="bar">Bar Chart</option>
+                                                                                <option value="line">Line Chart</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div id="chartContainer">
+                                                                            <div id="chart"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        @foreach ($tables as $k => $table)
+                                                                            <div class="card" style="margin-bottom: 55%">
+                                                                                <div class="card-body">
+                                                                                    <form
+                                                                                        id="grafikForm{{ $k }}"
+                                                                                        action="{{ route('chart.storeDataByFilter') }}"
+                                                                                        method="POST"
+                                                                                        enctype="multipart/form-data">
+                                                                                        @csrf
+                                                                                        <input type="text" name="id_data"
+                                                                                            id="id_data"
+                                                                                            value="{{ $data->id }}"
+                                                                                            hidden>
+                                                                                        <input type="text"
+                                                                                            name="id_table" id="id_table"
+                                                                                            value="{{ $table['table']['id'] }}"
+                                                                                            hidden>
+                                                                                        <h5 class="card-title">Filter</h5>
+
+                                                                                        <label
+                                                                                            for="dropdown_axis_x_{{ $table['table']['id'] }}">Axis
+                                                                                            X</label>
+                                                                                        <select name="axis_x"
+                                                                                            id="dropdown_axis_x_{{ $k }}"
+                                                                                            class="form-select select2 select-axis-x"
+                                                                                            aria-label="Default select example">
+                                                                                            <option value="0">-- Data
+                                                                                                Tunggal --</option>
+                                                                                            @foreach ($table['headers'] as $header)
+                                                                                                {{-- @if (empty(sizeOf($existingData)))
+                                                            <option value="">--Tidak Ada Data--</option>
+                                                            @else --}}
+                                                                                                <option
+                                                                                                    value="{{ $header->id }}"
+                                                                                                    @if ($existingData->isNotEmpty() && isset($existingData[$k]) && $existingData[$k]->axis_x == $header->id) selected @endif>
+                                                                                                    {{ $header->header }}
+                                                                                                </option>
+                                                                                                {{-- @endif --}}
+                                                                                            @endforeach
+                                                                                        </select>
+
+                                                                                        <label
+                                                                                            for="dropdown_axis_y_{{ $table['table']['id'] }}">Axis
+                                                                                            Y</label>
+                                                                                        <span
+                                                                                            class="badge border-warning border-1 text-warning">*Inputan
+                                                                                            berupa nilai</span>
+                                                                                        <select name="axis_y"
+                                                                                            id="dropdown_axis_y_{{ $k }}"
+                                                                                            class="form-select select2 select-axis-y"
+                                                                                            aria-label="Default select example">
+                                                                                            @foreach ($table['headers'] as $header)
+                                                                                                {{-- @if (empty(sizeOf($existingData)))
+                                                            <option value="">--Tidak Ada Data--</option>
+                                                            @else --}}
+                                                                                                <option
+                                                                                                    value="{{ $header->id }}"
+                                                                                                    @if ($existingData->isNotEmpty() && isset($existingData[$k]) && $existingData[$k]->axis_y == $header->id) selected @endif>
+                                                                                                    {{ $header->header }}
+                                                                                                </option>
+                                                                                                {{-- @endif --}}
+                                                                                            @endforeach
+                                                                                        </select>
+
+                                                                                        <label
+                                                                                            for="dropdown_category_{{ $table['table']['id'] }}">Kategori</label>
+                                                                                        <select name="kategori"
+                                                                                            id="dropdown_category_{{ $k }}"
+                                                                                            class="form-select select2 select-category"
+                                                                                            aria-label="Default select example">
+                                                                                            @foreach ($table['headers'] as $header)
+                                                                                                {{-- @if (empty(sizeOf($existingData)))
+                                                            <option value="">--Tidak Ada Data--</option>
+                                                            @else --}}
+                                                                                                @if ($header->header == 'Tahun')
+                                                                                                    <option
+                                                                                                        value="{{ $header->id }}"
+                                                                                                        @if ($existingData->isNotEmpty() && isset($existingData[$k]) && $existingData[$k]->kategori == $header->id) selected @endif>
+                                                                                                        {{ $header->header }}
+                                                                                                    </option>
+                                                                                                @endif
+                                                                                                {{-- @endif --}}
+                                                                                            @endforeach
+                                                                                        </select>
+
+                                                                                        <br>
+                                                                                        <button type="submit"
+                                                                                            id="btn-submit{{ $k }}"
+                                                                                            class="btn btn-success">
+                                                                                            Tampilkan
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+
+
+                                                                {{-- <div id="columnChart{{ $loop->index }}"></div>
+                                                                        <div id ="lineChart{{ $loop->index }}"></div> --}}
+                                                            @endif
+                                                        </div>
+                                                    </div><!-- End Default Tabs -->
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
 
-                            <a {{-- href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi') : url('/data_walidata/verifikasi') }}" --}} href="{{ url()->previous() }}" class="btn btn-outline-secondary"><i
-                                    class="bi bi-arrow-left"></i> Kembali</a>
+                            @if ($data->status_id == 7)
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi/revisi') : url('/data_walidata/verifikasi/revisi') }}"
+                                    {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i
+                                        class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @else
+                                <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi') : url('/data_walidata/verifikasi') }}"
+                                    {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i
+                                        class="bi bi-arrow-left"></i>
+                                    Kembali</a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -180,6 +298,8 @@
                 const categories = {!! $axis_x !!};
                 const seriesData{{ $item->id }} = @json($seriesData[$item->id] ?? []);
                 const seriesDataLine{{ $item->id }} = @json($seriesDataLine[$item->id] ?? []);
+
+                console.log(data)
 
                 let myChart = null;
 
@@ -388,7 +508,7 @@
                                                 .catch(error => {
                                                     Swal.showValidationMessage(
                                                         `Request gagal: ${error}`
-                                                        )
+                                                    )
                                                 })
                                         },
                                         allowOutsideClick: () => !Swal.isLoading()
@@ -400,7 +520,7 @@
                                             title: result.value.message
                                         });
                                         location
-                                    .reload(); // Merefresh halaman setelah memberikan komentar
+                                            .reload(); // Merefresh halaman setelah memberikan komentar
                                     });
                                 })
                                 .catch(() => Toast.fire({

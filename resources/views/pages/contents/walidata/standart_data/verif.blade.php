@@ -213,8 +213,9 @@
                                 </div>
                             @endif
 
-                            <a {{-- href="{{auth()->user()->hasAnyRole('produsen') ? '/data_produsen/standar-data' : '/data_walidata/standar-data'}}" --}} href="{{ url()->previous() }}" class="btn btn-outline-secondary"><i
-                                    class="bi bi-arrow-left"></i> Kembali</a>
+                            <a href="{{ auth()->user()->hasAnyRole('produsen') ? '/data_produsen/standar-data' : '/data_walidata/standar-data' }}"
+                                {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                Kembali</a>
 
                         </form>
                     </div>
@@ -286,7 +287,7 @@
                                                 .catch(error => {
                                                     Swal.showValidationMessage(
                                                         `Request gagal: ${error}`
-                                                        )
+                                                    )
                                                 })
                                         },
                                         allowOutsideClick: () => !Swal.isLoading()
@@ -298,7 +299,7 @@
                                             title: result.value.message
                                         });
                                         location
-                                    .reload(); // Merefresh halaman setelah memberikan komentar
+                                            .reload(); // Merefresh halaman setelah memberikan komentar
                                     });
                                 })
                                 .catch(() => Toast.fire({

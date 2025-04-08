@@ -519,10 +519,10 @@ class PublikasiController extends Controller
             // dd($dataset['result']['id']);
 
             // URL API CKAN
-            $apiUrl = 'https://ckan-data.madiunkab.go.id/api/3/action/package_create';
+            $apiUrl = config('ckan_api.url') . '/api' . '/' . config('ckan_api.api_version') . '/action/package_create';
 
             // API Key CKAN (ganti dengan API key yang sesuai)
-            $apiKey = 'ca8c7114-12c2-4b3f-a7d5-12ca85a73f60';
+            $apiKey = config('ckan_api.api_key');
 
             // Buat instance Guzzle client
             $client = new Client();
@@ -558,7 +558,7 @@ class PublikasiController extends Controller
                 ]
             ];
 
-            $response = Http::withToken('4ddba5c8f23a81e75d62731ce590a661')
+            $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
                 ->post('https://sipd.go.id/ewalidata/serv/push_dssd', $payload);
 
 
@@ -578,6 +578,7 @@ class PublikasiController extends Controller
             DB::rollBack();
 
             $errorMsg = isset($responseBody['error']) && isset($responseBody['error']['name']) ? implode(PHP_EOL, $responseBody['error']['name']) : $exception->getMessage();
+            dd($errorMsg);
             Alert::error('Gagal', 'Gagal mempublikasi data, Response CKAN tidak valid: ' . $exception->getCode() . ' | ' . $errorMsg);
             return redirect()->back();
         }

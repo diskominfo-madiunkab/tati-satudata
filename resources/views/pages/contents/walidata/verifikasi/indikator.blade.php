@@ -539,8 +539,15 @@
                                 @endif
                             </div>
                         </form>
-                        <a {{-- href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi') : url('/data_walidata/verifikasi') }}" --}} href="{{ url()->previous() }}" class="btn btn-outline-secondary"><i
-                                class="bi bi-arrow-left"></i> Kembali</a>
+                        @if ($data->status_id == 7)
+                            <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi/revisi') : url('/data_walidata/verifikasi/revisi') }}"
+                                {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                Kembali</a>
+                        @else
+                            <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi') : url('/data_walidata/verifikasi') }}"
+                                {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                Kembali</a>
+                        @endif
                     </div>
                 </div>
 
@@ -609,7 +616,7 @@
                                                 .catch(error => {
                                                     Swal.showValidationMessage(
                                                         `Request gagal: ${error}`
-                                                        )
+                                                    )
                                                 })
                                         },
                                         allowOutsideClick: () => !Swal.isLoading()
@@ -621,7 +628,7 @@
                                             title: result.value.message
                                         });
                                         location
-                                    .reload(); // Merefresh halaman setelah memberikan komentar
+                                            .reload(); // Merefresh halaman setelah memberikan komentar
                                     });
                                 })
                                 .catch(() => Toast.fire({
