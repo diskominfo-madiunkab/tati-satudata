@@ -343,7 +343,7 @@ class StandartDataController extends Controller
         if ($request->ajax()) {
             // dd($request->all());
             $query =
-                Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])
+                Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA, Data::STATUS_PROSES_VERIFIKASI, Data::STATUS_REVISI, Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
                 ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
                 ->with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan']);
 
@@ -490,7 +490,7 @@ class StandartDataController extends Controller
             ->latest()
             ->get();
         $status = 'revisi';
-        // dd($data); 
+        // dd($data);
         // $opd = Opd::all();
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
@@ -569,7 +569,7 @@ class StandartDataController extends Controller
             ->latest()
             ->get();
         $status = 'revisi';
-        // dd($data); 
+        // dd($data);
         // $opd = Opd::all();
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);

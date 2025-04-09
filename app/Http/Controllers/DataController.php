@@ -1240,6 +1240,7 @@ class DataController extends Controller
 
     public function pdf2(Request $request)
     {
+        ini_set('memory_limit', '512M');
         $id = decrypt($request->opd_id);
         // dd($request->all());
         $request_tahun = $request->tahun;
