@@ -72,6 +72,18 @@ class LoginController extends Controller
         return 'username';
     }
 
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+            'captcha' => 'required|captcha'
+        ], [
+            'captcha.captcha' => 'Kode captcha yang dimasukkan tidak valid. Silakan coba lagi.',
+            'captcha.required' => 'Kode captcha wajib diisi'
+        ]);
+    }
+
     protected function attemptLogin(Request $request)
     {
         $credentials = $this->credentials($request);

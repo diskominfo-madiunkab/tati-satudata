@@ -20,6 +20,7 @@ class GroupController extends Controller
      */
     public function index()
     {
+        set_time_limit(600);
         $data = CkanApi::group()->all(['limit' => 100]);
         $result = $data['result'];
         // $data = CkanApi::dataset()->all();
@@ -45,6 +46,7 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+        set_time_limit(600);
         $this->validate($request, [
             'image_url'     => 'required|image|mimes:png,jpg,jpeg',
             'name_group'     => 'required',
@@ -110,6 +112,7 @@ class GroupController extends Controller
      */
     public function edit($id)
     {
+        set_time_limit(600);
         $find =  CkanApi::group()->show($id);
         $data = $find['result'];
         // dd($data);
@@ -125,6 +128,7 @@ class GroupController extends Controller
      */
     public function update(Request $request, $id)
     {
+        set_time_limit(600);
         $this->validate($request, [
             'image_url'     => 'image|mimes:png,jpg,jpeg',
             'name_group'     => 'required',

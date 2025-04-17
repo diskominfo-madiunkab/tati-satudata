@@ -64,6 +64,7 @@ class PortalController extends Controller
 
     public function index()
     {
+        set_time_limit(600);
         // return redirect()->route('login');
         // visitor
 
