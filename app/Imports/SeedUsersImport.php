@@ -25,6 +25,8 @@ class SeedUsersImport implements ToModel, WithHeadingRow
             'opd_id' => $row['opd_id'],
         ]);
 
+        $user->assignRole($row['role_id']);
+
         return $user;
     }
 }
