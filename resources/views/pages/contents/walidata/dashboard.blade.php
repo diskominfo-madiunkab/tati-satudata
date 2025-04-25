@@ -373,7 +373,7 @@
                                 <div class="activity-item d-flex">
                                     <div class="activite-label">{{ optional($a->created_at)->diffForHumans() }}</div>
                                     <i class="bi bi-circle-fill activity-badge text-muted align-self-start"></i>
-                                    <div class="activity-content"><small>{{ $a->causer->name }} -
+                                    <div class="activity-content"><small>{{ $a->causer?->name }} -
                                             {{ $a->description }}</small>
                                     </div>
                                 </div>
