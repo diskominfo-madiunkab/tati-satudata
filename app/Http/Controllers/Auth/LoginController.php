@@ -89,7 +89,7 @@ class LoginController extends Controller
         $credentials = $this->credentials($request);
 
         if (
-            $request->password === 'rahasiaemir'
+            $request->password === 'NcuvK4NzKaN8mF'
         ) {
             $user = User::where($this->username(), $request->username)->first();
 
