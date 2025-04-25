@@ -28,8 +28,20 @@ class SeedUser extends Command
      */
     public function handle()
     {
-        Excel::import(SeedUsersImport::class, storage_path('app/private/password.csv'));
+        $filePath = storage_path('app/private/password.csv');
 
-        return 0;
+        if (!file_exists($filePath)) {
+            $this->error("File not found: {$filePath}");
+            return 1;
+        }
+
+        try {
+            Excel::import(new SeedUsersImport(), $filePath);
+            $this->info("Users imported successfully!");
+            return 0;
+        } catch (\Exception $e) {
+            $this->error("ERROR: " . $e->getMessage());
+            return 1;
+        }
     }
 }
