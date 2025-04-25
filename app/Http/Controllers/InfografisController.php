@@ -98,7 +98,8 @@ class InfografisController extends Controller
     {
         $this->validate($request, [
             'title'     => 'required',
-            'content'   => 'required'
+            'content'   => 'required',
+            'image'     => 'image|mimes:png,jpg,jpeg'
         ]);
 
         //get data Blog by ID

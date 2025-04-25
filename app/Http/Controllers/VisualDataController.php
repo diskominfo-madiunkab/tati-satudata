@@ -85,6 +85,9 @@ class VisualDataController extends Controller
      */
     public function store(Request $request, VisualData $visualData)
     {
+        $request->validate([
+            'berkas' => 'mimes:xlsx'
+        ]);
         try {
             DB::beginTransaction();
             $file = $request->file('berkas');
@@ -359,7 +362,9 @@ class VisualDataController extends Controller
 
     public function store2(Request $request, VisualData $visualData)
     {
-
+        $request->validate([
+            'berkas' => 'mimes:xlsx'
+        ]);
         try {
             DB::beginTransaction();
             $file = $request->file('berkas');
