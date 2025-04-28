@@ -58,7 +58,7 @@ class LoginController extends Controller
         $user = auth()->user();
         if ($user->hasRole('administrator')) {
             return redirect()->route('d_administrator');
-        } elseif ($user->hasRole('walidata') || $user->hasRole('pembina')) {
+        } elseif ($user->hasRole('walidata') || $user->hasRole('pembina') || $user->hasRole('walidatapendukung')) {
             return redirect()->route('d_walidata');
         } elseif ($user->hasRole('produsen')) {
             return redirect()->route('d_produsen');
