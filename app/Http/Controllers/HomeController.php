@@ -9,6 +9,7 @@ use App\Models\MasterTahun;
 use Illuminate\Http\Request;
 use App\Exports\RekapOPDExport;
 use App\Http\Controllers\Controller;
+use App\Rules\PasswordStrength;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -255,7 +256,7 @@ class HomeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string|min:2',
-            'password' => 'required|string|min:5|confirmed',
+            'password' => ['required', 'confirmed', new PasswordStrength],
             'password_confirmation' => 'required|min:5'
         ]);
 

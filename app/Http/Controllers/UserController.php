@@ -7,6 +7,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 // use App\Http\Controllers\UserController;
 use App\Models\User;
+use App\Rules\PasswordStrength;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -45,11 +46,29 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'nama' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'password' => ['required', 'confirmed', new PasswordStrength],
+        ], [
+            'nama.required' => 'Nama wajib diisi',
+            'username.required' => 'Username wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'password.required' => 'Password wajib diisi',
+            'password.confirmed' => 'Password tidak sama',
+        ], [
+            'nama' => 'Nama',
+            'username' => 'Username',
+            'email' => 'Email',
+            'password' => 'Password',
+        ]);
+
         $user = User::create([
             'name' => $request->nama,
             'username' => $request->username,
             'email' => $request->email,
-            'password' => Hash::make('12345678'),
+            'password' => Hash::make($request->password),
             'role_id' => $request->role_id,
             'opd_id' => $request->opd_id,
         ]);
@@ -157,30 +176,27 @@ class UserController extends Controller
     public function changePassword(Request $request, $userId)
     {
         $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:5|confirmed',
-            'password_confirmation' => 'required|min:5'
+            'password' => ['required', 'confirmed', new PasswordStrength],
+            'password_confirmation' => 'required'
         ]);
 
         $user = User::findOrFail($userId);
 
         if ($user->id == auth()->id()) {
-            return redirect()->back()->with([
-                Alert::error('Gagal!', 'Anda tidak dapat merubah password melalui fitur ini')
-            ]);
+            Alert::error('Gagal!', 'Anda tidak dapat merubah password melalui fitur ini');
+            return redirect()->back();
         }
 
+        Alert::error('Gagal!', join("\n", $validator->getMessageBag()->all()));
         if ($validator->fails()) {
-            return redirect()->back()->with([
-                Alert::error('Gagal!', join("\n", $validator->getMessageBag()->all()))
-            ]);
+            return redirect()->back();
         }
 
         $user->update([
             'password' => app('hash')->make($request->get('password'))
         ]);
 
-        return redirect()->back()->with([
-            Alert::success('Berhasil', 'Password berhasil diubah')
-        ]);
+        Alert::success('Berhasil', 'Password berhasil diubah');
+        return redirect()->back();
     }
 }
