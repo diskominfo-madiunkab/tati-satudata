@@ -613,7 +613,7 @@ class Data extends Model implements HasMedia
     }
 
 
-    public function verifikasi_opd()
+    public static function verifikasi_opd()
     {
         return DB::table("data")
             ->join("opds", function ($join) {
@@ -635,18 +635,18 @@ class Data extends Model implements HasMedia
         // return Data::select(opd_id)
     }
 
-    public function data_produsen_setuju()
+    public static function data_produsen_setuju()
     {
         return Data::where('opd_id', '=', Auth::user()->opd_id)->whereNotIn('status_id', [Data::STATUS_TOLAK, Data::STATUS_DRAFT])->orderBy('created_at')->get();
     }
 
 
-    public function data_produsen_setuju_all()
+    public static function data_produsen_setuju_all()
     {
         return Data::where('status_id', '=', 1)->get();
     }
 
-    public function data_produsen_setuju_opd()
+    public static function data_produsen_setuju_opd()
     {
         return Data::where('status_id', '=', 1)->get();
         // where('opd_id', '=', $id)->

@@ -326,7 +326,7 @@ class StandartDataController extends Controller
     {
         $year = date('Y');
         // $year = '2022';
-        $data = Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])
+        $data = Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA, Data::STATUS_PROSES_VERIFIKASI, Data::STATUS_REVISI, Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])
             ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan'])
             ->where('tahun', $year)
