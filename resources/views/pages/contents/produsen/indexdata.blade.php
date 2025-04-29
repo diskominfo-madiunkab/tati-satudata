@@ -84,45 +84,6 @@
 
                         <div class="tab-content p-2">
                             <div class="tab-pane active" id="tab-draft">
-                                @if (isset($status) && $status === '1')
-                                    @if ($draft == 0)
-                                        <form style="margin-bottom: 30px" id="berita-acara" target="_blank"
-                                            action="{{ url('/data_produsen/export-pdf') }}">
-                                            <button type="button" class="btn btn-success"
-                                                onclick="confirmBeritacara('berita-acara')"><i class="bi bi-download"></i>
-                                                Unduh
-                                                Berita Acara</button>
-                                        </form>
-                                    @elseif($draft >= 0)
-                                        <form id="berita-acara"></form>
-                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                            data-bs-target="#beritaacara"><i class="bi bi-download"></i> Unduh
-                                            Berita Acara</button>
-                                        <div class="modal fade" id="beritaacara" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Unduh Berita Acara</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Anda belum bisa mengunduh berita acara dikarenakan masih ada DATA
-                                                        yang
-                                                        berstatus DRAFT
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-danger"
-                                                            data-bs-dismiss="modal">
-                                                            Close
-                                                        </button>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endif
                                 <div class="card">
 
                                     <div class="card-body">
@@ -143,6 +104,52 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                                @if (isset($status) && $status === '1')
+                                                    <div class="col-md-6 d-flex justify-content-end">
+                                                        @if ($draft == 0)
+                                                            <form style="margin-bottom: 30px" id="berita-acara"
+                                                                target="_blank"
+                                                                action="{{ url('/data_produsen/export-pdf') }}">
+                                                                <button type="button" class="btn btn-success"
+                                                                    onclick="confirmBeritacara('berita-acara')"><i
+                                                                        class="bi bi-download"></i>
+                                                                    Unduh
+                                                                    Berita Acara</button>
+                                                            </form>
+                                                        @elseif($draft >= 0)
+                                                            <form id="berita-acara"></form>
+                                                            <button type="button" class="btn btn-danger"
+                                                                data-bs-toggle="modal" data-bs-target="#beritaacara"><i
+                                                                    class="bi bi-download"></i> Unduh
+                                                                Berita Acara</button>
+                                                            <div class="modal fade" id="beritaacara" tabindex="-1">
+                                                                <div class="modal-dialog">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">Unduh Berita Acara</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Anda belum bisa mengunduh berita acara
+                                                                            dikarenakan masih ada DATA
+                                                                            yang
+                                                                            berstatus DRAFT
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-danger"
+                                                                                data-bs-dismiss="modal">
+                                                                                Close
+                                                                            </button>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -218,7 +225,8 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" style="font-weight: bold; color:red">TOLAK DATA !</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <h7 class="modal-title"><i class="bi bi-caret-right-fill"></i>Pastikan
