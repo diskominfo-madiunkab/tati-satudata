@@ -231,71 +231,16 @@
 @push('js')
     <script>
         function passwordCheck(password) {
-            if (password.length >= 8)
+            if (password.length)
                 strength += 1;
-            if (password.match(/(?=.[!,%,&,@,#,$,^,,?,_,~,<,>,])/))
-                strength += 1;
-            if (password.match(/(?=.*[a-z])/))
-                strength += 1;
-            if (password.match(/(?=.*[A-Z])/))
-                strength += 1;
-
-            displayBar(strength);
-
-            if (password.length >= 8) {
-                $('#alert-password-strength-' + strength).html('(' + password.length + '/8 Karakter)');
-                $('#alert-password-strength-' + strength).css('color', 'green');
-            } else {
-                $('#alert-password-strength-' + strength).html('(' + password.length + '/8 Karakter)');
-                $('#alert-password-strength-' + strength).css('color', 'red');
-            }
-        }
-
-        function displayBar(strength) {
-            $(".password-strength-group").attr('data-strength', strength);
-        }
-
-        $("#password").keyup(function() {
-            strength = 0;
-            var password = $(this).val();
-
-            passwordCheck(password);
-        });
-
-        $("#password_confirmation").keyup(function() {
-            var password = $('#password').val();
-            var password_confirmation = $(this).val();
-
-            if (password_confirmation == password) {
-                $('#alert-password-confirm').html('Kata Sandi dan Konfirmasi Kata Sandi Sesuai');
-                $('#alert-password-confirm').css('color', 'green');
-            } else {
-                $('#alert-password-confirm').html('Kata Sandi dan Konfirmasi Kata Sandi Belum Sesuai');
-                $('#alert-password-confirm').css('color', 'red');
-            }
-        });
-
-        function ubahPassword() {
-            var x = document.getElementById("password");
-            var y = document.getElementById("password_confirmation");
-            if (x.type === "password") {
-                x.type = "text";
-                y.type = "text";
-            } else {
-                x.type = "password";
-                y.type = "password";
-            }
-        }
-
-        function passwordCheck(password) {
-            if (password.length >= 8)
-                strength += 1;
-            if (password.match(/(?=.[!,%,&,@,#,$,^,,?,_,~,<,>,])/))
+            if (password.match(/(?=.*[!,%,&,@,#,$,^,?,_,~,<,>])/))
                 strength += 1;
             if (password.match(/(?=.*[a-z])/))
                 strength += 1;
             if (password.match(/(?=.*[A-Z])/))
                 strength += 1;
+            if (password.length < 8 && strength == 4)
+                strength -= 1;
 
             displayBar(strength);
 
