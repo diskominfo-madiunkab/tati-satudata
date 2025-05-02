@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\DataImport;
-use App\Models\Berkas;
-use App\Models\Data;
-use App\Models\Document;
-use App\Models\GrafikData;
-use App\Models\MasterTahun;
-use App\Models\Opd;
-use App\Models\SumberData;
-use App\Models\VisualHeader;
-use App\Models\VisualIsi;
-use App\Models\VisualTable;
-use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
+use App\Models\Opd;
+use App\Models\Data;
+use App\Models\Berkas;
+use App\Models\Document;
+use App\Models\VisualIsi;
+use App\Models\GrafikData;
+use App\Models\SumberData;
+use App\Imports\DataImport;
+use App\Models\MasterTahun;
+use App\Models\VisualTable;
+use Illuminate\Support\Str;
+use App\Models\VisualHeader;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -558,7 +559,7 @@ class DataController extends Controller
     public function add_data_tahun_lalu(Request $request)
     {
         // $data = $request->ids;
-        $data = Data::whereIn('id', $request->ids)->get();
+        $data = Data::with(['standar', 'indikator', 'variabel', 'berkas', 'visualtable.header.isi'])->whereIn('id', $request->ids)->get();
         $user_id = Auth::user()->id;
         $year = date('Y');
         foreach ($data as $item) {
@@ -575,6 +576,85 @@ class DataController extends Controller
                 'data_prioritas' => $item['data_prioritas'],
 
             ]);
+
+
+            $create->standar()->create([
+                'konsep' => $item->standar->konsep,
+                'definisi' => $item->standar->definisi,
+                'klasifikasi' => $item->standar->klasifikasi,
+                'ukuran' => $item->standar->ukuran,
+                'satuan' => $item->standar->satuan,
+                'kode' => $item->standar->kode,
+            ]);
+            if ($item->indikator) {
+                $create->indikator()->create([
+                    'nama' => $item->indikator->nama,
+                    'konsep' => $item->indikator->konsep,
+                    'definisi' => $item->indikator->definisi,
+                    'interpretasi' => $item->indikator->interpretasi,
+                    'metode' => $item->indikator->metode,
+                    'ukuran' => $item->indikator->ukuran,
+                    'satuan' => $item->indikator->satuan,
+                    'klasifikasi_penyajian' => $item->indikator->klasifikasi_penyajian,
+                    'komposit' => $item->indikator->komposit,
+                    'publikasi_indikator_pembangun' => $item->indikator->publikasi_indikator_pembangun,
+                    'nama_indikator_pembangun' => $item->indikator->nama_indikator_pembangun,
+                    'kegiatan_variabel_pembangun' => $item->indikator->kegiatan_variabel_pembangun,
+                    'kode_kegiatan_variabel_pembangun' => $item->indikator->kode_kegiatan_variabel_pembangun,
+                    'nama_variabel_pembangun' => $item->indikator->nama_variabel_pembangun,
+                    'level_estimasi' => $item->indikator->level_estimasi,
+                    'umum' => $item->indikator->umum,
+                ]);
+            }
+            if ($item->variabel) {
+                $create->variabel()->create([
+                    'nama' => $item->variabel->nama,
+                    'konsep' => $item->variabel->konsep,
+                    'alias' => $item->variabel->alias,
+                    'definisi' => $item->variabel->definisi,
+                    'referensi_pemilihan' => $item->variabel->referensi_pemilihan,
+                    'referensi_waktu' => $item->variabel->referensi_waktu,
+                    'tipe_data' => $item->variabel->tipe_data,
+                    'klasifikasi_isian' => $item->variabel->klasifikasi_isian,
+                    'ukuran' => $item->variabel->ukuran,
+                    'satuan' => $item->variabel->satuan,
+                    'aturan_validasi' => $item->variabel->aturan_validasi,
+                    'kalimat_pertanyaan' => $item->variabel->kalimat_pertanyaan,
+                    'umum' => $item->variabel->umum,
+                ]);
+            }
+
+            foreach ($item->berkas as $berkas) {
+                $newPath = 'public/exports/' . Str::slug($item->nama_data) . '/' . $year . '/' . $berkas->name;
+                Storage::copy($berkas->path, $newPath);
+                $create->berkas()->create([
+                    'name' => $berkas->name,
+                    'path' => $newPath,
+                    'size' => $berkas->size,
+                    'tahun' => $year,
+                ]);
+            }
+
+            foreach ($item->visualtable as $visual) {
+                $visualCreate = $create->visualtable()->create([
+                    'namatabel' => $visual->namatabel,
+                ]);
+                foreach ($visual->header as $header) {
+                    $headerCreate = $visualCreate->header()->create([
+                        'id_namatabel' => $visualCreate->id,
+                        'header' => $header->header,
+                        'urutan_menyamping' => $header->urutan_menyamping,
+                    ]);
+                    foreach ($header->isi as $isi) {
+                        $headerCreate->isi()->create([
+                            'id_header' => $headerCreate->id,
+                            'isi' => $isi->isi,
+                            'urutan_kebawah' => $isi->urutan_kebawah,
+                            'id_namatabel' => $visualCreate->id,
+                        ]);
+                    }
+                }
+            }
         }
         Alert::success('Berhasil', 'Berhasil menambahkan Data!');
 
@@ -1218,11 +1298,19 @@ class DataController extends Controller
         return view('pages.contents.produsen.indexdata', compact('data', 'draft', 'status', 'tahun', 'opd'));
     }
 
-    public function pdf()
+    public function pdf(Request $request)
     {
         Carbon::setLocale('id');
         $id = Auth::user()->opd_id;
-        $data = Data::data_produsen_setuju();
+        if ($request->ajax()) {
+            $dataDraft = Data::get_draft($request->get('tahun'))->count();
+            if ($dataDraft > 0) {
+                return response()->json(['message' => 'Anda belum bisa mengunduh berita acara dikarenakan masih ada DATA yang berstatus DRAFT', 'data' => $dataDraft], 400);
+            } else {
+                return response()->json(['message' => 'ok']);
+            }
+        }
+        $data = Data::data_produsen_setuju($request->get('tahun'));
         $today = Carbon::now();
         $tahun = Carbon::now()->translatedFormat('Y');
         // dd($tahun);
