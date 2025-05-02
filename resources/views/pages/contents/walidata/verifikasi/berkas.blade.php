@@ -243,11 +243,13 @@
                                                                                         </select>
 
                                                                                         <br>
-                                                                                        <button type="submit"
-                                                                                            id="btn-submit{{ $k }}"
-                                                                                            class="btn btn-success">
-                                                                                            Tampilkan
-                                                                                        </button>
+                                                                                        @if (auth()->user()->hasRole('produsen'))
+                                                                                            <button type="submit"
+                                                                                                id="btn-submit{{ $k }}"
+                                                                                                class="btn btn-success">
+                                                                                                Tampilkan
+                                                                                            </button>
+                                                                                        @endif
                                                                                     </form>
                                                                                 </div>
                                                                             </div>
