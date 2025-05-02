@@ -185,7 +185,7 @@ class PortalController extends Controller
     {
         $id = decrypt($id);
         $getinfos = Infografis::find($id);
-        $filePath = storage_path('app/public/blogs/' . $getinfos->image);
+        $filePath = storage_path('app/public/public/blogs/' . $getinfos->image);
 
         if (file_exists($filePath)) {
             // Mendapatkan ekstensi file
@@ -203,10 +203,10 @@ class PortalController extends Controller
         $id = decrypt($id);
         $getinfos = Infografis::find($id);
         $konten = $getinfos->content;
-        $imagePath = storage_path('app/public/blogs/' . $getinfos->image);
+        $imagePath = storage_path('app/public/public/blogs/' . $getinfos->image);
         // Menggunakan title sebagai nama file PDF
         $pdfFileName = $getinfos->title . '.pdf';
-        $pdfPath = storage_path('app/public/blogs/' . encrypt($getinfos->id) . '.pdf');
+        $pdfPath = storage_path('app/public/public/blogs/' . encrypt($getinfos->id) . '.pdf');
 
         if (file_exists($imagePath)) {
             // Read image file and encode it to base64
