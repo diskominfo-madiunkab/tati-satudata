@@ -593,10 +593,10 @@ class PublikasiController extends Controller
 
     public function exportData($id)
     {
-        $data = Data::with(['opd', 'berkas', 'standar', 'status'])
-            ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
+        $data = Data::with(['opd', 'berkas', 'standar', 'status', 'indikator', 'variabel'])
+            // ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->findOrFail($id);
-        // dd($data->indikator);
+        // dd($data);
 
         if (!in_array($data->status_id, [Data::STATUS_TERPUBLIKASI, Data::STATUS_SIAP_PUBLIKASI])) {
             Alert::error('Gagal', 'Data belum siap/terpublikasi');
@@ -620,9 +620,10 @@ class PublikasiController extends Controller
 
         $jenisData = strtolower($data->jenis_data);
         $metadataPath = Storage::path('public/exports/' . Str::slug($data->nama_data) . '/Metadata.xlsx');
-        if ($jenisData === 'indikator') {
+        $metadata = null;
+        if ($data->indikator && $jenisData === 'indikator') {
             $metadata = new IndikatorExport($data->indikator, $data->opd);
-        } else if ($jenisData === 'variabel') {
+        } else if ($data->variabel && $jenisData === 'variabel') {
             $metadata = new VariabelExport($data->variabel, $data->opd);
             $metadata->standarData($data->standar);
         }
@@ -639,7 +640,7 @@ class PublikasiController extends Controller
 
         $archive->addFile($filePath, 'Informasi Data.xlsx');
 
-        if ($metadata->export($metadataPath)) {
+        if ($metadata && $metadata->export($metadataPath)) {
             $archive->addFile($metadata->getOutputFilePath(), 'Metadata.xlsx');
         }
 

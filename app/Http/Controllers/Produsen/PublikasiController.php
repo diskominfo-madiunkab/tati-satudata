@@ -34,7 +34,7 @@ class PublikasiController extends Controller
         $status = 'publikasi';
         // $opd = Opd::all();
         $opdsQuery = Opd::select('id', 'nama_opd')
-            ->when(auth()->user()->hasAnyRole('produsen') && auth()->user()->opd_id, fn($q) => $q->where('id', auth()->user()->opd_id))
+            // ->when(auth()->user()->hasAnyRole('produsen') && auth()->user()->opd_id, fn($q) => $q->where('id', auth()->user()->opd_id))
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
         $opd = $opdsQuery->get();
         $tahun = MasterTahun::where('is_active', 1)->get();
@@ -42,7 +42,7 @@ class PublikasiController extends Controller
             // dd($request->all());
             $query =
                 Data::whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI])
-                ->when(auth()->user()->hasAnyRole('produsen') && auth()->user()?->opd_id, fn($q) => $q->where('opd_id', auth()->user()->opd_id))
+                // ->when(auth()->user()->hasAnyRole('produsen') && auth()->user()?->opd_id, fn($q) => $q->where('opd_id', auth()->user()->opd_id))
                 ->with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan', 'publikasi']);
 
             // ->latest();
@@ -132,7 +132,7 @@ class PublikasiController extends Controller
     {
         $year = date('Y');
         $data = Data::where('status_id', Data::STATUS_TERPUBLIKASI)
-            ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
+            // ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->with(['opd', 'status', 'publikasi'])
             ->where('opd_id', auth()->user()->opd_id)
             ->where('tahun', $year)
