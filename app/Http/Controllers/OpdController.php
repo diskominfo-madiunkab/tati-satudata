@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Opd;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Services\CkanApi\Facades\CkanApi;
 
 class OpdController extends Controller
 {
@@ -37,13 +40,29 @@ class OpdController extends Controller
      */
     public function store(Request $request)
     {
-        Opd::create([
-            'nama_opd' => $request->nama_opd,
-            'nip_penjabat' => $request->nip_penjabat,
-            'nama_penjabat' => $request->nama_penjabat,
-            'pangkat_penjabat' => $request->pangkat_penjabat,
-            'jabatan_penjabat' => $request->jabatan_penjabat,
-        ]);
+        DB::beginTransaction();
+        try {
+            Opd::create([
+                'nama_opd' => $request->nama_opd,
+                'nip_penjabat' => $request->nip_penjabat,
+                'nama_penjabat' => $request->nama_penjabat,
+                'pangkat_penjabat' => $request->pangkat_penjabat,
+                'jabatan_penjabat' => $request->jabatan_penjabat,
+            ]);
+            $origanizationCkan = CkanApi::organization()->create([
+                'name' => Str::slug($request->nama_opd),
+                'title' => $request->nama_opd,
+                'image_url' => asset('assets/img/logo.png', env('APP_ENV') !== 'local')
+            ]);
+            if (!isset($origanizationCkan['success']) || $origanizationCkan['success'] !== true) {
+                throw new \Exception('Gagal Menambahkan Data OPD! Silahkan Coba Lagi!');
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollback();
+            Alert::error('Gagal', 'Gagal Menambahkan Data OPD! Silahkan Coba Lagi!');
+            return redirect()->back();
+        }
         activity()->log('Menambahkan OPD');
         Alert::success('Berhasil', 'Berhasil Menambahkan Data OPD!');
         return redirect('/opd');
