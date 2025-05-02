@@ -189,10 +189,8 @@ class StandartDataController extends Controller
             $getdata = Data::with(['opd', 'standar'])
                 ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
                 // ->where('tahun', $year)
-                ->where('nama_data', $data->nama_data)
+                ->where('id', $data->id)
                 ->first();
-
-            // dd($getdata);
 
             if ($request->filled('definisi')) {
                 $validated = $request->validate([

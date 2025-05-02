@@ -673,14 +673,14 @@ class PengumpulanController extends Controller
             $getdata = Data::with(['opd', 'standar', 'indikator'])
                 // ->where('id', $id)
                 ->where('opd_id', auth()->user()->opd_id)
-                ->where('tahun', $year)->where('nama_data', $data->nama_data)
+                ->where('tahun', $year)->where('id', $data->id)
                 ->first();
             if (isset($cekexistingData->indikator)) {
                 // dd('b');
                 $getdata = Data::with(['opd', 'standar', 'indikator'])
                     ->where('id', $id)
                     ->where('opd_id', auth()->user()->opd_id)
-                    ->where('tahun', $now)->where('nama_data', $data->nama_data)
+                    ->where('tahun', $now)->where('id', $data->id)
                     ->first();
             }
         }
