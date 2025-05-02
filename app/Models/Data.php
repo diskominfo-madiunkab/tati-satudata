@@ -629,15 +629,19 @@ class Data extends Model implements HasMedia
     }
 
 
-    public static function get_draft()
+    public static function get_draft($tahun = null)
     {
-        return Data::where('opd_id', '=', Auth::user()->opd_id)->where('status_id', '=', 3)->get();
+        return Data::where('opd_id', '=', Auth::user()->opd_id)->when($tahun !== null, function ($query) use ($tahun) {
+            $query->where('tahun', $tahun);
+        })->where('status_id', '=', 3)->get();
         // return Data::select(opd_id)
     }
 
-    public static function data_produsen_setuju()
+    public static function data_produsen_setuju($tahun = null)
     {
-        return Data::where('opd_id', '=', Auth::user()->opd_id)->whereNotIn('status_id', [Data::STATUS_TOLAK, Data::STATUS_DRAFT])->orderBy('created_at')->get();
+        return Data::where('opd_id', '=', Auth::user()->opd_id)->when($tahun !== null, function ($query) use ($tahun) {
+            $query->where('tahun', $tahun);
+        })->whereNotIn('status_id', [Data::STATUS_TOLAK, Data::STATUS_DRAFT])->orderBy('created_at')->get();
     }
 
 

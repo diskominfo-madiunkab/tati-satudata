@@ -1,7 +1,6 @@
 @extends('pages.main.layout')
 
 @section('content')
-
     <div class="pagetitle">
         @include('sweetalert::alert')
         <h1>Daftar Data</h1>
@@ -106,48 +105,41 @@
                                                 </div>
                                                 @if (isset($status) && $status === '1')
                                                     <div class="col-md-6 d-flex justify-content-end">
-                                                        @if ($draft == 0)
-                                                            <form style="margin-bottom: 30px" id="berita-acara"
-                                                                target="_blank"
-                                                                action="{{ url('/data_produsen/export-pdf') }}">
-                                                                <button type="button" class="btn btn-success"
-                                                                    onclick="confirmBeritacara('berita-acara')"><i
-                                                                        class="bi bi-download"></i>
-                                                                    Unduh
-                                                                    Berita Acara</button>
-                                                            </form>
-                                                        @elseif($draft >= 0)
-                                                            <form id="berita-acara"></form>
-                                                            <button type="button" class="btn btn-danger"
-                                                                data-bs-toggle="modal" data-bs-target="#beritaacara"><i
-                                                                    class="bi bi-download"></i> Unduh
+                                                        <form style="margin-bottom: 30px" id="berita-acara"
+                                                            action="{{ url('/data_produsen/export-pdf') }}" target="_blank">
+                                                            <input type="hidden" name="tahun" id="tahunUnduhBeritaAcara"
+                                                                value="">
+                                                            <button type="button" class="btn btn-success"
+                                                                onclick="confirmBeritacara('berita-acara')"><i
+                                                                    class="bi bi-download"></i>
+                                                                Unduh
                                                                 Berita Acara</button>
-                                                            <div class="modal fade" id="beritaacara" tabindex="-1">
-                                                                <div class="modal-dialog">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title">Unduh Berita Acara</h5>
-                                                                            <button type="button" class="btn-close"
-                                                                                data-bs-dismiss="modal"
-                                                                                aria-label="Close"></button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            Anda belum bisa mengunduh berita acara
-                                                                            dikarenakan masih ada DATA
-                                                                            yang
-                                                                            berstatus DRAFT
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <button type="button" class="btn btn-danger"
-                                                                                data-bs-dismiss="modal">
-                                                                                Close
-                                                                            </button>
+                                                        </form>
+                                                        <div class="modal fade" id="beritaacara" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Unduh Berita Acara</h5>
+                                                                        <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Anda belum bisa mengunduh berita acara
+                                                                        dikarenakan masih ada DATA
+                                                                        yang
+                                                                        berstatus DRAFT
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-danger"
+                                                                            data-bs-dismiss="modal">
+                                                                            Close
+                                                                        </button>
 
-                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        @endif
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>
@@ -225,8 +217,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" style="font-weight: bold; color:red">TOLAK DATA !</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <h7 class="modal-title"><i class="bi bi-caret-right-fill"></i>Pastikan
@@ -431,6 +422,7 @@
                 function setFiltersFromLocalStorage() {
                     if (localStorage.getItem('tahun')) {
                         $('#tahun').val(localStorage.getItem('tahun')).trigger('change');
+                        $('#tahunUnduhBeritaAcara').val(localStorage.getItem('tahun'));
                     }
                 }
 
@@ -546,6 +538,7 @@
                 // Event untuk filter ketika nilai opd atau tahun berubah
                 $(' #tahun').change(function() {
                     table.draw();
+                    $('#tahunUnduhBeritaAcara').val($(this).val());
                 });
             });
         </script>
@@ -723,6 +716,7 @@
                                     divdatakosong.style.display = 'none';
                                 }
                                 var statusBadge = '';
+                                console.log(datas);
                                 if (datas.status_id == 3) {
                                     statusBadge =
                                         '<span class="badge bg-secondary"><i class="bi bi-collection me-1"></i>' +
@@ -823,7 +817,21 @@
                     })
                     .then((willDelete) => {
                         if (willDelete) {
-                            $('#' + item_id).submit();
+                            const url = $('#' + item_id).attr('action') + '?tahun=' + $('#tahunUnduhBeritaAcara').val();
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                dataType: 'json',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                success: function(result) {
+                                    $('#' + item_id).submit()
+                                },
+                                error: function(xhr, status, error) {
+                                    $('#beritaacara').modal('show');
+                                }
+                            })
                         } else {
                             //  swal("Cancelled Successfully");
                         }
@@ -852,5 +860,4 @@
             };
         </script>
     @endpush
-
 @endsection
