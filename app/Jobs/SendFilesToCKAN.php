@@ -71,7 +71,7 @@ class SendFilesToCKAN implements ShouldQueue
 
             $res = CkanApi::resource()->create(array_filter([
                 'package_id' => $this->datasetId,
-                'url' => asset(Storage::url($berkas->path)),
+                'url' => asset(safe_storage_url($berkas->path)),
                 'name' => $berkas->name,
                 'format' => $ext = pathinfo($berkas->name, PATHINFO_EXTENSION),
                 'mimetype' => MimeType::fromExtension($ext)
@@ -86,4 +86,12 @@ class SendFilesToCKAN implements ShouldQueue
             }
         }
     }
+}
+
+function safe_storage_url($path)
+{
+    $url = Storage::url($path);
+    $parsed = parse_url($url);
+    $encodedPath = implode('/', array_map('rawurlencode', explode('/', $parsed['path'] ?? '')));
+    return asset($encodedPath);
 }

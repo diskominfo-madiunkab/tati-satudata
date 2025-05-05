@@ -96,7 +96,7 @@ class VisualDataController extends Controller
             // Save the original file first
             $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
             $originalFileName = $file->getClientOriginalName();
-            $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', $originalFileName);
+            $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun, $originalFileName);
 
             if (!$originalStoredPath) {
                 return response([], 500);
