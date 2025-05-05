@@ -36,7 +36,11 @@ class SendFilesToCKAN implements ShouldQueue
         Storage::makeDirectory('public/exports/' . Str::slug($this->data->nama_data));
 
         $jenisData = strtolower($this->data->jenis_data);
-        $metadataPath = Storage::path('public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun . '/Metadata.xlsx');
+        $relativePath = 'public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun;
+        $metadataPath = Storage::path($relativePath . '/Metadata.xlsx');
+
+        Storage::makeDirectory($relativePath);
+
         if ($jenisData === 'indikator') {
             $metadata = new IndikatorExport($this->data->indikator, $this->data->opd);
         } else if ($jenisData === 'variabel') {
