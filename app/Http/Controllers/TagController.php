@@ -54,10 +54,10 @@ class TagController extends Controller
         ];
 
         // URL API CKAN
-        $apiUrl = 'https://ckan-data.madiunkab.go.id/api/3/action/tag_create';
+        $apiUrl = config('ckan_api.container') . '/api/3/action/tag_create';
 
         // API Key CKAN (ganti dengan API key yang sesuai)
-        $apiKey = 'ca8c7114-12c2-4b3f-a7d5-12ca85a73f60';
+        $apiKey = config('ckan_api.api_key');
 
         // Buat instance Guzzle client
         $client = new Client();

@@ -12,6 +12,7 @@ return [
     'api_key' => env('CKAN_API_KEY', ''),
     'api_version' => env('CKAN_API_VERSION', ''),
     'guzzle' => false,
+    'container' => env('CKAN_API_CONTAINER', ''),
 
     'repositories' => [
         'per_page' => 20,

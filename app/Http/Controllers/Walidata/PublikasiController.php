@@ -519,7 +519,7 @@ class PublikasiController extends Controller
             // dd($dataset['result']['id']);
 
             // URL API CKAN
-            $apiUrl = config('ckan_api.url') . '/api' . '/' . config('ckan_api.api_version') . '/action/package_create';
+            $apiUrl = config('ckan_api.container') . '/api' . '/' . config('ckan_api.api_version') . '/action/package_create';
 
             // API Key CKAN (ganti dengan API key yang sesuai)
             $apiKey = config('ckan_api.api_key');

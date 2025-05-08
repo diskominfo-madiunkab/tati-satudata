@@ -439,7 +439,7 @@ class DataController extends Controller
 
         // get e-walidata
         $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
-            ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
+            ->get('https://sipd.kemendagri.go.id/ewalidata/serv/get_dssd', [
                 'kodepemda' => '3519',
             ]);
         $sipd = $response->json();
@@ -559,106 +559,136 @@ class DataController extends Controller
     public function add_data_tahun_lalu(Request $request)
     {
         // $data = $request->ids;
-        $data = Data::with(['standar', 'indikator', 'variabel', 'berkas', 'visualtable.header.isi'])->whereIn('id', $request->ids)->get();
-        $user_id = Auth::user()->id;
-        $year = date('Y');
-        foreach ($data as $item) {
-            $create = Data::create([
-                'nama_data' => $item['nama_data'],
-                'opd_id' => $item['opd_id'],
-                'jenis_data' => $item['jenis_data'],
-                'sumber_data' => $item['sumber_data'],
-                'status_id' => Data::STATUS_DRAFT,
-                'user_id' => $user_id,
-                'tahun' => $year,
-                'jadwal_rilis' => $item['jadwal_rilis'],
-                'jadwal_pemutakhiran' => $item['jadwal_pemutakhiran'],
-                'data_prioritas' => $item['data_prioritas'],
-
-            ]);
-
-
-            $create->standar()->create([
-                'konsep' => $item->standar->konsep,
-                'definisi' => $item->standar->definisi,
-                'klasifikasi' => $item->standar->klasifikasi,
-                'ukuran' => $item->standar->ukuran,
-                'satuan' => $item->standar->satuan,
-                'kode' => $item->standar->kode,
-            ]);
-            if ($item->indikator) {
-                $create->indikator()->create([
-                    'nama' => $item->indikator->nama,
-                    'konsep' => $item->indikator->konsep,
-                    'definisi' => $item->indikator->definisi,
-                    'interpretasi' => $item->indikator->interpretasi,
-                    'metode' => $item->indikator->metode,
-                    'ukuran' => $item->indikator->ukuran,
-                    'satuan' => $item->indikator->satuan,
-                    'klasifikasi_penyajian' => $item->indikator->klasifikasi_penyajian,
-                    'komposit' => $item->indikator->komposit,
-                    'publikasi_indikator_pembangun' => $item->indikator->publikasi_indikator_pembangun,
-                    'nama_indikator_pembangun' => $item->indikator->nama_indikator_pembangun,
-                    'kegiatan_variabel_pembangun' => $item->indikator->kegiatan_variabel_pembangun,
-                    'kode_kegiatan_variabel_pembangun' => $item->indikator->kode_kegiatan_variabel_pembangun,
-                    'nama_variabel_pembangun' => $item->indikator->nama_variabel_pembangun,
-                    'level_estimasi' => $item->indikator->level_estimasi,
-                    'umum' => $item->indikator->umum,
-                ]);
-            }
-            if ($item->variabel) {
-                $create->variabel()->create([
-                    'nama' => $item->variabel->nama,
-                    'konsep' => $item->variabel->konsep,
-                    'alias' => $item->variabel->alias,
-                    'definisi' => $item->variabel->definisi,
-                    'referensi_pemilihan' => $item->variabel->referensi_pemilihan,
-                    'referensi_waktu' => $item->variabel->referensi_waktu,
-                    'tipe_data' => $item->variabel->tipe_data,
-                    'klasifikasi_isian' => $item->variabel->klasifikasi_isian,
-                    'ukuran' => $item->variabel->ukuran,
-                    'satuan' => $item->variabel->satuan,
-                    'aturan_validasi' => $item->variabel->aturan_validasi,
-                    'kalimat_pertanyaan' => $item->variabel->kalimat_pertanyaan,
-                    'umum' => $item->variabel->umum,
-                ]);
-            }
-
-            foreach ($item->berkas as $berkas) {
-                $newPath = 'public/exports/' . Str::slug($item->nama_data) . '/' . $year . '/' . $berkas->name;
-                Storage::copy($berkas->path, $newPath);
-                $create->berkas()->create([
-                    'name' => $berkas->name,
-                    'path' => $newPath,
-                    'size' => $berkas->size,
+        DB::beginTransaction();
+        try {
+            $data = Data::with(['standar', 'indikator', 'variabel', 'berkas.visualTable.header.isi', 'visualtable.header.isi'])->whereIn('id', $request->ids)->get();
+            $user_id = Auth::user()->id;
+            $year = date('Y');
+            foreach ($data as $item) {
+                $create = Data::create([
+                    'nama_data' => $item['nama_data'],
+                    'opd_id' => $item['opd_id'],
+                    'jenis_data' => $item['jenis_data'],
+                    'sumber_data' => $item['sumber_data'],
+                    'status_id' => Data::STATUS_DRAFT,
+                    'user_id' => $user_id,
                     'tahun' => $year,
-                ]);
-            }
+                    'jadwal_rilis' => $item['jadwal_rilis'],
+                    'jadwal_pemutakhiran' => $item['jadwal_pemutakhiran'],
+                    'data_prioritas' => $item['data_prioritas'],
 
-            foreach ($item->visualtable as $visual) {
-                $visualCreate = $create->visualtable()->create([
-                    'namatabel' => $visual->namatabel,
                 ]);
-                foreach ($visual->header as $header) {
-                    $headerCreate = $visualCreate->header()->create([
-                        'id_namatabel' => $visualCreate->id,
-                        'header' => $header->header,
-                        'urutan_menyamping' => $header->urutan_menyamping,
+
+
+                $create->standar()->create([
+                    'konsep' => $item->standar->konsep,
+                    'definisi' => $item->standar->definisi,
+                    'klasifikasi' => $item->standar->klasifikasi,
+                    'ukuran' => $item->standar->ukuran,
+                    'satuan' => $item->standar->satuan,
+                    'kode' => $item->standar->kode,
+                ]);
+                if ($item->indikator) {
+                    $create->indikator()->create([
+                        'nama' => $item->indikator->nama,
+                        'konsep' => $item->indikator->konsep,
+                        'definisi' => $item->indikator->definisi,
+                        'interpretasi' => $item->indikator->interpretasi,
+                        'metode' => $item->indikator->metode,
+                        'ukuran' => $item->indikator->ukuran,
+                        'satuan' => $item->indikator->satuan,
+                        'klasifikasi_penyajian' => $item->indikator->klasifikasi_penyajian,
+                        'komposit' => $item->indikator->komposit,
+                        'publikasi_indikator_pembangun' => $item->indikator->publikasi_indikator_pembangun,
+                        'nama_indikator_pembangun' => $item->indikator->nama_indikator_pembangun,
+                        'kegiatan_variabel_pembangun' => $item->indikator->kegiatan_variabel_pembangun,
+                        'kode_kegiatan_variabel_pembangun' => $item->indikator->kode_kegiatan_variabel_pembangun,
+                        'nama_variabel_pembangun' => $item->indikator->nama_variabel_pembangun,
+                        'level_estimasi' => $item->indikator->level_estimasi,
+                        'umum' => $item->indikator->umum,
                     ]);
-                    foreach ($header->isi as $isi) {
-                        $headerCreate->isi()->create([
-                            'id_header' => $headerCreate->id,
-                            'isi' => $isi->isi,
-                            'urutan_kebawah' => $isi->urutan_kebawah,
-                            'id_namatabel' => $visualCreate->id,
-                        ]);
-                    }
                 }
-            }
-        }
-        Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+                if ($item->variabel) {
+                    $create->variabel()->create([
+                        'nama' => $item->variabel->nama,
+                        'konsep' => $item->variabel->konsep,
+                        'alias' => $item->variabel->alias,
+                        'definisi' => $item->variabel->definisi,
+                        'referensi_pemilihan' => $item->variabel->referensi_pemilihan,
+                        'referensi_waktu' => $item->variabel->referensi_waktu,
+                        'tipe_data' => $item->variabel->tipe_data,
+                        'klasifikasi_isian' => $item->variabel->klasifikasi_isian,
+                        'ukuran' => $item->variabel->ukuran,
+                        'satuan' => $item->variabel->satuan,
+                        'aturan_validasi' => $item->variabel->aturan_validasi,
+                        'kalimat_pertanyaan' => $item->variabel->kalimat_pertanyaan,
+                        'umum' => $item->variabel->umum,
+                    ]);
+                }
 
-        return redirect('/data_walidata/draft');
+                foreach ($item->berkas as $berkas) {
+                    $visualCreate = null;
+                    if ($berkas->visualTable) {
+                        $visualCreate = $create->visualtable()->create([
+                            'namatabel' => $item->nama_data,
+                        ]);
+                        foreach ($berkas->visualTable->header as $header) {
+                            $headerCreate = $visualCreate->header()->create([
+                                'id_namatabel' => $visualCreate->id,
+                                'header' => $header->header,
+                                'urutan_menyamping' => $header->urutan_menyamping,
+                            ]);
+                            foreach ($header->isi as $isi) {
+                                $headerCreate->isi()->create([
+                                    'id_header' => $headerCreate->id,
+                                    'isi' => $isi->isi,
+                                    'urutan_kebawah' => $isi->urutan_kebawah,
+                                    'id_namatabel' => $visualCreate->id,
+                                ]);
+                            }
+                        }
+                    }
+
+                    $newPath = 'public/exports/' . Str::slug($item->nama_data) . '/' . $year . '/' . $berkas->name;
+                    Storage::copy($berkas->path, $newPath);
+                    $create->berkas()->create([
+                        'name' => $berkas->name,
+                        'path' => $newPath,
+                        'size' => $berkas->size,
+                        'tahun' => $year,
+                        'visual_id' => $visualCreate?->id,
+                    ]);
+                }
+
+                // foreach ($item->visualtable as $visual) {
+                //     $visualCreate = $create->visualtable()->create([
+                //         'namatabel' => $visual->namatabel,
+                //     ]);
+                //     foreach ($visual->header as $header) {
+                //         $headerCreate = $visualCreate->header()->create([
+                //             'id_namatabel' => $visualCreate->id,
+                //             'header' => $header->header,
+                //             'urutan_menyamping' => $header->urutan_menyamping,
+                //         ]);
+                //         foreach ($header->isi as $isi) {
+                //             $headerCreate->isi()->create([
+                //                 'id_header' => $headerCreate->id,
+                //                 'isi' => $isi->isi,
+                //                 'urutan_kebawah' => $isi->urutan_kebawah,
+                //                 'id_namatabel' => $visualCreate->id,
+                //             ]);
+                //         }
+                //     }
+                // }
+            }
+            DB::commit();
+            Alert::success('Berhasil', 'Berhasil menambahkan Data!');
+
+            return redirect('/data_walidata/draft');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     public function restore(Request $request, $id)

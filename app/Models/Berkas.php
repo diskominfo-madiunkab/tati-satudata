@@ -17,6 +17,11 @@ class Berkas extends Model
         return $this->belongsTo(Data::class);
     }
 
+    public function visualTable(): BelongsTo
+    {
+        return $this->belongsTo(VisualTable::class, 'visual_id');
+    }
+
     public static function humanFileSize($bytes): string
     {
         $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];

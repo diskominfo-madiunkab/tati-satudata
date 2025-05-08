@@ -24,7 +24,7 @@ class CkanApiServiceProvider extends ServiceProvider
         $this->app->bind('App\Services\CkanApi\CkanApiClient', function () {
 
             $config = [
-                'base_uri' => config('ckan_api.url'),
+                'base_uri' => config('ckan_api.container'),
                 'headers' => ['Authorization' => config('ckan_api.api_key')],
                 'verify' => !app()->environment('local')
             ];
