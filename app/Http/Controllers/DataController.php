@@ -365,7 +365,7 @@ class DataController extends Controller
             ->select('data_prioritas', 'tahun', 'nama_opd', 'nama_data', 'jenis_data', 'sumber_data', 'status_id', 'status', 'name', 'user_id', 'opds.id', 'data.id')
             ->where('tahun', '=', $year)
             ->whereNotIn('nama_data', $get_data->pluck('nama_data'))
-            ->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK]);
+            ->whereIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI]);
         // ->get();
         if (! empty($request->opd)) {
             $data = $data->where('opds.id', $request->opd)->get();
@@ -441,13 +441,18 @@ class DataController extends Controller
         // dd($data_tahun);
 
         // get e-walidata
-        $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
-            ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
-                'kodepemda' => '3519',
-            ]);
-        $sipd = $response->json();
-        // dd($sipd, $response);
-        if (! $response->ok()) {
+        try {
+            $response = Http::timeout(30)->withToken('e55838acb12247f3150efa488f8fcd54')
+                ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
+                    'kodepemda' => '3519',
+                ]);
+            $sipd = $response->json();
+            // dd($sipd, $response);
+            if (! $response->ok()) {
+                $sipd = [];
+            }
+        } catch (\Throwable $th) {
+            Alert::error('Gagal', 'Gagal Mengambil Data SIPD karena terlalu lama merespon. Silakan coba lagi nanti.');
             $sipd = [];
         }
 
