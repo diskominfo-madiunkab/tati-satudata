@@ -28,6 +28,12 @@
             @endphp --}}
                 <div class="card">
                     <div class="card-body">
+                        @if ($data->is_from_walidata)
+                            <div class="my-3">
+                                <label for="">Value Tahunan E-Walidata</label>
+                                <input type="text" class="form-control" value="{{ $data->value_sipd }}" disabled>
+                            </div>
+                        @endif
                         <div class="card-title">Berkas Data</div>
                         <div class="table-responsive">
                             <table class="table table-stripped datatable">

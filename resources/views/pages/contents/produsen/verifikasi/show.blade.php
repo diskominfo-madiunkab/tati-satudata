@@ -1,13 +1,12 @@
 @extends('pages.main.layout')
 
 @section('content')
-
     <div class="pagetitle">
-        <h1>Verifikasi Berkas - {{$data->nama_data}}</h1>
+        <h1>Verifikasi Berkas - {{ $data->nama_data }}</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Daftar Verifikasi Data</li>
-                <li class="breadcrumb-item active">{{$data->nama_data}}</li>
+                <li class="breadcrumb-item active">{{ $data->nama_data }}</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
@@ -21,55 +20,72 @@
                         <ul class="nav nav-tabs d-flex" id="myTabjustified" role="tablist">
                             <li class="nav-item flex-fill" role="presentation">
                                 <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab"
-                                        data-bs-target="#home-justified" type="button" role="tab" aria-controls="home"
-                                        aria-selected="true">Berkas Data
+                                    data-bs-target="#home-justified" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">Berkas Data
                                 </button>
                             </li>
                             <li class="nav-item flex-fill" role="presentation">
                                 <button class="nav-link w-100" id="profile-tab" data-bs-toggle="tab"
-                                        data-bs-target="#profile-justified" type="button" role="tab"
-                                        aria-controls="profile" aria-selected="false">Metadata
+                                    data-bs-target="#profile-justified" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">Metadata
                                 </button>
                             </li>
                             <li class="nav-item flex-fill" role="presentation">
                                 <button class="nav-link w-100" id="contact-tab" data-bs-toggle="tab"
-                                        data-bs-target="#contact-justified" type="button" role="tab"
-                                        aria-controls="contact" aria-selected="false">Contact
+                                    data-bs-target="#contact-justified" type="button" role="tab"
+                                    aria-controls="contact" aria-selected="false">Contact
                                 </button>
                             </li>
                         </ul>
 
                         <div class="tab-content pt-2">
                             <div class="tab-pane">
+                                @if ($data->is_from_walidata)
+                                    <div class="my-3">
+                                        <label for="">Value Tahunan E-Walidata</label>
+                                        <input type="text" class="form-control" value="{{ $data->value_sipd }}" disabled>
+                                    </div>
+                                @endif
                                 <div class="card-title">Berkas Data</div>
                                 <div class="table-responsive">
                                     <table class="table table-stripped datatable">
                                         <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Nama</th>
-                                            <th>Tgl. Unggah</th>
-                                            <th>Aksi</th>
-                                        </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Nama</th>
+                                                <th>Tgl. Unggah</th>
+                                                <th>Aksi</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($existingBerkas as $berkas)
-                                            @php
-                                                $v = $data->verifikasi->firstWhere('field', $berkas['id']);
-                                            @endphp
-                                            <tr>
-                                                <td>{{$loop->iteration}}</td>
-                                                <td><a href="{{$berkas['previewUrl']}}" target="_new">{{$berkas['name'] ?? '-'}} <i class="bi bi-link"></i></a></td>
-                                                <td>{{$berkas['created_at'] ? $berkas['created_at']->format('d/m/Y H:i') : '-'}}</td>
-                                                <td>
-                                                    <div class="btn-group-sm">
-                                                        <button class="btn btn-actions btn-accept btn-sm {{$v && $v->accepted ? 'btn-success' : 'btn-outline-success'}}" data-name="{{$berkas['id']}}">Setuju <i class="bi bi-check"></i></button>
-                                                        <button class="btn btn-actions btn-reject btn-sm {{$v && !$v->accepted ? 'btn-danger' : 'btn-outline-danger'}}" data-name="{{$berkas['id']}}">Revisi <i class="bi bi-x"></i></button>
-                                                        <button class="btn btn-comment btn-sm btn-outline-primary" data-name="{{$berkas['id']}}"><i class="bi bi-chat-dots"></i> Komentar</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                            @foreach ($existingBerkas as $berkas)
+                                                @php
+                                                    $v = $data->verifikasi->firstWhere('field', $berkas['id']);
+                                                @endphp
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td><a href="{{ $berkas['previewUrl'] }}"
+                                                            target="_new">{{ $berkas['name'] ?? '-' }} <i
+                                                                class="bi bi-link"></i></a></td>
+                                                    <td>{{ $berkas['created_at'] ? $berkas['created_at']->format('d/m/Y H:i') : '-' }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group-sm">
+                                                            <button
+                                                                class="btn btn-actions btn-accept btn-sm {{ $v && $v->accepted ? 'btn-success' : 'btn-outline-success' }}"
+                                                                data-name="{{ $berkas['id'] }}">Setuju <i
+                                                                    class="bi bi-check"></i></button>
+                                                            <button
+                                                                class="btn btn-actions btn-reject btn-sm {{ $v && !$v->accepted ? 'btn-danger' : 'btn-outline-danger' }}"
+                                                                data-name="{{ $berkas['id'] }}">Revisi <i
+                                                                    class="bi bi-x"></i></button>
+                                                            <button class="btn btn-comment btn-sm btn-outline-primary"
+                                                                data-name="{{ $berkas['id'] }}"><i
+                                                                    class="bi bi-chat-dots"></i> Komentar</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
@@ -85,26 +101,35 @@
 @push('js')
     <script>
         $(function() {
-            $('button.btn-actions').on('click', function (e) {
+            $('button.btn-actions').on('click', function(e) {
                 e.preventDefault();
                 $.ajax({
-                    url: '{{route('verifikasi.verify', $data->id)}}',
-                    method: 'PATCH',
-                    data: {
-                        category: 'berkas',
-                        accepted: $(this).hasClass('btn-accept'),
-                        field: $(this).data('name')
-                    }
-                })
-                    .then((r) => Toast.fire({icon: r.ok ? 'success' : 'error', title: r.message}))
-                    .catch(() => Toast.fire({icon: 'error', title: 'Gagal menyimpan perubahan'}));
+                        url: '{{ route('verifikasi.verify', $data->id) }}',
+                        method: 'PATCH',
+                        data: {
+                            category: 'berkas',
+                            accepted: $(this).hasClass('btn-accept'),
+                            field: $(this).data('name')
+                        }
+                    })
+                    .then((r) => Toast.fire({
+                        icon: r.ok ? 'success' : 'error',
+                        title: r.message
+                    }))
+                    .catch(() => Toast.fire({
+                        icon: 'error',
+                        title: 'Gagal menyimpan perubahan'
+                    }));
             });
 
-            $('button.btn-comment').on('click', function (e) {
+            $('button.btn-comment').on('click', function(e) {
                 e.preventDefault();
                 Swal.showLoading();
                 let fieldName = $(this).data('name');
-                $.get('{{route('verifikasi.get-komentar', $data->id)}}', {field: fieldName, category: 'berkas'})
+                $.get('{{ route('verifikasi.get-komentar', $data->id) }}', {
+                        field: fieldName,
+                        category: 'berkas'
+                    })
                     .then(function(r) {
                         if (Swal.isLoading()) Swal.hideLoading();
                         Swal.fire({
@@ -119,7 +144,12 @@
                             confirmButtonText: 'Simpan',
                             showLoaderOnConfirm: true,
                             preConfirm: (comment) => {
-                                return $.post('{{route('verifikasi.komentar', $data->id)}}', {field: fieldName, comment: comment, category: 'berkas'})
+                                return $.post(
+                                        '{{ route('verifikasi.komentar', $data->id) }}', {
+                                            field: fieldName,
+                                            comment: comment,
+                                            category: 'berkas'
+                                        })
                                     .then(response => {
                                         if (!response.ok) {
                                             throw new Error(response.message)
@@ -135,7 +165,10 @@
                             allowOutsideClick: () => !Swal.isLoading()
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                Toast.fire({icon: result.value.ok ? 'success' : 'error', title: result.value.message});
+                                Toast.fire({
+                                    icon: result.value.ok ? 'success' : 'error',
+                                    title: result.value.message
+                                });
                             }
                         });
                     });

@@ -50,6 +50,7 @@ class Data extends Model implements HasMedia
         'data_prioritas',
         'kodeindikator',
         'value_sipd',
+        'is_from_walidata',
     ];
 
     protected $guarded = [];

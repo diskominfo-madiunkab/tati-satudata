@@ -233,6 +233,13 @@
                                             @endif
                                             <div class="card">
                                                 <div class="card-body">
+                                                    @if ($data->is_from_walidata)
+                                                        <div class="my-3">
+                                                            <label for="">Value Tahunan E-Walidata</label>
+                                                            <input type="text" class="form-control"
+                                                                value="{{ $data->value_sipd }}" disabled>
+                                                        </div>
+                                                    @endif
                                                     <h5 class="card-title"> List Berkas </h5>
                                                     @if (auth()->user()->hasAnyRole('produsen'))
                                                         {{-- <a href="javascript:void(0)" class="btn btn-success mb-2"

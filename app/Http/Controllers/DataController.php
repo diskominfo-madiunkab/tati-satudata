@@ -122,6 +122,7 @@ class DataController extends Controller
                 // dd($data->count());
 
                 return DataTables::of($data)
+                    ->addIndexColumn()
                     ->addColumn('status', function ($row) {
                         // Tambahkan aksi di sini jika diperlukan
                     })
@@ -171,6 +172,7 @@ class DataController extends Controller
                 // dd($data);
 
                 return DataTables::of($data)
+                    ->addIndexColumn()
                     ->addColumn('status', function ($row) {
                         // Tambahkan aksi di sini jika diperlukan
                     })
@@ -402,6 +404,7 @@ class DataController extends Controller
 
     public function create()
     {
+        ini_set('max_execution_time', 150);
         $year = date('Y') - 1;
         // $getyear = date('Y');
         // $opd = Opd::all();
@@ -439,7 +442,7 @@ class DataController extends Controller
 
         // get e-walidata
         $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
-            ->get('https://sipd.kemendagri.go.id/ewalidata/serv/get_dssd', [
+            ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
                 'kodepemda' => '3519',
             ]);
         $sipd = $response->json();
@@ -526,7 +529,7 @@ class DataController extends Controller
             'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
             'data_prioritas' => $request->data_prioritas,
             'kodeindikator' => $request->kodeindikator,
-
+            'is_from_walidata' => $request->is_from_walidata == "1" ? true : false,
         ]);
         // dd($create);
 
@@ -578,7 +581,7 @@ class DataController extends Controller
                     'data_prioritas' => $item['data_prioritas'],
 
                 ]);
-
+                activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: ' . $create->nama_data);
 
                 $create->standar()->create([
                     'konsep' => $item->standar->konsep,
@@ -777,19 +780,19 @@ class DataController extends Controller
 
         if ($data) {
             if (Auth::user()->role_id == '1') {
-                activity()->performedOn($data)->log('Mengedit Daftar Data');
+                activity()->performedOn($data)->log('Mengedit Daftar Data : ' . $data->nama_data);
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
 
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2' || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung')) {
                 activity()
                     ->performedOn($data)
-                    ->log('Mengedit Daftar Data');
+                    ->log('Mengedit Daftar Data : ' . $data->nama_data);
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
 
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
-                activity()->performedOn($data)->log('Mengedit Daftar Data');
+                activity()->performedOn($data)->log('Mengedit Daftar Data : ' . $data->nama_data);
                 Alert::info('Berhasil', 'Berhasil memperbarui Data!');
 
                 return redirect('/data_produsen/draft');
@@ -896,6 +899,7 @@ class DataController extends Controller
             }
 
             return DataTables::of($data)
+                ->addRowIndex()
                 ->addColumn('status', function ($row) {
                     // Tambahkan aksi di sini jika diperlukan
                 })
@@ -1085,17 +1089,17 @@ class DataController extends Controller
         ]);
         if ($data) {
             if (Auth::user()->role_id == '1') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_produsen/draft');
@@ -1116,21 +1120,21 @@ class DataController extends Controller
         $data = Data::findOrFail($id);
 
         $data->update([
-            'status_id' => Data::STATUS_SETUJU,
+            'status_id' => Data::STATUS_PENGAJUAN_STANDART_DATA,
         ]);
         if ($data) {
             if (Auth::user()->role_id == '1') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_administrator');
             } elseif (Auth::user()->role_id == '2') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_walidata/draft');
             } elseif (Auth::user()->role_id == '3') {
-                activity()->performedOn($data)->log('Menyetujui Daftar Data');
+                activity()->performedOn($data)->log('Menyetujui Daftar Data : ' . $data->nama_data);
                 Alert::success('Berhasil', 'Data Berhasil Disetujui!');
 
                 return redirect('/data_produsen/draft');

@@ -82,14 +82,16 @@ dd($data);
                                                     required>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
-                                            <label for="inputText" class="col-sm-6 col-form-label">Value Tahunan
-                                                E-Walidata</label>
-                                            <div class="col-sm-12">
-                                                <input type="text" name="value_sipd" id="value_sipd"
-                                                    placeholder="Isikan Value Tahunan E-Walidata" class="form-control">
+                                        @if ($data->is_from_walidata)
+                                            <div class="row mb-3">
+                                                <label for="inputText" class="col-sm-6 col-form-label">Value Tahunan
+                                                    E-Walidata</label>
+                                                <div class="col-sm-12">
+                                                    <input type="text" name="value_sipd" id="value_sipd"
+                                                        placeholder="Isikan Value Tahunan E-Walidata" class="form-control">
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
 
                                         <div class="footer">
                                             <button type="submit" class="btn btn-primary" id="store">Tambah</button>
@@ -175,13 +177,14 @@ dd($data);
                     @endif
                     <div class="card">
                         <div class="card-body">
-
-                            <h5 class="card-title">Value Tahunan
-                                E-Walidata</h5>
-                            <div class="col-sm-12">
-                                <input type="text" name="value_sipd" id="value_sipd" value="{{ $data->value_sipd }}"
-                                    class="form-control" disabled>
-                            </div>
+                            @if ($data->is_from_walidata)
+                                <h5 class="card-title">Value Tahunan
+                                    E-Walidata</h5>
+                                <div class="col-sm-12">
+                                    <input type="text" name="value_sipd" id="value_sipd"
+                                        value="{{ $data->value_sipd }}" class="form-control" disabled>
+                                </div>
+                            @endif
 
                             <h5 class="card-title"> List Berkas </h5>
                             @if (auth()->user()->hasAnyRole('produsen'))

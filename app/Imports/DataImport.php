@@ -37,14 +37,14 @@ class DataImport implements ToModel, WithHeadingRow, WithMultipleSheets
 
         if (! $cek_opd) {
             // Alert::error('error', 'OPD ' . $row['OPD']  . ' tidak ditemukan');
-            throw new \Exception('OPD '.$row['OPD'].' tidak ditemukan');
+            throw new \Exception('OPD ' . $row['OPD'] . ' tidak ditemukan');
         }
 
         $existingData = Data::where('opd_id', $cek_opd->id)->where('nama_data', $row['Nama Data'])->where('tahun', $row['Tahun'])->first();
         // dd($existingData);
         if ($existingData) {
             // Alert::error('error', 'Data dengan nama ' . $row['Nama Data']  . '  sudah terdapat pada sistem');
-            throw new \Exception('Data dengan nama '.$row['Nama Data'].'  sudah terdapat pada sistem');
+            throw new \Exception('Data dengan nama ' . $row['Nama Data'] . '  sudah terdapat pada sistem');
         }
         $jadwalRilis = Carbon::createFromFormat('d-m-Y', $row['Jadwal Rilis'])->format('Y-m-d');
         if ($row['Data Prioritas'] === 'Ya') {
@@ -72,7 +72,7 @@ class DataImport implements ToModel, WithHeadingRow, WithMultipleSheets
         activity()
             ->causedBy(auth()->id())
             ->performedOn($data)
-            ->log('mengimport data');
+            ->log('mengimport data : ' . $data->nama_data);
 
         return $data;
     }

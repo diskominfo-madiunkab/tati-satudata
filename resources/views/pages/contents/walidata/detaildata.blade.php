@@ -144,8 +144,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="data_prioritas"
                                                     id="data_prioritas1" value="1"
-                                                    {{ $data->data_prioritas == 1 ? 'checked' : '' }}
-                                                    disabled>
+                                                    {{ $data->data_prioritas == 1 ? 'checked' : '' }} disabled>
                                                 <label class="form-check-label" for="data_prioritas1">
                                                     Ya
                                                 </label>
@@ -153,8 +152,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="data_prioritas"
                                                     id="data_prioritas0" value="0"
-                                                    {{ $data->data_prioritas == 0 ? 'checked' : '' }}
-                                                    disabled>
+                                                    {{ $data->data_prioritas == 0 ? 'checked' : '' }} disabled>
                                                 <label class="form-check-label" for="data_prioritas0">
                                                     Tidak
                                                 </label>
@@ -182,8 +180,7 @@
                                             </li>
                                             <li class="breadcrumb-item"><a href=""><i
                                                         class="bi bi-clock-history"></i> {{ $dt->name }}</a></li>
-                                            <li class="breadcrumb-item active">{{ $dt->description }} :
-                                                "{{ $dt->nama_data }}"
+                                            <li class="breadcrumb-item active">{{ $dt->description }}
                                             </li>
                                         </ol>
                                     </nav>

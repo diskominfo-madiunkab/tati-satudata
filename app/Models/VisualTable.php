@@ -16,4 +16,9 @@ class VisualTable extends Model
     {
         return $this->hasMany(VisualHeader::class, 'id_namatabel');
     }
+
+    public function isi()
+    {
+        return $this->hasMany(VisualIsi::class, 'id_namatabel');
+    }
 }

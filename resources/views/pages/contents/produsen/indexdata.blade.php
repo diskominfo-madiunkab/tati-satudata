@@ -454,7 +454,7 @@
                         }
                     },
                     "columns": [{
-                            "data": "no"
+                            "data": "DT_RowIndex"
                         },
                         {
                             "data": "nama_data"

@@ -558,7 +558,7 @@ class PengumpulanController extends Controller
                     array_merge(['data_id' => $getdata->id], $validated)
                 );
                 $getdata->update(['status_id' => Data::STATUS_PENGAJUAN_STANDART_DATA]);
-                activity()->causedBy(auth()->id())->performedOn($data)->log('Data standar data di perbarui');
+                activity()->causedBy(auth()->id())->performedOn($data)->log('Data standar data di perbarui : ' . $data->nama_data);
 
                 $getdata->refresh();
 
@@ -583,7 +583,7 @@ class PengumpulanController extends Controller
                 array_merge(['data_id' => $data->id], $validated)
             );
             $data->update(['status_id' => Data::STATUS_PENGAJUAN_STANDART_DATA]);
-            activity()->causedBy(auth()->id())->performedOn($data)->log('Data standar data di perbarui');
+            activity()->causedBy(auth()->id())->performedOn($data)->log('Data standar data di perbarui : ' . $data->nama_data);
 
             $data->refresh();
             // dd($data);

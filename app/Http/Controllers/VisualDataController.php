@@ -94,7 +94,7 @@ class VisualDataController extends Controller
             $fileExtension = $file->getClientOriginalExtension();
 
             // Save the original file first
-            $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
+            $data = Data::with(['berkas.visualTable'])->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
             $originalFileName = $file->getClientOriginalName();
             $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun, $originalFileName);
 
@@ -105,6 +105,20 @@ class VisualDataController extends Controller
             // Check if the original file exists in the specified storage path
             if (!Storage::exists($originalStoredPath)) {
                 return response([], 500);
+            }
+
+            if ($data->berkas->count() > 0) {
+                foreach ($data->berkas as $berkasToDelete) {
+                    if ($berkasToDelete->visualTable) {
+                        $berkasToDelete->visualTable->header()->delete();
+                        $berkasToDelete->visualTable->isi()->delete();
+                        $berkasToDelete->visualTable->delete();
+                    }
+                    if (Storage::exists($berkasToDelete->path)) {
+                        Storage::delete($berkasToDelete->path);
+                    }
+                    $berkasToDelete->delete();
+                }
             }
 
             $originalFileSize = Storage::size($originalStoredPath);
@@ -163,7 +177,7 @@ class VisualDataController extends Controller
                 $rows = $results[0];
 
                 // Get table title from the topmost column
-                $judulTabel = !empty($rows) ? $rows[0][0] : $request->file('berkas')->getClientOriginalName();
+                $judulTabel = $data->nama_data;
                 $headerRow = $this->findHeaderRow($rows);
 
                 if ($headerRow !== null) {
