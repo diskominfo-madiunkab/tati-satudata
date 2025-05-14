@@ -899,7 +899,7 @@ class DataController extends Controller
             }
 
             return DataTables::of($data)
-                ->addRowIndex()
+                ->addIndexColumn()
                 ->addColumn('status', function ($row) {
                     // Tambahkan aksi di sini jika diperlukan
                 })
