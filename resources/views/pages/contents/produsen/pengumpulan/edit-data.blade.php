@@ -78,8 +78,7 @@ dd($data);
                                         <div class="row mb-3">
                                             <label for="inputText" class="col-sm-6 col-form-label">Berkas Data</label>
                                             <div class="col-sm-12">
-                                                <input type="file" name="berkas" id="berkas" class="form-control"
-                                                    required>
+                                                <input type="file" name="berkas" id="berkas" class="form-control">
                                             </div>
                                         </div>
                                         @if ($data->is_from_walidata)

@@ -86,146 +86,150 @@ class VisualDataController extends Controller
     public function store(Request $request, VisualData $visualData)
     {
         $request->validate([
-            'berkas' => 'mimes:xlsx'
+            'berkas' => 'mimes:xlsx|nullable'
         ]);
         try {
             DB::beginTransaction();
-            $file = $request->file('berkas');
-            $fileExtension = $file->getClientOriginalExtension();
-
-            // Save the original file first
             $data = Data::with(['berkas.visualTable'])->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
-            $originalFileName = $file->getClientOriginalName();
-            $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun, $originalFileName);
-
-            if (!$originalStoredPath) {
-                return response([], 500);
-            }
-
-            // Check if the original file exists in the specified storage path
-            if (!Storage::exists($originalStoredPath)) {
-                return response([], 500);
-            }
-
-            if ($data->berkas->count() > 0) {
-                foreach ($data->berkas as $berkasToDelete) {
-                    if ($berkasToDelete->visualTable) {
-                        $berkasToDelete->visualTable->header()->delete();
-                        $berkasToDelete->visualTable->isi()->delete();
-                        $berkasToDelete->visualTable->delete();
-                    }
-                    if (Storage::exists($berkasToDelete->path)) {
-                        Storage::delete($berkasToDelete->path);
-                    }
-                    $berkasToDelete->delete();
-                }
-            }
-
-            $originalFileSize = Storage::size($originalStoredPath);
-            $originalFileUrl = Storage::url($originalStoredPath);
-
             // Update the value_sipd column in the data model
             $data->update([
                 'value_sipd' => $request->value_sipd,
             ]);
 
-            // Create a new record in the database for the uploaded original file
-            $berkas = $data->berkas()->create([
-                'tahun' => $data->tahun,
-                'name' => $originalFileName,
-                'size' => $originalFileSize,
-                'path' => $originalStoredPath,
-                'visual_id' => null // Placeholder, will be updated later if needed
-            ]);
+            if ($request->file('berkas')) {
+                $file = $request->file('berkas');
+                $fileExtension = $file->getClientOriginalExtension();
 
-            // Convert XLSX to CSV if necessary
-            if ($fileExtension == 'xlsx') {
-                $filePath = $file->getPathname();
-                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-                $csvWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
+                // Save the original file first
+                $originalFileName = $file->getClientOriginalName();
+                $originalStoredPath = $file->storeAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun, $originalFileName);
 
-                // Save the CSV to a temporary path
-                $csvPath = tempnam(sys_get_temp_dir(), 'csv');
-                $csvWriter->save($csvPath);
-
-                // Store the CSV file in the desired location
-                $csvFileName = pathinfo($originalFileName, PATHINFO_FILENAME) . '.csv';
-                $csvStoredPath = 'public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/'  . $csvFileName;
-                Storage::putFileAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', new \Illuminate\Http\File($csvPath), $csvFileName);
-
-                if (!Storage::exists($csvStoredPath)) {
+                if (!$originalStoredPath) {
                     return response([], 500);
                 }
 
-                $csvFileSize = Storage::size($csvStoredPath);
-                $csvFileUrl = Storage::url($csvStoredPath);
+                // Check if the original file exists in the specified storage path
+                if (!Storage::exists($originalStoredPath)) {
+                    return response([], 500);
+                }
 
-                // Create a new record in the database for the uploaded CSV file
-                $berkasCsv = $data->berkas()->create([
+                if ($data->berkas->count() > 0) {
+                    foreach ($data->berkas as $berkasToDelete) {
+                        if ($berkasToDelete->visualTable) {
+                            $berkasToDelete->visualTable->header()->delete();
+                            $berkasToDelete->visualTable->isi()->delete();
+                            $berkasToDelete->visualTable->delete();
+                        }
+                        if (Storage::exists($berkasToDelete->path)) {
+                            Storage::delete($berkasToDelete->path);
+                        }
+                        $berkasToDelete->delete();
+                    }
+                }
+
+                $originalFileSize = Storage::size($originalStoredPath);
+                $originalFileUrl = Storage::url($originalStoredPath);
+
+
+
+                // Create a new record in the database for the uploaded original file
+                $berkas = $data->berkas()->create([
                     'tahun' => $data->tahun,
-                    'name' => $csvFileName,
-                    'size' => $csvFileSize,
-                    'path' => $csvStoredPath,
+                    'name' => $originalFileName,
+                    'size' => $originalFileSize,
+                    'path' => $originalStoredPath,
                     'visual_id' => null // Placeholder, will be updated later if needed
                 ]);
 
-                // Clean up the temporary file
-                unlink($csvPath);
+                // Convert XLSX to CSV if necessary
+                if ($fileExtension == 'xlsx') {
+                    $filePath = $file->getPathname();
+                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+                    $csvWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
 
-                // Process the data from the original XLSX file
-                $results = Excel::toArray([], $file);
-                $rows = $results[0];
+                    // Save the CSV to a temporary path
+                    $csvPath = tempnam(sys_get_temp_dir(), 'csv');
+                    $csvWriter->save($csvPath);
 
-                // Get table title from the topmost column
-                $judulTabel = $data->nama_data;
-                $headerRow = $this->findHeaderRow($rows);
+                    // Store the CSV file in the desired location
+                    $csvFileName = pathinfo($originalFileName, PATHINFO_FILENAME) . '.csv';
+                    $csvStoredPath = 'public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/'  . $csvFileName;
+                    Storage::putFileAs('public/exports/' . Str::slug($data->nama_data) . '/' . $data->tahun . '/', new \Illuminate\Http\File($csvPath), $csvFileName);
 
-                if ($headerRow !== null) {
-                    $header = array_values($headerRow);
-                    $dataRows = $this->extractData($rows, $headerRow);
-
-                    // Convert array to string format
-                    $dataRows = array_map(function ($row) {
-                        return array_map(function ($value) {
-                            return is_int($value) ? strval($value) : $value;
-                        }, $row);
-                    }, $dataRows);
-
-                    // Save table data
-                    $tabel = new VisualTable();
-                    $tabel->namatabel = $judulTabel;
-                    $tabel->id_data = $request->id_data;
-                    $tabel->save();
-
-                    // Save header data
-                    foreach ($header as $index => $item) {
-                        $headerModel = new VisualHeader();
-                        $headerModel->id_namatabel = $tabel->id;
-                        $headerModel->header = $item;
-                        $headerModel->urutan_menyamping = $index;
-                        $headerModel->save();
+                    if (!Storage::exists($csvStoredPath)) {
+                        return response([], 500);
                     }
 
-                    // Save content data
-                    foreach ($dataRows as $index => $item) {
-                        foreach ($item as $headerIndex => $value) {
-                            $headerModel = VisualHeader::where('id_namatabel', $tabel->id)
-                                ->where('urutan_menyamping', $headerIndex)
-                                ->first();
+                    $csvFileSize = Storage::size($csvStoredPath);
+                    $csvFileUrl = Storage::url($csvStoredPath);
 
-                            if ($headerModel) {
-                                $isiModel = new VisualIsi();
-                                $isiModel->id_namatabel = $tabel->id;
-                                $isiModel->id_header = $headerModel->id;
-                                $isiModel->isi = $value ?? null;
-                                $isiModel->urutan_kebawah = $index;
-                                $isiModel->save();
+                    // Create a new record in the database for the uploaded CSV file
+                    $berkasCsv = $data->berkas()->create([
+                        'tahun' => $data->tahun,
+                        'name' => $csvFileName,
+                        'size' => $csvFileSize,
+                        'path' => $csvStoredPath,
+                        'visual_id' => null // Placeholder, will be updated later if needed
+                    ]);
+
+                    // Clean up the temporary file
+                    unlink($csvPath);
+
+                    // Process the data from the original XLSX file
+                    $results = Excel::toArray([], $file);
+                    $rows = $results[0];
+
+                    // Get table title from the topmost column
+                    $judulTabel = $data->nama_data;
+                    $headerRow = $this->findHeaderRow($rows);
+
+                    if ($headerRow !== null) {
+                        $header = array_values($headerRow);
+                        $dataRows = $this->extractData($rows, $headerRow);
+
+                        // Convert array to string format
+                        $dataRows = array_map(function ($row) {
+                            return array_map(function ($value) {
+                                return is_int($value) ? strval($value) : $value;
+                            }, $row);
+                        }, $dataRows);
+
+                        // Save table data
+                        $tabel = new VisualTable();
+                        $tabel->namatabel = $judulTabel;
+                        $tabel->id_data = $request->id_data;
+                        $tabel->save();
+
+                        // Save header data
+                        foreach ($header as $index => $item) {
+                            $headerModel = new VisualHeader();
+                            $headerModel->id_namatabel = $tabel->id;
+                            $headerModel->header = $item;
+                            $headerModel->urutan_menyamping = $index;
+                            $headerModel->save();
+                        }
+
+                        // Save content data
+                        foreach ($dataRows as $index => $item) {
+                            foreach ($item as $headerIndex => $value) {
+                                $headerModel = VisualHeader::where('id_namatabel', $tabel->id)
+                                    ->where('urutan_menyamping', $headerIndex)
+                                    ->first();
+
+                                if ($headerModel) {
+                                    $isiModel = new VisualIsi();
+                                    $isiModel->id_namatabel = $tabel->id;
+                                    $isiModel->id_header = $headerModel->id;
+                                    $isiModel->isi = $value ?? null;
+                                    $isiModel->urutan_kebawah = $index;
+                                    $isiModel->save();
+                                }
                             }
                         }
-                    }
 
-                    // Update visual_id in berkas and berkasCsv
-                    $berkas->update(['visual_id' => $tabel->id]);
+                        // Update visual_id in berkas and berkasCsv
+                        $berkas->update(['visual_id' => $tabel->id]);
+                    }
                 }
             }
 

@@ -34,9 +34,9 @@
         }
 
         /* .form-control[disabled] {
-                background-color: #e9ecef;
-                cursor: not-allowed;
-            } */
+                    background-color: #e9ecef;
+                    cursor: not-allowed;
+                } */
     </style>
 @endpush
 @section('title', 'Publikasi Data - Organisasi')
@@ -130,16 +130,17 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <label for="kodeindikator" class="col-sm-2 col-form-label">Kode Indikator <br>
-                                            E-Walidata</label>
-                                        <div class="col-sm-10">
-                                            <input id="kodeindikator" name="kodeindikator" type="text"
-                                                class="form-control" placeholder="Judul Dataset"
-                                                value="{{ old('kodeindikator', $data->kodeindikator ?? ' ') }}" readonly>
-                                        </div>
-                                    </div>
                                     @if ($data->is_from_walidata)
+                                        <div class="row mb-3">
+                                            <label for="kodeindikator" class="col-sm-2 col-form-label">Kode Indikator <br>
+                                                E-Walidata</label>
+                                            <div class="col-sm-10">
+                                                <input id="kodeindikator" name="kodeindikator" type="text"
+                                                    class="form-control" placeholder="Judul Dataset"
+                                                    value="{{ old('kodeindikator', $data->kodeindikator ?? ' ') }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
                                         <div class="row mb-3">
                                             <label for="value_sipd" class="col-sm-2 col-form-label">Value Tahunan <br>
                                                 E-Walidata</label>
@@ -209,7 +210,7 @@
                                                             </td>
                                                             <td>{{ $berkas['created_at']
                                                                 ? $berkas['created_at']->format('d/m/Y
-                                                                                                                                                                                H:i')
+                                                                                                                                                                                                                                            H:i')
                                                                 : '-' }}
                                                             </td>
                                                         </tr>
