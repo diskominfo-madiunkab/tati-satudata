@@ -296,7 +296,7 @@
                     },
 
                     "columns": [{
-                            "data": "no"
+                            "data": "DT_RowIndex"
                         },
                         {
                             "data": "nama_data"
@@ -339,10 +339,8 @@
                             "render": function(data, type, full, meta) {
                                 // console.log(full);
                                 var statusTahapan = '';
-                                if (full.status_id == 1) {
-                                    statusTahapan +=
-                                        '<span class="badge bg-info">1. Perencanaan Data</span>';
-                                } else if (full.status_id == 12 || full.status_id == 13) {
+                                if (full.status_id == 12 || full.status_id == 13 || full.status_id ==
+                                    1) {
                                     statusTahapan +=
                                         '<span class="badge bg-info">1. Perencanaan Data</span>';
                                     statusTahapan += '<br>';
@@ -409,7 +407,8 @@
                                 actionButtons += '</td>';
 
                                 if (
-                                    {{ auth()->user()->hasRole('walidata') || auth()->user()->hasRole('pembina') }}) {
+                                    {{ auth()->user()->hasRole('walidata') || auth()->user()->hasRole('pembina') }}
+                                ) {
                                     actionButtons += '<td>';
                                     actionButtons += '<form id="restore-data-' + full.id +
                                         '" action="{{ url('/data_walidata/restore') }}/' + full.id +

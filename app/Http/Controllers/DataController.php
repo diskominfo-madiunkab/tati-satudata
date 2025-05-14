@@ -1120,7 +1120,7 @@ class DataController extends Controller
         $data = Data::findOrFail($id);
 
         $data->update([
-            'status_id' => Data::STATUS_PENGAJUAN_STANDART_DATA,
+            'status_id' => Data::STATUS_SETUJU,
         ]);
         if ($data) {
             if (Auth::user()->role_id == '1') {
@@ -1269,6 +1269,7 @@ class DataController extends Controller
             // dd($data);
 
             return DataTables::of($data)
+                ->addIndexColumn()
                 ->addColumn('status', function ($row) {
                     // Tambahkan aksi di sini jika diperlukan
                 })
