@@ -1321,6 +1321,7 @@ class DataController extends Controller
             // dd($data);
 
             return DataTables::of($data)
+                ->addIndexColumn()
                 ->addColumn('status', function ($row) {
                     // Tambahkan aksi di sini jika diperlukan
                 })
