@@ -248,12 +248,16 @@ class PortalController extends Controller
 
     public function publikasi_detail($id)
     {
-        $id = decrypt($id);
-        $publikasi = PublikasiGuest::findOrFail($id);
-        $pop = PublikasiGuest::orderBy('created_at', 'desc')->limit('5')->get();
-        $link = Storage::url($publikasi->pdf_path);
+        try {
+            $id = decrypt($id);
+            $publikasi = PublikasiGuest::findOrFail($id);
+            $pop = PublikasiGuest::orderBy('created_at', 'desc')->limit('5')->get();
+            $link = Storage::url($publikasi->pdf_path);
 
-        return view('guest.detail-publikasi', compact('publikasi', 'pop', 'link'));
+            return view('guest.detail-publikasi', compact('publikasi', 'pop', 'link'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
+        }
     }
 
     // public function download($id)
