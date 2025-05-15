@@ -175,67 +175,79 @@ class PortalController extends Controller
 
     public function infografis_detail($id)
     {
-        $id = decrypt($id);
-        $infografis = Infografis::findOrFail($id);
-        $pop = Infografis::orderBy('created_at', 'desc')->limit('5')->get();
-        return view('guest.detail-infografis', compact('infografis', 'pop'));
+        try {
+            $id = decrypt($id);
+            $infografis = Infografis::findOrFail($id);
+            $pop = Infografis::orderBy('created_at', 'desc')->limit('5')->get();
+            return view('guest.detail-infografis', compact('infografis', 'pop'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
+        }
     }
 
     public function downloadImage($id)
     {
-        $id = decrypt($id);
-        $getinfos = Infografis::find($id);
-        $filePath = storage_path('app/public/public/blogs/' . $getinfos->image);
+        try {
+            $id = decrypt($id);
+            $getinfos = Infografis::find($id);
+            $filePath = storage_path('app/public/public/blogs/' . $getinfos->image);
 
-        if (file_exists($filePath)) {
-            // Mendapatkan ekstensi file
-            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-            // Membuat nama file berdasarkan title dan ekstensi asli
-            $fileName = $getinfos->title . '.' . $extension;
-            return response()->download($filePath, $fileName);
-        } else {
-            abort(404);
+            if (file_exists($filePath)) {
+                // Mendapatkan ekstensi file
+                $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                // Membuat nama file berdasarkan title dan ekstensi asli
+                $fileName = $getinfos->title . '.' . $extension;
+                return response()->download($filePath, $fileName);
+            } else {
+                abort(404);
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
         }
     }
 
     public function downloadPdf($id)
     {
-        $id = decrypt($id);
-        $getinfos = Infografis::find($id);
-        $konten = $getinfos->content;
-        $imagePath = storage_path('app/public/public/blogs/' . $getinfos->image);
-        // Menggunakan title sebagai nama file PDF
-        $pdfFileName = $getinfos->title . '.pdf';
-        $pdfPath = storage_path('app/public/public/blogs/' . encrypt($getinfos->id) . '.pdf');
+        try {
+            $id = decrypt($id);
+            $getinfos = Infografis::find($id);
+            $konten = $getinfos->content;
+            $imagePath = storage_path('app/public/public/blogs/' . $getinfos->image);
+            // Menggunakan title sebagai nama file PDF
+            $pdfFileName = $getinfos->title . '.pdf';
+            $pdfPath = storage_path('app/public/public/blogs/' . encrypt($getinfos->id) . '.pdf');
 
-        if (file_exists($imagePath)) {
-            // Read image file and encode it to base64
-            $type = pathinfo($imagePath, PATHINFO_EXTENSION);
-            $data = file_get_contents($imagePath);
-            $base64Image = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            if (file_exists($imagePath)) {
+                // Read image file and encode it to base64
+                $type = pathinfo($imagePath, PATHINFO_EXTENSION);
+                $data = file_get_contents($imagePath);
+                $base64Image = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
-            // Create PDF
-            $dompdf = new Dompdf();
-            $dompdf->setPaper('A4');
+                // Create PDF
+                $dompdf = new Dompdf();
+                $dompdf->setPaper('A4');
 
-            // Load HTML
-            $html = '<html><body style="margin: 0; padding: 0;">';
-            $html .= '<img src="' . $base64Image . '" style="max-width: 100%; height: auto;">';
-            $html .= '<h3 class="mt-0">' . $getinfos->title . '</h3>';
-            $html .= $getinfos->content;
-            $html .= '</body></html>';
+                // Load HTML
+                $html = '<html><body style="margin: 0; padding: 0;">';
+                $html .= '<img src="' . $base64Image . '" style="max-width: 100%; height: auto;">';
+                $html .= '<h3 class="mt-0">' . $getinfos->title . '</h3>';
+                $html .= $getinfos->content;
+                $html .= '</body></html>';
 
-            $dompdf->loadHtml($html);
-            $dompdf->render();
-            $output = $dompdf->output();
+                $dompdf->loadHtml($html);
+                $dompdf->render();
+                $output = $dompdf->output();
 
-            // Save PDF
-            file_put_contents($pdfPath, $output);
+                // Save PDF
+                file_put_contents($pdfPath, $output);
 
-            // Download PDF
-            return response()->download($pdfPath, $pdfFileName)->deleteFileAfterSend(true);
-        } else {
-            abort(404);
+                // Download PDF
+                return response()->download($pdfPath, $pdfFileName)->deleteFileAfterSend(true);
+            } else {
+                abort(404);
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
         }
     }
 
@@ -272,9 +284,14 @@ class PortalController extends Controller
     // }
     public function download($id)
     {
-        $decryptedPath = decrypt($id);
-        $link = Storage::url($decryptedPath);
-        return redirect()->away($link);
+        try {
+            $id = decrypt($id);
+            $publication = PublikasiGuest::findOrFail($id);
+            $link = Storage::url($publication->pdf_path);
+            return redirect()->away($link);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
+        }
     }
 
     public function data(Request $request)

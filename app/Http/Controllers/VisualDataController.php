@@ -93,7 +93,7 @@ class VisualDataController extends Controller
             $data = Data::with(['berkas.visualTable'])->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($request->id_data);
             // Update the value_sipd column in the data model
             $data->update([
-                'value_sipd' => $request->value_sipd,
+                'value_sipd' => $request->value_sipd ?? $data->value_sipd,
             ]);
 
             if ($request->file('berkas')) {
