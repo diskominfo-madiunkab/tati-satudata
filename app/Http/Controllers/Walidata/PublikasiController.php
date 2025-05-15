@@ -558,7 +558,7 @@ class PublikasiController extends Controller
                 ]
             ];
 
-            $response = Http::withToken('e55838acb12247f3150efa488f8fcd54')
+            $response = Http::withToken(env('SIPD_API_KEY'))
                 ->post('https://sipd.go.id/ewalidata/serv/push_dssd', $payload);
 
 
