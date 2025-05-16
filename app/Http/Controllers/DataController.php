@@ -584,7 +584,9 @@ class DataController extends Controller
                     'jadwal_rilis' => $item['jadwal_rilis'],
                     'jadwal_pemutakhiran' => $item['jadwal_pemutakhiran'],
                     'data_prioritas' => $item['data_prioritas'],
-
+                    'is_from_walidata' => $item['is_from_walidata'],
+                    'value_sipd' => $item['value_sipd'],
+                    'kodeindikator' => $item['kodeindikator'],
                 ]);
                 activity()->causedBy(auth()->id())->performedOn($create)->log('Menambahkan data: ' . $create->nama_data);
 
