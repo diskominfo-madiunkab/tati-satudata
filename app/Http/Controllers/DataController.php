@@ -442,8 +442,8 @@ class DataController extends Controller
 
         // get e-walidata
         try {
-            $response = Http::timeout(60)->withToken(env('SIPD_API_KEY'))
-                ->get('https://sipd.go.id/ewalidata/serv/get_dssd', [
+            $response = Http::timeout(120)->withToken(env('SIPD_API_KEY'))
+                ->get('https://sipd.go.id/ewalidata/serv/get_ref_dssd', [
                     'kodepemda' => '3519',
                 ]);
             $sipd = $response->json();

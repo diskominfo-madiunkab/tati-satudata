@@ -265,8 +265,8 @@
                                             <th scope="col">No</th>
                                             <th scope="col">Kode Indikator</th>
                                             <th scope="col">Uraian Indikator</th>
-                                            <th scope="col">Tahun</th>
-                                            <th scope="col">Status</th>
+                                            <th scope="col">Satuan</th>
+                                            <th scope="col">Bidang Urusan</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -276,9 +276,9 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $item['kodeindikator'] }}</td>
                                                 <td>{{ $item['uraian_indikator'] }}</td>
-                                                <td>{{ $item['tahun'] }}</td>
-                                                <td>{{ $item['status'] }}</td>
-                                                <td><a href="{{ route('data_walidata.fetch.sipd', ['kodeindikator' => $item['kodeindikator'], 'tahun' => $item['tahun'], 'uraian_indikator' => $item['uraian_indikator']]) }}"
+                                                <td>{{ $item['satuan'] }}</td>
+                                                <td>{{ $item['bidangurusan'] }}</td>
+                                                <td><a href="{{ route('data_walidata.fetch.sipd', ['kodeindikator' => $item['kodeindikator'], 'uraian_indikator' => $item['uraian_indikator']]) }}"
                                                         class="btn btn-primary">
                                                         <i class="bi bi-bookmarks"></i> Add
                                                     </a></td>
