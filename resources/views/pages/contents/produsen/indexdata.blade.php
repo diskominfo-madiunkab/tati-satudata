@@ -473,7 +473,6 @@
                             "orderable": false,
                             "searchable": false,
                             "render": function(data, type, full, meta) {
-                                console.log(full);
                                 var status = '';
                                 if (full.status_id == 3) {
                                     status +=

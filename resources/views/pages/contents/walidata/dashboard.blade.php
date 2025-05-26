@@ -14,7 +14,7 @@
             </ol>
         </nav>
     </div><!-- End Page Title -->
-    {{-- <section class="section">
+    <section class="section">
         <div class="text-center" style="margin-left: 80%">
             <a class="btn btn-md btn-outline-secondary mb-3" style="width: 200px;" data-bs-toggle="collapse"
                 data-bs-target="#flush-collapseOne">
@@ -61,7 +61,7 @@
                 </div>
             </div>
         </div>
-    </section> --}}
+    </section>
     <section class="section dashboard">
 
         <div class="row">
