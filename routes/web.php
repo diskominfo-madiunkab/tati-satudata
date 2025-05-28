@@ -221,7 +221,7 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/calculate-progress/{id}', [DataController::class, 'calculateProgress'])->name('calculate_progress');
 
     Route::get('/data_walidata/ubah_data_prioritas/{id}', [DataController::class, 'aktifkan_data_prioritas'])->name('aktifkan-data-prioritas');
-    Route::get('/data_walidata/restore/{id}', [DataController::class, 'restore'])->middleware(['role:walidata|walidatapendukung']);
+    Route::get('/data_walidata/restore/{id}', [DataController::class, 'restore'])->middleware(['role:walidata|walidatapendukung|pembina']);
     Route::get('getData', [DataController::class, 'getData'])->middleware(['role:walidata|walidatapendukung'])->name('getData');
 
     Route::get('/data_walidata/pengumpulan', [PengumpulanController::class, 'pengumpulan'])->name('pengumpulan');

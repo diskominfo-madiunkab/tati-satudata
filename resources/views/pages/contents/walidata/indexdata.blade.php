@@ -470,7 +470,7 @@ dd(Auth::user());
                                     actionButtons += '</td>';
                                 }
 
-                                if (walidata || walidatapendukung) {
+                                if (walidata) {
 
                                     actionButtons += '<td>';
                                     actionButtons += '<form id="delete-pegawai-' + full.id +
