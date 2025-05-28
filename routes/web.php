@@ -245,6 +245,7 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/data_walidata/verifikasi/{id}/komentar', [Walidata\VerifikasiController::class, 'getKomentar'])->name('verifikasi.get-komentar');
     Route::post('/data_walidata/verifikasi/{id}/komentar', [Walidata\VerifikasiController::class, 'komentar'])->name('verifikasi.komentar');
     Route::patch('/data_walidata/verifikasi/{id}/verify', [Walidata\VerifikasiController::class, 'verify'])->name('verifikasi.verify');
+    Route::put('/data_walidata/verifikasi/{id}/verify-multi', [Walidata\VerifikasiController::class, 'verifyMulti'])->name('verifikasi.verify-multi');
     Route::get('/data_walidata/verifikasi/{id}/status', [Walidata\VerifikasiController::class, 'status'])->name('verifikasi.status');
     Route::patch('/data_walidata/verifikasi/{id}/complete', [Walidata\VerifikasiController::class, 'complete'])->name('verifikasi.complete');
     Route::get('/data_walidata/verifikasi', [Walidata\VerifikasiController::class, 'index']);

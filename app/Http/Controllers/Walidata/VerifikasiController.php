@@ -371,9 +371,8 @@ class VerifikasiController extends Controller
         $data = Data::find($id);
         // dd($data);
         if (!in_array($data->status_id, [Data::STATUS_PROSES_VERIFIKASI, Data::STATUS_REVISI])) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Data tidak dalam status proses verifikasi / revisi.')
-            ]);
+            Alert::error('Gagal', 'Data tidak dalam status proses verifikasi / revisi.');
+            return redirect()->back();
         }
 
         $accepted = $request->get('accepted');
@@ -394,6 +393,34 @@ class VerifikasiController extends Controller
         return response()->json(['ok' => true, 'message' => 'Berhasil disimpan']);
     }
 
+    public function verifyMulti($id, Request $request)
+    {
+        $request->validate([
+            'field' => 'required|array|min:1',
+            'category' => 'required|in:variabel,indikator,berkas,kegiatan'
+        ]);
+
+        $data = Data::find($id);
+        if (!in_array($data->status_id, [Data::STATUS_PROSES_VERIFIKASI, Data::STATUS_REVISI])) {
+            Alert::error('Gagal', 'Data tidak dalam status proses verifikasi / revisi.');
+            return redirect()->back();
+        }
+
+        foreach ($request->get('field') as $value) {
+            Verifikasi::updateOrCreate(
+                $data = [
+                    'category' => $request->get('category'),
+                    'data_id' => $id,
+                    'field' => $value
+                ],
+                array_merge($data, [
+                    'accepted' => 1
+                ])
+            );
+        }
+
+        return response()->json(['ok' => true, 'message' => 'Berhasil disimpan']);
+    }
 
     public function status($id)
     {

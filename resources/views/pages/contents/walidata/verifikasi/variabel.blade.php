@@ -70,7 +70,9 @@
 
                             <div class="row mb-3 align-items-center">
                                 <label for="alias" class="col-sm-2 col-form-label">Alias</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="alias" id="checkDefault">
                                     <input id="alias" name="alias" type="text"
                                         class="form-control {{ $alias ? ($alias->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Alias" value="{{ old('alias', optional($data->variabel)->alias) }}"
@@ -92,7 +94,9 @@
 
                             <div class="row mb-3">
                                 <label for="konsep" class="col-sm-2 col-form-label">Konsep</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="konsep" id="checkDefault">
                                     <textarea name="konsep"
                                         class="form-control {{ $konsep ? ($konsep->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Konsep" disabled>{{ old('konsep', optional($data->variabel)->konsep ?? optional($data->standar)->konsep) }}</textarea>
@@ -113,7 +117,9 @@
 
                             <div class="row mb-3">
                                 <label for="definisi" class="col-sm-2 col-form-label">Definisi</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="definisi" id="checkDefault">
                                     <textarea id="definisi" name="definisi" type="text"
                                         class="form-control {{ $definisi ? ($definisi->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Definisi" disabled>{{ old('definisi', optional($data->variabel)->definisi ?? optional($data->standar)->definisi) }}</textarea>
@@ -134,7 +140,9 @@
 
                             <div class="row mb-3">
                                 <label for="referensi_pemilihan" class="col-sm-2 col-form-label">Referensi Pemilihan</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="referensi_pemilihan" id="checkDefault">
                                     <input id="referensi_pemilihan" name="referensi_pemilihan" type="text"
                                         class="form-control {{ $referensi_pemilihan ? ($referensi_pemilihan->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Referensi Pemilihan"
@@ -158,7 +166,9 @@
 
                             <div class="row mb-3">
                                 <label for="referensi_waktu" class="col-sm-2 col-form-label">Referensi Waktu</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="referensi_waktu" id="checkDefault">
                                     <input id="referensi_waktu" name="referensi_waktu" type="text"
                                         class="form-control {{ $referensi_waktu ? ($referensi_waktu->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Referensi Waktu"
@@ -182,7 +192,9 @@
 
                             <div class="row mb-3">
                                 <label for="tipe_data" class="col-sm-2 col-form-label">Tipe Data</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="tipe_data" id="checkDefault">
                                     <select
                                         class="form-control {{ $tipe_data ? ($tipe_data->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         name="tipe_data" id="tipe_data" disabled>
@@ -222,7 +234,9 @@
 
                             <div class="row mb-3">
                                 <label for="ukuran" class="col-sm-2 col-form-label">Ukuran</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="ukuran" id="checkDefault">
                                     <input id="ukuran" name="ukuran" type="text"
                                         class="form-control {{ $ukuran ? ($ukuran->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Ukuran"
@@ -245,7 +259,9 @@
 
                             <div class="row mb-3">
                                 <label for="satuan" class="col-sm-2 col-form-label">Satuan</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="satuan" id="checkDefault">
                                     <input id="satuan" name="satuan" type="text"
                                         class="form-control {{ $satuan ? ($satuan->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Satuan"
@@ -268,7 +284,9 @@
 
                             <div class="row mb-3">
                                 <label for="klasifikasi_isian" class="col-sm-2 col-form-label">Klasifikasi Isian</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="klasifikasi_isian" id="checkDefault">
                                     <textarea name="klasifikasi_isian"
                                         class="form-control {{ $klasifikasi_isian ? ($klasifikasi_isian->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Klasifikasi Isian" disabled>{{ old('klasifikasi_isian', optional($data->variabel)->klasifikasi_isian ?? optional($data->standar)->klasifikasi) }}</textarea>
@@ -290,7 +308,9 @@
 
                             <div class="row mb-3">
                                 <label for="aturan_validasi" class="col-sm-2 col-form-label">Aturan Validasi</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="aturan_validasi" id="checkDefault">
                                     <textarea name="aturan_validasi"
                                         class="form-control {{ $aturan_validasi ? ($aturan_validasi->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Aturan Validasi" disabled>{{ old('aturan_validasi', optional($data->variabel)->aturan_validasi) }}</textarea>
@@ -312,7 +332,9 @@
 
                             <div class="row mb-3">
                                 <label for="kalimat_pertanyaan" class="col-sm-2 col-form-label">Kalimat Pertanyaan</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="kalimat_pertanyaan" id="checkDefault">
                                     <textarea name="kalimat_pertanyaan"
                                         class="form-control {{ $kalimat_pertanyaan ? ($kalimat_pertanyaan->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Kalimat Pertanyaan" disabled>{{ old('kalimat_pertanyaan', optional($data->variabel)->kalimat_pertanyaan) }}</textarea>
@@ -335,26 +357,30 @@
                             <div class="row mb-3">
                                 <label for="umum1" class="col-sm-2 col-form-label">Apakah kolom ini dapat diakses
                                     umum</label>
-                                <div class="col-sm-8">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="umum" id="umum1"
-                                            value="1"
-                                            {{ old('umum', optional($data->variabel)->umum) == 1 || empty(old('umum', optional($data->variabel)->umum))
-                                                ? 'checked'
-                                                : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="umum1">
-                                            Ya
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="umum" id="umum2"
-                                            value="0"
-                                            {{ old('umum', optional($data->variabel)->umum) == 0 ? 'checked' : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="umum2">
-                                            Tidak
-                                        </label>
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="umum" id="checkDefault">
+                                    <div class="">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="umum" id="umum1"
+                                                value="1"
+                                                {{ old('umum', optional($data->variabel)->umum) == 1 || empty(old('umum', optional($data->variabel)->umum))
+                                                    ? 'checked'
+                                                    : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="umum1">
+                                                Ya
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="umum" id="umum2"
+                                                value="0"
+                                                {{ old('umum', optional($data->variabel)->umum) == 0 ? 'checked' : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="umum2">
+                                                Tidak
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-2">
@@ -380,6 +406,7 @@
                                 {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
                                 Kembali</a>
                         @endif
+                        <button class="btn btn-success" id="acceptChoicesBtn">Setujui Pilihan</button>
                     </div>
                 </div>
             </div>
@@ -450,7 +477,7 @@
                                                 .catch(error => {
                                                     Swal.showValidationMessage(
                                                         `Request gagal: ${error}`
-                                                        )
+                                                    )
                                                 })
                                         },
                                         allowOutsideClick: () => !Swal.isLoading()
@@ -462,7 +489,7 @@
                                             title: result.value.message
                                         });
                                         location
-                                    .reload(); // Merefresh halaman setelah memberikan komentar
+                                            .reload(); // Merefresh halaman setelah memberikan komentar
                                     });
                                 })
                                 .catch(() => Toast.fire({
@@ -494,6 +521,27 @@
                         }));
                 }
             });
+
+            $("#acceptChoicesBtn").on('click', function(e) {
+                const acceptChoicesSelect = []
+                $("[name='accept_choices[]']:checked").each(function() {
+                    acceptChoicesSelect.push($(this).val());
+                })
+                $.ajax({
+                    url: '{{ route('verifikasi.verify-multi', $data->id) }}',
+                    data: {
+                        field: acceptChoicesSelect,
+                        category: 'variabel'
+                    },
+                    method: 'PUT',
+                }).then((r) => {
+                    Toast.fire({
+                        icon: r.ok ? 'success' : 'error',
+                        title: r.message
+                    });
+                    location.reload(); // Merefresh halaman setelah memberikan komentar
+                })
+            })
         });
     </script>
 @endpush

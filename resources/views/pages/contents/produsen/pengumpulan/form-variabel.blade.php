@@ -194,7 +194,7 @@
                                     <label for="klasifikasi_isian" class="col-sm-2 col-form-label">Klasifikasi
                                         Isian</label>
                                     <div class="col-sm-10">
-                                        <textarea name="klasifikasi_isian" readonly
+                                        <textarea name="klasifikasi_isian"
                                             class="form-control {{ isset($klasifikasi_isian) ? ($klasifikasi_isian->accepted ? 'is-valid' : 'is-invalid') : '' }}"
                                             style="height: 100px" spellcheck="false" placeholder="Klasifikasi Isian">{{ old('klasifikasi_isian', optional($getdata->variabel)->klasifikasi_isian ?? optional($getdata->standar)->klasifikasi) }}</textarea>
                                         @if (isset($klasifikasi_isian) && !empty($klasifikasi_isian->comment))

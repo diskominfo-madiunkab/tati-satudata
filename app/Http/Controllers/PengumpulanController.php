@@ -663,6 +663,7 @@ class PengumpulanController extends Controller
         $now = date('Y');
         // $existingData = Data::where('nama_data', trim($data->nama_data))->where('tahun', trim($year))->count();
         $existingData = Data::where('opd_id', auth()->user()->opd_id)->where('nama_data', 'like', '%' . $data->nama_data . '%')->where('tahun', $year)->count();
+        // $existingData = Data::where('opd_id', auth()->user()->opd_id)->where('nama_data', 'like', '%' . $data->nama_data . '%')->where('tahun', $year)->first();
         $cekexistingData = Data::where('opd_id', auth()->user()->opd_id)->where('nama_data', 'like', '%' . $data->nama_data . '%')->where('tahun', $now)->with('indikator')->first();
         // dd($cekexistingData);
         // dd($existingData2->indikator);
@@ -672,15 +673,17 @@ class PengumpulanController extends Controller
             // $year = date('Y');
             $getdata = Data::with(['opd', 'standar', 'indikator'])
                 // ->where('id', $id)
-                ->where('opd_id', auth()->user()->opd_id)
-                ->where('tahun', $year)->where('id', $data->id)
+                // ->where('opd_id', auth()->user()->opd_id)
+                // ->where('tahun', $year)
+                ->where('id', $data->id)
                 ->first();
             if (isset($cekexistingData->indikator)) {
                 // dd('b');
                 $getdata = Data::with(['opd', 'standar', 'indikator'])
-                    ->where('id', $id)
-                    ->where('opd_id', auth()->user()->opd_id)
-                    ->where('tahun', $now)->where('id', $data->id)
+                    // ->where('id', $id)
+                    // ->where('opd_id', auth()->user()->opd_id)
+                    // ->where('tahun', $now)
+                    ->where('id', $data->id)
                     ->first();
             }
         }

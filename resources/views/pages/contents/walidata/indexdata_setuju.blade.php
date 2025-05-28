@@ -407,7 +407,7 @@
                                 actionButtons += '</td>';
 
                                 if (
-                                    {{ auth()->user()->hasRole('walidata') || auth()->user()->hasRole('pembina') }}
+                                    {{ auth()->user()->hasRole('walidata') || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung') }}
                                 ) {
                                     actionButtons += '<td>';
                                     actionButtons += '<form id="restore-data-' + full.id +

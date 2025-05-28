@@ -19,7 +19,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Daftar Data</h5>
 
-                        @if (auth()->user()->hasRole('walidata') || Auth::user()->role_id == 5)
+                        @if (auth()->user()->hasRole('walidata'))
                             <table>
                                 <th>
                                 </th>

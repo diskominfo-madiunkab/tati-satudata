@@ -238,15 +238,13 @@ dd();
                             buttonsHtml +=
                                 '<a class="btn btn-outline-success btn-sm" href="/export/' + full
                                 .id + '"><i class="bi bi-file-zip"></i>Export</a>';
-                            if (opd_id == full.opd_id) {
-                                if (full.status_id == 9) {
-                                    if (full.publikasi && full.publikasi.slug) {
-                                        buttonsHtml +=
-                                            '<a href="https://ckan-data.madiunkab.go.id/dataset/' +
-                                            full.publikasi.slug +
-                                            '" class="btn btn-outline-primary btn-sm" target="_new">CKAN <i class="bi bi-app-indicator"></i></a>';
-                                    }
-                                } else {}
+                            if (full.status_id == 9) {
+                                if (full.publikasi && full.publikasi.slug) {
+                                    buttonsHtml +=
+                                        '<a href="https://ckan-data.madiunkab.go.id/dataset/' +
+                                        full.publikasi.slug +
+                                        '" class="btn btn-outline-primary btn-sm" target="_new">CKAN <i class="bi bi-app-indicator"></i></a>';
+                                }
                             }
 
                             buttonsHtml +=

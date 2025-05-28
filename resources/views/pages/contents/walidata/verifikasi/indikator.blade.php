@@ -80,10 +80,11 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row mb-3">
                                 <label for="konsep" class="col-sm-2 col-form-label">Konsep</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="konsep" id="checkDefault">
                                     <textarea name="konsep"
                                         class="form-control {{ $konsep ? ($konsep->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Konsep" disabled>{{ old('konsep', optional($data->variabel)->konsep ?? optional($data->standar)->konsep) }}</textarea>
@@ -107,7 +108,9 @@
 
                             <div class="row mb-3">
                                 <label for="definisi" class="col-sm-2 col-form-label">Definisi</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="definisi" id="checkDefault">
                                     <textarea id="definisi" name="definisi" type="text"
                                         class="form-control {{ $definisi ? ($definisi->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Definisi" disabled>{{ old('definisi', optional($data->variabel)->definisi ?? optional($data->standar)->definisi) }}</textarea>
@@ -131,7 +134,9 @@
 
                             <div class="row mb-3">
                                 <label for="interpretasi" class="col-sm-2 col-form-label">Interpretasi</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="interpretasi" id="checkDefault">
                                     <textarea id="interpretasi" name="interpretasi" type="text" readonly
                                         class="form-control {{ isset($interpretasi) ? ($interpretasi->accepted ? 'is-valid' : 'is-invalid') : '' }}"
                                         style="height: 100px" spellcheck="false" placeholder="Interpretasi">{{ old('interpretasi', optional($data->indikator)->interpretasi) }}</textarea>
@@ -159,7 +164,9 @@
                                     @php
                                         $isImage = Str::startsWith(optional($data->indikator)->metode, 'public/');
                                     @endphp
-                                    <div class="col-sm-{{ $isImage ? 4 : 8 }}">
+                                    <div class="col-sm-{{ $isImage ? 4 : 8 }} d-flex">
+                                        <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                            value="metode" id="checkDefault">
                                         <textarea name="metode" id="metode"
                                             class="form-control {{ isset($metode) ? ($metode->accepted ? 'is-valid' : 'is-invalid') : '' }}"
                                             style="height: 100px" spellcheck="false" placeholder="Metode / Rumus Perhitungan" disabled>{{ optional($data->indikator)->metode }}</textarea>
@@ -190,7 +197,9 @@
 
                             <div class="row mb-3">
                                 <label for="ukuran" class="col-sm-2 col-form-label">Ukuran</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="ukuran" id="checkDefault">
                                     <input id="ukuran" name="ukuran" type="text" readonly
                                         class="form-control {{ $ukuran ? ($ukuran->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Ukuran"
@@ -215,7 +224,9 @@
 
                             <div class="row mb-3">
                                 <label for="satuan" class="col-sm-2 col-form-label">Satuan</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="satuan" id="checkDefault">
                                     <input id="satuan" name="satuan" type="text"
                                         class="form-control {{ $satuan ? ($satuan->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         placeholder="Satuan"
@@ -242,7 +253,9 @@
                             <div class="row mb-3">
                                 <label for="klasifikasi_penyajian" class="col-sm-2 col-form-label">Klasifikasi
                                     Penyajian</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="klasifikasi" id="checkDefault">
                                     <textarea name="klasifikasi_penyajian" readonly
                                         class="form-control {{ $klasifikasi_penyajian ? ($klasifikasi_penyajian->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Klasifikasi Penyajian">{{ old('klasifikasi_penyajian', optional($data->indikator)->klasifikasi_penyajian) }}</textarea>
@@ -268,26 +281,30 @@
 
                             <div class="row mb-3">
                                 <label for="komposit" class="col-sm-2 col-form-label">Apakah indikator komposit?</label>
-                                <div class="col-sm-8">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input {{ isset($komposit) ? ($komposit->accepted ? 'is-valid' : 'is-invalid') : '' }}"
-                                            type="radio" name="komposit" id="komposit1" value="1"
-                                            {{ old('komposit', optional($data->indikator)->komposit) == 1 ? 'checked' : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="gridRadios1"> Ya </label>
-                                    </div>
-                                    {{-- {{$komposit->accepted}} --}}
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input {{ isset($komposit) ? ($komposit->accepted ? 'is-valid' : 'is-invalid') : '' }}"
-                                            type="radio" name="komposit" id="komposit2" value="0"
-                                            {{ old('komposit', optional($data->indikator)->komposit) == 0 ||
-                                            empty(old('komposit', optional($data->indikator)->komposit))
-                                                ? 'checked'
-                                                : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="gridRadios1"> Tidak </label>
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="komposit" id="checkDefault">
+                                    <div class="">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input {{ isset($komposit) ? ($komposit->accepted ? 'is-valid' : 'is-invalid') : '' }}"
+                                                type="radio" name="komposit" id="komposit1" value="1"
+                                                {{ old('komposit', optional($data->indikator)->komposit) == 1 ? 'checked' : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="gridRadios1"> Ya </label>
+                                        </div>
+                                        {{-- {{$komposit->accepted}} --}}
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input {{ isset($komposit) ? ($komposit->accepted ? 'is-valid' : 'is-invalid') : '' }}"
+                                                type="radio" name="komposit" id="komposit2" value="0"
+                                                {{ old('komposit', optional($data->indikator)->komposit) == 0 ||
+                                                empty(old('komposit', optional($data->indikator)->komposit))
+                                                    ? 'checked'
+                                                    : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="gridRadios1"> Tidak </label>
+                                        </div>
                                     </div>
                                 </div>
                                 @if ($data->status_id != 7)
@@ -312,12 +329,16 @@
                                     <label for="publikasi_indikator_pembangun" class="col-sm-2 col-form-label">Publikasi
                                         Ketersediaan
                                         Indikator Pembangun</label>
-                                    <div class="col-sm-8">
-                                        <input id="publikasi_indikator_pembangun" name="publikasi_indikator_pembangun"
-                                            type="text" readonly
-                                            class="form-control {{ $publikasi_indikator_pembangun ? ($publikasi_indikator_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
-                                            value="{{ old('publikasi_indikator_pembangun', optional($data->indikator)->publikasi_indikator_pembangun) }}">
-                                        <small class="text-muted">Catatan: Diisikan ketika indikator komposit.</small>
+                                    <div class="col-sm-8 d-flex">
+                                        <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                            value="publikasi_indikator_pembangun" id="checkDefault">
+                                        <div class="">
+                                            <input id="publikasi_indikator_pembangun" name="publikasi_indikator_pembangun"
+                                                type="text" readonly
+                                                class="form-control {{ $publikasi_indikator_pembangun ? ($publikasi_indikator_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
+                                                value="{{ old('publikasi_indikator_pembangun', optional($data->indikator)->publikasi_indikator_pembangun) }}">
+                                            <small class="text-muted">Catatan: Diisikan ketika indikator komposit.</small>
+                                        </div>
                                     </div>
                                     {{-- {{$publikasi_indikator_pembangun->accepted}} --}}
                                     @if ($data->status_id != 7)
@@ -342,12 +363,17 @@
                                 <div class="row mb-3">
                                     <label for="nama_indikator_pembangun" class="col-sm-2 col-form-label">Nama Indikator
                                         Pembangun</label>
-                                    <div class="col-sm-8">
-                                        <textarea name="nama_indikator_pembangun" readonly
-                                            class="form-control {{ $nama_indikator_pembangun ? ($nama_indikator_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
-                                            style="height: 100px" spellcheck="false" placeholder="Nama Indikator Pembangun">{{ old('nama_indikator_pembangun', optional($data->indikator)->nama_indikator_pembangun) }}</textarea>
-                                        <small class="text-muted">Catatan: Diisikan ketika indikator komposit. Daftar nama
-                                            dipisah menggunakan enter.</small>
+                                    <div class="col-sm-8 d-flex">
+                                        <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                            value="nama_indikator_pembangun" id="checkDefault">
+                                        <div class="">
+                                            <textarea name="nama_indikator_pembangun" readonly
+                                                class="form-control {{ $nama_indikator_pembangun ? ($nama_indikator_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
+                                                style="height: 100px" spellcheck="false" placeholder="Nama Indikator Pembangun">{{ old('nama_indikator_pembangun', optional($data->indikator)->nama_indikator_pembangun) }}</textarea>
+                                            <small class="text-muted">Catatan: Diisikan ketika indikator komposit. Daftar
+                                                nama
+                                                dipisah menggunakan enter.</small>
+                                        </div>
                                     </div>
                                     {{-- {{$nama_indikator_pembangun->accepted}} --}}
                                     @if ($data->status_id != 7)
@@ -410,13 +436,18 @@
                                 <div class="row mb-3">
                                     <label for="nama_variabel_pembangun" class="col-sm-2 col-form-label">Nama Variabel
                                         Pembangun</label>
-                                    <div class="col-sm-8">
-                                        <textarea name="nama_variabel_pembangun" readonly
-                                            class="form-control {{ $nama_variabel_pembangun ? ($nama_variabel_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
-                                            style="height: 100px" spellcheck="false" placeholder="Nama Variabel Pembangun">{{ old('nama_variabel_pembangun', optional($data->indikator)->nama_variabel_pembangun) }}</textarea>
-                                        <small class="text-muted">Catatan: Diisikan ketika <b>bukan</b> indikator komposit.
-                                            Daftar nama
-                                            dipisah menggunakan enter.</small>
+                                    <div class="col-sm-8 d-flex">
+                                        <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                            value="nama_variabel_pembangun" id="checkDefault">
+                                        <div class="">
+                                            <textarea name="nama_variabel_pembangun" readonly
+                                                class="form-control {{ $nama_variabel_pembangun ? ($nama_variabel_pembangun->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
+                                                style="height: 100px" spellcheck="false" placeholder="Nama Variabel Pembangun">{{ old('nama_variabel_pembangun', optional($data->indikator)->nama_variabel_pembangun) }}</textarea>
+                                            <small class="text-muted">Catatan: Diisikan ketika <b>bukan</b> indikator
+                                                komposit.
+                                                Daftar nama
+                                                dipisah menggunakan enter.</small>
+                                        </div>
                                     </div>
                                     {{-- {{$nama_variabel_pembangun->accepted}} --}}
                                     @if ($data->status_id != 7)
@@ -441,7 +472,9 @@
 
                             <div class="row mb-3">
                                 <label for="level_estimasi" class="col-sm-2 col-form-label">Level Estimasi</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="level_estimasi" id="checkDefault">
                                     <select
                                         class="form-control {{ $level_estimasi ? ($level_estimasi->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         name="level_estimasi" id="level_estimasi" disabled>
@@ -500,26 +533,30 @@
                             <div class="row mb-3">
                                 <label for="umum1" class="col-sm-2 col-form-label">Apakah kolom ini dapat diakses
                                     umum</label>
-                                <div class="col-sm-8">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="umum" id="umum1"
-                                            value="1"
-                                            {{ old('umum', optional($data->indikator)->umum) == 1 || empty(old('umum', optional($data->indikator)->umum))
-                                                ? 'checked'
-                                                : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="umum1">
-                                            Ya
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="umum" id="umum2"
-                                            value="0"
-                                            {{ old('umum', optional($data->indikator)->umum) == 0 ? 'checked' : '' }}
-                                            disabled>
-                                        <label class="form-check-label" for="umum2">
-                                            Tidak
-                                        </label>
+                                <div class="col-sm-8 d-flex">
+                                    <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
+                                        value="umum" id="checkDefault">
+                                    <div class="">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="umum" id="umum1"
+                                                value="1"
+                                                {{ old('umum', optional($data->indikator)->umum) == 1 || empty(old('umum', optional($data->indikator)->umum))
+                                                    ? 'checked'
+                                                    : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="umum1">
+                                                Ya
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="umum" id="umum2"
+                                                value="0"
+                                                {{ old('umum', optional($data->indikator)->umum) == 0 ? 'checked' : '' }}
+                                                disabled>
+                                            <label class="form-check-label" for="umum2">
+                                                Tidak
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 {{-- {{$umum->accepted}} --}}
@@ -548,6 +585,7 @@
                                 {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
                                 Kembali</a>
                         @endif
+                        <button class="btn btn-success" id="acceptChoicesBtn">Setujui Pilihan</button>
                     </div>
                 </div>
 
@@ -660,6 +698,27 @@
                         }));
                 }
             });
+
+            $("#acceptChoicesBtn").on('click', function(e) {
+                const acceptChoicesSelect = []
+                $("[name='accept_choices[]']:checked").each(function() {
+                    acceptChoicesSelect.push($(this).val());
+                })
+                $.ajax({
+                    url: '{{ route('verifikasi.verify-multi', $data->id) }}',
+                    data: {
+                        field: acceptChoicesSelect,
+                        category: 'indikator'
+                    },
+                    method: 'PUT',
+                }).then((r) => {
+                    Toast.fire({
+                        icon: r.ok ? 'success' : 'error',
+                        title: r.message
+                    });
+                    location.reload(); // Merefresh halaman setelah memberikan komentar
+                })
+            })
         });
     </script>
 @endpush
