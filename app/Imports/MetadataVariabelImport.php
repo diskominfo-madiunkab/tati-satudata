@@ -28,16 +28,16 @@ class MetadataVariabelImport implements ToModel, WithMultipleSheets, WithStartRo
 
     public function model(array $row)
     {
-        StandarData::updateOrCreate(
-            ['data_id' => $this->dataId],
-            [
-                'konsep' => $row[3],
-                'definisi' => $row[4],
-                'klasifikasi' => $row[10],
-                'satuan' => $row[9],
-                'ukuran' => $row[8]
-            ]
-        );
+        // StandarData::updateOrCreate(
+        //     ['data_id' => $this->dataId],
+        //     [
+        //         'konsep' => $row[3],
+        //         'definisi' => $row[4],
+        //         'klasifikasi' => $row[10],
+        //         'satuan' => $row[9],
+        //         'ukuran' => $row[8]
+        //     ]
+        // );
 
         return MetadataVariabel::updateOrCreate(
             [
@@ -47,17 +47,13 @@ class MetadataVariabelImport implements ToModel, WithMultipleSheets, WithStartRo
                 'data_id' => $this->dataId,
                 'nama' => $this->namaData,
                 'alias' => $row[2],
-                'konsep' => $row[3],
-                'definisi' => $row[4],
-                'referensi_pemilihan' => $row[5],
-                'referensi_waktu' => $row[6],
-                'tipe_data' => strtolower($row[7] ?? ''),
-                'ukuran' => $row[8],
-                'satuan' => $row[9],
-                'klasifikasi_isian' => $row[10],
-                'aturan_validasi' => $row[11],
-                'kalimat_pertanyaan' => $row[12],
-                'umum' => $row[13] ? ($row[13] == 1 ? 1 : 0) : 0
+                'referensi_pemilihan' => $row[3],
+                'referensi_waktu' => $row[4],
+                'tipe_data' => strtolower($row[5] ?? ''),
+                'klasifikasi_isian' => $row[6],
+                'aturan_validasi' => $row[7],
+                'kalimat_pertanyaan' => $row[8],
+                'umum' => $row[9] ? ($row[9] == 1 ? 1 : 0) : 0
             ]
         );
     }

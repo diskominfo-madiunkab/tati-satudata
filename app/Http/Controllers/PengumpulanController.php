@@ -703,10 +703,9 @@ class PengumpulanController extends Controller
         $indikatorData = Excel::toCollection(new MetadataIndikatorImport($data->id, $data->nama_data), $request->file('metadata'));
 
         $meta = data_get($indikatorData, '0.0', []);
-        if ($meta->count() < 12) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Berkas excel tidak valid. Data kosong! Pastikan Anda menggunakan template yang sudah disediakan')
-            ]);
+        if ($meta->count() < 11) {
+            Alert::error('Gagal', 'Berkas excel tidak valid. Data kosong! Pastikan Anda menggunakan template yang sudah disediakan');
+            return redirect()->back();
         }
 
         $import = new MetadataIndikatorImport($data->id, $data->nama_data);
@@ -812,18 +811,16 @@ class PengumpulanController extends Controller
         $indikatorData = Excel::toCollection(new MetadataVariabelImport($data->id, $data->nama_data), $request->file('metadata'));
 
         $meta = data_get($indikatorData, '0.0', []);
-        if ($meta->count() < 14) {
-            return redirect()->back()->with([
-                Alert::error('Gagal', 'Berkas excel tidak valid. Data kosong! Pastikan Anda menggunakan template yang sudah disediakan')
-            ]);
+        if ($meta->count() < 10) {
+            Alert::error('Gagal', 'Berkas excel tidak valid. Data kosong! Pastikan Anda menggunakan template yang sudah disediakan');
+            return redirect()->back();
         }
 
         $import = new MetadataVariabelImport($data->id, $data->nama_data);
         $import->model($meta->all());
 
-        return redirect()->back()->with([
-            Alert::success('Berhasil', 'Import metadata berhasil. Silahkan periksa kembali hasil import metadata')
-        ]);
+        Alert::success('Berhasil', 'Import metadata berhasil. Silahkan periksa kembali hasil import metadata');
+        return redirect()->back();
     }
 
     public function simpanVariabel($id, Request $request)
