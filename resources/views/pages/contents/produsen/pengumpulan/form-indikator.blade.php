@@ -178,7 +178,7 @@
                                     <div class="col-sm-10">
                                         <textarea name="klasifikasi_penyajian"
                                             class="form-control {{ isset($klasifikasi_penyajian) ? ($klasifikasi_penyajian->accepted ? 'is-valid' : 'is-invalid') : '' }}"
-                                            style="height: 100px" spellcheck="false" placeholder="Klasifikasi Penyajian">{{ old('klasifikasi_penyajian', optional($data->standar)->klasifikasi) }}</textarea>
+                                            style="height: 100px" spellcheck="false" placeholder="Klasifikasi Penyajian">{{ old('klasifikasi_penyajian', $getdata->indikator?->klasifikasi_penyajian ?? optional($data->standar)->klasifikasi) }}</textarea>
 
                                         @if (isset($klasifikasi_penyajian) && !empty($klasifikasi_penyajian->comment))
                                             <p class="text-muted text-comment">Komentar:
