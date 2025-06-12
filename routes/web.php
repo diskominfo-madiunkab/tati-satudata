@@ -11,14 +11,14 @@ use App\Http\Controllers\MasterTahunController;
 use App\Http\Controllers\OpdController;
 use App\Http\Controllers\PengumpulanController;
 use App\Http\Controllers\PortalController;
-use App\Http\Controllers\UpdownloadController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\Produsen;
 use App\Http\Controllers\PublikasiGuestController;
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\StandartDataController;
 use App\Http\Controllers\SumberDataController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\UpdownloadController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsulanDataController;
 use App\Http\Controllers\VisualDataController;
 use App\Http\Controllers\Walidata;
@@ -47,7 +47,7 @@ Route::get('/download-file-count', [PortalController::class, 'downloadFileCount'
 Route::post('/dataset/grafik', [PortalController::class, 'storeDataByFilter'])->name('dataset.chart.storeDataByFilter');
 Route::get('/download-detail-infografis/{id}', [PortalController::class, 'downloadImage'])->name('download.image.infografis');
 Route::get('/download-detail-infografis-pdf/{id}', [PortalController::class, 'downloadPdf'])->name('download.image.infografis.pdf');
-//Route::get('/berita', [PortalController::class, 'berita']);
+// Route::get('/berita', [PortalController::class, 'berita']);
 Route::post('/send-usulan', [PortalController::class, 'send_usulan'])->name('send.usulan');
 // Route::get('/reload-captcha', [PortalController::class, 'reloadCaptcha']);
 Route::get('reload-captcha', function () {
@@ -55,6 +55,7 @@ Route::get('reload-captcha', function () {
 });
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
+
     return redirect()->back()->with('success', 'Cache cleared successfully');
 });
 
@@ -65,8 +66,6 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 //         Route::resource('usulan-data', UsulanDataController::class);
 //     }
 // );
-
-
 
 Route::get('/download-excel-list', [ListExcelController::class, 'index'])->name('download-excel-list');
 Route::middleware(['role:administrator', 'auth:web'])->group(function () {
@@ -84,10 +83,10 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
 
     Route::post('/data/import', function () {
         Excel::import(new DataImport, request()->file('file'));
+
         return back();
     });
     Route::get('/data_administrator/verifikasi_data', [DataController::class, 'verifikasi_data'])->name('data_administrator.verif');
-
 
     Route::get('/opd', [OpdController::class, 'index'])->name('opd');
     Route::get('/opd/create', [OpdController::class, 'create'])->name('opd.create');
@@ -99,6 +98,7 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::post('/opd/import', function () {
         Excel::import(new OpdImport, request()->file('file'));
         Alert::success('Berhasil', 'Berhasil Menambahkan Data Dari Excel!');
+
         return back();
     });
     Route::get('/user', [UserController::class, 'index'])->name('user');
@@ -112,6 +112,7 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::post('/user/import', function () {
         Excel::import(new UserImport, request()->file('file'));
         Alert::success('Berhasil', 'Berhasil Menambahkan Data Dari Excel!');
+
         return back();
     });
 
@@ -191,7 +192,6 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/data_walidata/destroy/{id}', [DataController::class, 'destroy'])->middleware(['role:walidata|walidatapendukung']);
     Route::get('/data_walidata/get_all_opdall', [DataController::class, 'get_all_opdall']);
 
-
     Route::resource('box-value', BoxValueController::class);
     // standardata
     Route::get('/data_walidata/standar-data', [StandartDataController::class, 'index_walidata'])->name('walidata.standar-data.index');
@@ -206,11 +206,8 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/data_walidata/standar-data/verifikasi/{id}/komentar', [StandartDataController::class, 'getKomentar'])->name('walidata.standar-data.verifikasi.get-komentar');
     Route::post('/data_walidata/standar-data/verifikasi/{id}/komentar', [StandartDataController::class, 'komentar'])->name('walidata.standar-data.verifikasi.komentar');
 
-
-
-
     Route::get('/get_data_opd', [DataController::class, 'get_all_opd'])->middleware(['role:walidata|walidatapendukung']);
-    Route::get('/get_all_opdall', [DataController::class, 'get_all_opdall'])->middleware(['role:walidata|walidatapendukung|walidatapendukung']);
+    Route::get('/get_all_opdall', [DataController::class, 'get_all_opdall'])->middleware(['role:walidata|walidatapendukung']);
     Route::get('/get_all_opdall/cari/{id}', [DataController::class, 'cari_opd'])->middleware(['role:walidata|walidatapendukung']);
 
     // Route::post('/data_walidata/export-pdf', [DataController::class, 'pdf2']);
@@ -254,7 +251,6 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
 
     Route::post('/filter_verifikasi_walidata', [Walidata\VerifikasiController::class, 'filter_verifikasi'])->name('filter_verifikasi_walidata');
 
-
     Route::group(['prefix' => '/data_walidata/publikasi', 'as' => 'publikasi.', 'middleware' => 'role:walidata|walidatapendukung|pembina'], function () {
         Route::get('/', [Walidata\PublikasiController::class, 'index'])->name('index');
         Route::get('/{id}/organisasi', [Walidata\PublikasiController::class, 'organisasi'])->name('organisasi');
@@ -268,7 +264,6 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
         Route::get('/{id}/ckanshow', [Walidata\PublikasiController::class, 'ckanshow'])->name('ckanshow');
     });
     Route::post('/filter_publikasi', [Walidata\PublikasiController::class, 'filter_publikasi'])->name('filter_publikasi');
-
 
     Route::post('/data_walidata/import', [DataController::class, 'importData'])->middleware(['role:walidata|walidatapendukung']);
     Route::get('/data_walidata/notif', [DataController::class, 'notif'])->name('notif');
@@ -310,7 +305,6 @@ Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(fu
     // Route::match(['get', 'post'], '/data_produsen/pengumpulan/{id}/standar', [PengumpulanController::class, 'standarData'])->name('standar');
     Route::match(['get', 'post'], '/data_produsen/standar-data/{id}/standar', [PengumpulanController::class, 'standarData'])->name('produsen.standar-data.standar');
 
-
     Route::get('/data_produsen/pengumpulan/{id}/data', [PengumpulanController::class, 'detailData'])->name('pengumpulan.visual.grafik');
     Route::get('/data_produsen/pengumpulan/{id}/indikator', [PengumpulanController::class, 'indikator'])->name('indikator');
     Route::post('/data_produsen/pengumpulan/{id}/simpan-indikator', [PengumpulanController::class, 'simpanIndikator'])->name('simpan-indikator');
@@ -333,10 +327,9 @@ Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(fu
     Route::post('/data_produsen/pengumpulan/berkas_data/delete', [VisualDataController::class, 'destroy_berkas'])->name('visual.berkas.delete');
     // visual data excel
     Route::post('/data_produsen/pengumpulan/visualisasi_data/import', [VisualDataController::class, 'import'])->name('visual.data.import');
-    //visual data update delete
+    // visual data update delete
     Route::post('/data/update-cell', [VisualDataController::class, 'updateCell'])->name('data.updateCell');
     Route::post('/data/delete-row', [VisualDataController::class, 'deleteRow'])->name('data.deleteRow');
-
 
     Route::get('/data_produsen/verifikasi', [Produsen\VerifikasiController::class, 'index'])->name('produsen.verifikasi.index');
     Route::get('/data_produsen/verifikasi/revisi', [Produsen\VerifikasiController::class, 'revisi'])->name('produsen.verifikasi.revisi');
@@ -366,6 +359,7 @@ Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(fu
 
     Route::post('/data_produsen/import', function () {
         Excel::import(new DataImport, request()->file('file'));
+
         return back();
     });
 });

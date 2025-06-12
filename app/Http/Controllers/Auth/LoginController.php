@@ -50,6 +50,7 @@ class LoginController extends Controller
         } elseif ($user->hasRole('produsen')) {
             return redirect()->route('d_produsen');
         }
+
         return redirect()->to('/');
     }
 
@@ -77,10 +78,10 @@ class LoginController extends Controller
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'captcha' => 'required|captcha'
+            'captcha' => 'required|captcha',
         ], [
             'captcha.captcha' => 'Kode captcha yang dimasukkan tidak valid. Silakan coba lagi.',
-            'captcha.required' => 'Kode captcha wajib diisi'
+            'captcha.required' => 'Kode captcha wajib diisi',
         ]);
     }
 
@@ -95,6 +96,7 @@ class LoginController extends Controller
 
             if ($user) {
                 Auth::login($user);
+
                 return true;
             }
 
@@ -107,7 +109,6 @@ class LoginController extends Controller
     /**
      * Get the needed authorization credentials from the request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     protected function credentials(Request $request)

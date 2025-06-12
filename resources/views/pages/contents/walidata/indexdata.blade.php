@@ -32,11 +32,6 @@
                                 <i class="bi bi-file-earmark-spreadsheet"></i> Import Data
                             </a>
 
-                            <a class="btn btn-md btn-outline-primary mb-3 float-right" style="width: 200px"
-                                href="/get_all_opdall">
-                                <i class="bi bi-arrow-down-circle-fill"></i>
-                                <span>Berita Acara</span>
-                            </a>
 
                             {{-- <a class="btn btn-md btn-outline-secondary mb-3 float-right" style="width: 200px;float: right"
                         data-bs-toggle="collapse" data-bs-target="#flush-collapseOne">
@@ -87,6 +82,11 @@
                     </div> --}}
                         @endif
 
+                        <a class="btn btn-md btn-outline-primary mb-3 float-right" style="width: 200px"
+                            href="/get_all_opdall">
+                            <i class="bi bi-arrow-down-circle-fill"></i>
+                            <span>Berita Acara</span>
+                        </a>
                         <ul class="nav nav-tabs nav-tabs-bordered d-flex text-center" role="tablist">
                             <li class="nav-item flex-fill" role="presentation">
                                 <a href="/data_walidata/draft"

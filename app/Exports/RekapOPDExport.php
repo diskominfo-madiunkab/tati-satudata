@@ -11,8 +11,11 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 class RekapOPDExport implements FromCollection, WithHeadings, WithTitle
 {
     private Collection $data;
+
     private Collection $opds;
+
     private Collection $formattedData;
+
     public function __construct($data, $opds)
     {
         $this->data = $data;
@@ -32,16 +35,17 @@ class RekapOPDExport implements FromCollection, WithHeadings, WithTitle
                 $opd->nama_opd,
                 $data->where('status_id', Data::STATUS_DRAFT)->sum('total') ?? 0,
                 $data->where('status_id', Data::STATUS_TOLAK)->sum('total') ?? 0,
-                $data->where('status_id', Data::STATUS_SETUJU)->sum('total') ?? 0,
-                $data->where('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->sum('total') ?? 0,
-                $data->where('status_id', Data::STATUS_SETUJU_STANDART_DATA)->sum('total') ?? 0,
+                $data->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->sum('total') ?? 0,
+                $data->where('status_id', Data::STATUS_SETUJU_STANDART_DATA)->sum('total') ?? '0',
+                $data->where('status_id', Data::STATUS_PROSES_VERIFIKASI)->sum('total') ?? 0,
                 $data->where('status_id', Data::STATUS_REVISI)->sum('total') ?? 0,
                 $data->where('status_id', Data::STATUS_SIAP_PUBLIKASI)->sum('total') ?? 0,
                 $data->where('status_id', Data::STATUS_TERPUBLIKASI)->sum('total') ?? 0,
                 $data->where('status_id', Data::STATUS_DRAFT)
                     ->sum('total') + $data->where('status_id', Data::STATUS_TOLAK)
-                    ->sum('total') + $data->where('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])
+                    ->sum('total') + $data->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])
                     ->sum('total') + $data->where('status_id', Data::STATUS_SETUJU_STANDART_DATA)
+                    ->sum('total') + $data->where('status_id', Data::STATUS_PROSES_VERIFIKASI)
                     ->sum('total') + $data->where('status_id', Data::STATUS_REVISI)
                     ->sum('total') + $data->where('status_id', Data::STATUS_SIAP_PUBLIKASI)
                     ->sum('total') + $data->where('status_id', Data::STATUS_TERPUBLIKASI)
@@ -57,7 +61,6 @@ class RekapOPDExport implements FromCollection, WithHeadings, WithTitle
     {
         return $this->formattedData;
     }
-
 
     public function title(): string
     {
@@ -77,7 +80,7 @@ class RekapOPDExport implements FromCollection, WithHeadings, WithTitle
             'Revisi',
             'Siap Publikasi',
             'Terpublikasi',
-            'Total'
+            'Total',
         ];
     }
 }

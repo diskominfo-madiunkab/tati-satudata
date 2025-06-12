@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithStartRow;
 class MetadataIndikatorImport implements ToModel, WithMultipleSheets, WithStartRow
 {
     private int $dataId;
+
     private string $namaData;
 
     public function __construct($dataId, $namaData)
@@ -46,7 +47,7 @@ class MetadataIndikatorImport implements ToModel, WithMultipleSheets, WithStartR
 
         return MetadataIndikator::updateOrCreate(
             [
-                'data_id' => $this->dataId
+                'data_id' => $this->dataId,
             ],
             [
                 'data_id' => $this->dataId,
@@ -69,8 +70,18 @@ class MetadataIndikatorImport implements ToModel, WithMultipleSheets, WithStartR
         if (empty($level)) {
             return 'nasional';
         }
+        if ($level === 'Kabupaten/Kota') {
+            $level = 'kabupaten';
+        }
+        if ($level === 'Rumah Tangga') {
+            $level = 'rt';
+        }
+        if ($level === 'Desa/Kelurahan') {
+            $level = 'kelurahan';
+        }
+        $newLevel = str_replace(' ', '_', $level);
 
-        return strtolower(trim($level));
+        return strtolower(trim($newLevel));
     }
 
     public function startRow(): int
