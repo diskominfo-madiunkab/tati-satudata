@@ -255,7 +255,7 @@
                                     Penyajian</label>
                                 <div class="col-sm-8 d-flex">
                                     <input class="form-check-input me-2" type="checkbox" name="accept_choices[]"
-                                        value="klasifikasi" id="checkDefault">
+                                        value="klasifikasi_penyajian" id="checkDefault">
                                     <textarea name="klasifikasi_penyajian" readonly
                                         class="form-control {{ $klasifikasi_penyajian ? ($klasifikasi_penyajian->accepted ? 'is-valid' : 'is-invalid') : '' }} bg-light"
                                         style="height: 100px" spellcheck="false" placeholder="Klasifikasi Penyajian">{{ old('klasifikasi_penyajian', optional($data->indikator)->klasifikasi_penyajian) }}</textarea>
