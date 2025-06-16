@@ -406,9 +406,7 @@
                                     '" class="btn btn-sm btn-warning" style="color: white" data-bs-placement="bottom" title="Detail Data"><i class="bi bi-info-circle"></i></a>';
                                 actionButtons += '</td>';
 
-                                if (
-                                    {{ auth()->user()->hasRole('walidata') || auth()->user()->hasRole('pembina') || auth()->user()->hasRole('walidatapendukung') }}
-                                ) {
+                                @if (auth()->user()->hasRole('walidata'))
                                     actionButtons += '<td>';
                                     actionButtons += '<form id="restore-data-' + full.id +
                                         '" action="{{ url('/data_walidata/restore') }}/' + full.id +
@@ -432,8 +430,7 @@
                                     }
                                     actionButtons += '</form>';
                                     actionButtons += '</td>';
-
-                                }
+                                @endif
 
                                 actionButtons += '<td>';
                                 if (full.data_prioritas == null || full.data_prioritas == 0) {

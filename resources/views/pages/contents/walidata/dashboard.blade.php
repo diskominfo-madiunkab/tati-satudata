@@ -30,7 +30,7 @@
                     data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
                         <div class="row mb-3">
-                            @if (auth()->user()->hasAnyRole('walidata'))
+                            @if (auth()->user()->hasAnyRole(['walidata', 'pembina', 'walidatapendukung']))
                                 <form method="GET" action="{{ route('d_walidata') }}">
                                 @else
                                     <form method="GET" action="{{ route('d_administrator') }}">

@@ -135,7 +135,9 @@
                                             <select class="form-select" name="group_id" id="group_id"
                                                 {{ $data->status_id == 9 ? 'disabled' : '' }}>
                                                 @foreach ($group['result'] as $gp)
-                                                    <option value="{{ $gp['id'] }}">{{ $gp['display_name'] }}</option>
+                                                    <option
+                                                        {{ old('group_id', optional($data->publikasi)->group_id) == $gp['id'] ? 'selected' : '' }}
+                                                        value="{{ $gp['id'] }}">{{ $gp['display_name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>

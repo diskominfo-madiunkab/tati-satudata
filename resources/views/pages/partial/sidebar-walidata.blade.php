@@ -60,7 +60,9 @@
             </a>
         </li>
 
-        @if (auth()->user()->hasRole('walidata') || auth()->user()->hasRole('walidatapendukung'))
+        @if (auth()->user()->hasRole('walidata') ||
+                auth()->user()->hasRole('walidatapendukung') ||
+                auth()->user()->hasRole('pembina'))
             <li class="nav-heading">Penyebarluasan Data</li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('publikasi.*') ? 'collapse' : 'collapsed' }}"

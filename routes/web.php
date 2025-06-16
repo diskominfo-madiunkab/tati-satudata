@@ -39,7 +39,7 @@ Route::get('/infografis-guest', [PortalController::class, 'infografis'])->name('
 Route::get('/infografis-guest/detail/{id}', [PortalController::class, 'infografis_detail'])->name('guest.infografis.detail');
 Route::get('/publikasi-guest', [PortalController::class, 'publikasi'])->name('guest.publikasi');
 Route::get('/publikasi-guest/detail/{id}', [PortalController::class, 'publikasi_detail'])->name('guest.publikasi.detail');
-Route::get('/download-publikasi-pdf{id}', [PortalController::class, 'download'])->name('guest.publikasi.download.pdf');
+Route::get('/download-publikasi-pdf/{id}', [PortalController::class, 'download'])->name('guest.publikasi.download.pdf');
 Route::get('/dataset', [PortalController::class, 'data'])->name('dataset');
 // Route::get('/dataset/{name}', [PortalController::class, 'detail'])->name('dataset.detail');
 Route::get('/dataset/{name}', [PortalController::class, 'showDataset'])->name('dataset.show');
