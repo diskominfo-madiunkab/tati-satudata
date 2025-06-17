@@ -284,8 +284,9 @@ class PortalController extends Controller
     // }
     public function download($id)
     {
+        $id = decrypt($id);
+        dd($id);
         try {
-            $id = decrypt($id);
             $publication = PublikasiGuest::findOrFail($id);
             $link = Storage::url($publication->pdf_path);
             return redirect()->away($link);
