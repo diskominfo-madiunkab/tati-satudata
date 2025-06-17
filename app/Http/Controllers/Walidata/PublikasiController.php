@@ -646,7 +646,9 @@ class PublikasiController extends Controller
         }
 
         foreach ($data->berkas as $berkas) {
-            $archive->addFile(Storage::path($berkas->path), 'berkas/' . $berkas->name);
+            if (Storage::exists($berkas->path)) {
+                $archive->addFile(Storage::path($berkas->path), 'berkas/' . $berkas->name);
+            }
         }
         $archive->close();
 
