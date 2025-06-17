@@ -284,12 +284,14 @@ class PortalController extends Controller
     // }
     public function download($id)
     {
-        $id = decrypt($id);
-        dd($id);
         try {
-            $publication = PublikasiGuest::findOrFail($id);
-            $link = Storage::url($publication->pdf_path);
-            return redirect()->away($link);
+            $path = decrypt($id);
+            if (Storage::exists($path)) {
+                $link = Storage::url($path);
+                return redirect()->away($link);
+            } else {
+                return redirect()->back()->with('error', 'File tidak ditemukan');
+            }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Data tidak ditemukan');
         }
