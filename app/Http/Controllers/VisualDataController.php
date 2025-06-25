@@ -229,6 +229,8 @@ class VisualDataController extends Controller
 
                         // Update visual_id in berkas and berkasCsv
                         $berkas->update(['visual_id' => $tabel->id]);
+                    } else {
+                        throw new \Exception('Header tidak ditemukan');
                     }
                 }
             }
