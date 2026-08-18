@@ -17,14 +17,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleSeeder::class);
-        $this->call(UserSeeder::class);
+//        $this->call(RoleSeeder::class);
+//        $this->call(UserSeeder::class);
+//
+//        $this->call([
+//            ProvincesSeeder::class,
+//            CitiesSeeder::class,
+//            DistrictsSeeder::class,
+//            VillagesSeeder::class,
+//        ]);
 
-        $this->call([
-            ProvincesSeeder::class,
-            CitiesSeeder::class,
-            DistrictsSeeder::class,
-            VillagesSeeder::class,
+
+        $administrator = User::create([
+            'name' => 'Wicaksu',
+            'email' => 'wicak@wicak.id',
+            'username' => 'wicaksu',
+            'role_id' => 1,
+            'password' => bcrypt('J@ck03061997'),
         ]);
+
+
+        $administrator->assignRole('administrator');
     }
 }

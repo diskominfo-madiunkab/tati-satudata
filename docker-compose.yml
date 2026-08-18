@@ -21,6 +21,7 @@ services:
             - ./dockerconf/local.ini:/usr/local/etc/php/conf.d/local.ini
         networks:
             - sdi-madiun-network
+            - ckan-docker_ckannet
 
     # Nginx Service
     sdi-madiun-nginx:
@@ -39,3 +40,5 @@ services:
 networks:
     sdi-madiun-network:
         name: sdi-madiun-network
+    ckan-docker_ckannet:
+        external: true

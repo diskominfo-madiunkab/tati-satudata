@@ -1,6 +1,8 @@
 @extends('guest.layout')
 
 @section('content')
+    <script type="module" src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
+
 <style>
     .dropbtn {
         background-color: #59c3fd;
@@ -45,7 +47,52 @@
     .dropdown:hover .dropbtn {
         background-color: #000000;
     }
+
+    /* responsive embed container for tableau - wrapper dan inner untuk scaling */
+    .tableau-wrapper {
+        width: 100%;
+        max-width: 1366px; /* optional: jangan melebihi ukuran asli dashboard */
+        margin: 1rem 0;
+        overflow: hidden;
+        position: relative;
+        /* height akan di-set via JS sesuai scale */
+        background: transparent;
+    }
+
+    .tableau-inner {
+        transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        will-change: transform;
+        /* pastikan element memiliki ukuran asli agar scaling bekerja */
+        width: 1366px;  /* originalWidth */
+        height: 795px;  /* originalHeight */
+    }
+
+    /* target element tableau-viz / iframe styling */
+    tableau-viz,
+    .tableau-inner object,
+    .tableau-inner iframe {
+      display: block;
+      width: 1366px;  /* originalWidth */
+      height: 795px;  /* originalHeight */
+      border: none;
+    }
+
+    .badge-tableau {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+
+    /* small tweak for desktop: align title and badge */
+    .title-with-badge {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 </style>
+
 <section class="uni-banner">
     <div class="container">
         <div class="uni-banner-text-area">
@@ -64,17 +111,56 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="blog-details-text-area details-text-area">
-                    <img src="{{ Storage::url('public/blogs/').$infografis->image }}" alt="image">
+                    <img src="{{ Storage::url('public/blogs/').$infografis->image }}" alt="image" class="img-fluid">
                     <div class="blog-date">
                         <ul>
-                            <li><i class="fas fa-user"></i> Dibuat Oleh Admin</a></li>
-                            <li><i class="far fa-calendar-alt"></i> {{ date('d-M-Y H:i',
-                                strtotime($infografis->created_at)) }}</li>
+                            <li><i class="fas fa-user"></i> Dibuat Oleh Admin</li>
+                            <li><i class="far fa-calendar-alt"></i> {{ date('d-M-Y H:i', strtotime($infografis->created_at)) }}</li>
                         </ul>
                     </div>
-                    <h3 class="mt-0">{{$infografis->title}}</h3>
+
+                    {{-- Title + badge (badge muncul jika ada tableau) --}}
+                    <div class="title-with-badge">
+                        <h3 class="mt-0">{{$infografis->title}}</h3>
+
+                        @if(!empty($infografis->tableau))
+                            @php
+                                // ukuran konten tableau tanpa tag HTML
+                                $tableauText = strip_tags($infografis->tableau);
+                                $len = mb_strlen($tableauText);
+                            @endphp
+
+                            @if($len < 200)
+                                <span class="badge badge-tableau bg-success text-white">Tableau</span>
+                            @else
+                                <span class="badge badge-tableau bg-info text-white">Tableau</span>
+                            @endif
+                        @endif
+                    </div>
+
+                    {{-- Tableau embed tampil di bawah judul jika ada.
+                         Kita bungkus dalam container (.tableau-wrapper) agar bisa di-scale otomatis --}}
+                    @if(!empty($infografis->tableau))
+                        <div class="tableau-wrapper" id="tableauWrapper">
+                            <div class="tableau-inner" id="tableauInner">
+                                <!-- Jika kamu menyimpan full embed HTML di $infografis->tableau, bisa langsung echo: -->
+                                {{-- {!! $infografis->tableau !!} --}}
+
+                                <!-- Contoh menggunakan tableau-viz dengan src tertentu.
+                                     Pastikan ukuran width/height di CSS sama dengan original canvas Tableau -->
+                                <tableau-viz
+                                    id="tableauViz"
+                                    src="{{ $infografis->tableau }}"
+                                    toolbar="hidden"
+                                    hide-tabs
+                                ></tableau-viz>
+                            </div>
+                        </div>
+                    @endif
+
                     {!! $infografis->content !!}
                 </div>
+
                 <div class="blog-text-footer mt-30">
                     <div class="social-icons">
                         @php
@@ -128,8 +214,7 @@
                             <h5><a href="{{ route('guest.infografis.detail', ['id' => encrypt($infos->id)]) }}">{{
                                     $infos->title
                                     }}</a></h5>
-                            <p>{{ date('d-M-Y H:i',
-                                strtotime($infos->created_at)) }}</p>
+                            <p>{{ date('d-M-Y H:i', strtotime($infos->created_at)) }}</p>
                         </div>
                         @endforeach
 
@@ -143,14 +228,71 @@
 
 <script>
     function copyToClipboard(text) {
-  var tempInput = document.createElement("input");
-  tempInput.value = text;
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  document.execCommand("copy");
-  document.body.removeChild(tempInput);
-  alert("Tautan berhasil disalin!");
-}
+      var tempInput = document.createElement("input");
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+      alert("Tautan berhasil disalin!");
+    }
+</script>
+
+<script>
+    (function () {
+      // ukuran canvas Tableau asli (sesuaikan jika dashboard mu punya dimensi lain)
+      const originalWidth = 1366;
+      const originalHeight = 795;
+
+      const wrapper = document.getElementById('tableauWrapper');
+      const inner = document.getElementById('tableauInner');
+
+      if (!wrapper || !inner) return; // kalau nggak ada tableau di page, skip
+
+      function applyScale() {
+        const containerWidth = wrapper.clientWidth;
+        // scale berdasarkan lebar container agar fit penuh; batasi maximal scale = 1
+        const scale = Math.min(containerWidth / originalWidth, 1);
+        inner.style.transform = 'scale(' + scale + ')';
+        inner.style.webkitTransform = 'scale(' + scale + ')';
+        // atur tinggi wrapper supaya area layout tetap sesuai
+        const scaledHeight = Math.ceil(originalHeight * scale);
+        wrapper.style.height = scaledHeight + 'px';
+      }
+
+      // debounce resize
+      let resizeTimer = null;
+      function onResize() {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          applyScale();
+          resizeTimer = null;
+        }, 80);
+      }
+
+      // monitor perubahan lebar wrapper (mis sidebar show/hide)
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => applyScale());
+        ro.observe(wrapper);
+      }
+
+      window.addEventListener('resize', onResize);
+
+      // tunggu elemen tableau siap, lakukan scale awal
+      function waitForViz() {
+        const viz = document.getElementById('tableauViz') || inner.querySelector('iframe, object, embed');
+        if (viz) {
+          // beberapa embed memerlukan sedikit waktu lagi untuk render; jalankan applyScale beberapa kali
+          applyScale();
+          setTimeout(applyScale, 300);
+          setTimeout(applyScale, 900);
+        } else {
+          // kalau belum ketemu, ulangi beberapa kali
+          setTimeout(waitForViz, 150);
+        }
+      }
+      waitForViz();
+    })();
 </script>
 
 @endsection

@@ -74,6 +74,9 @@ RUN useradd -u $uid -ms /bin/bash -g www www
 COPY docker-start.sh /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Change current user to www
 USER www
 

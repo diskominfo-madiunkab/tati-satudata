@@ -29,6 +29,7 @@
                                 <th scope="col">Gambar</th>
                                 <th scope="col">Judul</th>
                                 <th scope="col">Konten</th>
+                                <th scope="col">Tableau</th>
                                 <th scope="col">Aksi</th>
                             </tr>
                         </thead>
@@ -42,6 +43,13 @@
 
                                 <td>{{ $blog->title }}</td>
                                 <td>{!! $blog->content !!}</td>
+                                <td>
+                                    @if(!empty($blog->tableau))
+                                        <span class="badge bg-success">Tableau</span>
+                                    @else
+                                        <span class="badge bg-secondary">Tidak Ada</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <a href="{{ route('infografis.edit', ['id' => $blog->id]) }}"
                                         class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>

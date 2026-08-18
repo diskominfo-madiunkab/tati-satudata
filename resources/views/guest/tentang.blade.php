@@ -55,6 +55,9 @@
                 diperuntukkan untuk Semua Pengguna Data</strong>.
             Data yang tersedia juga dipastikan bebas dari campur tangan dan kepentingan pihak luar.
         </p>
+        <p style="text-align: justify;">
+            Portal Satu Data Kabupaten Madiun menjamin kerahasiaan dan melindungi data - data individu dari penyalahgunaan pihak-pihak yang tidak bertanggung jawab.
+        </p>
 
     </div>
 </div>

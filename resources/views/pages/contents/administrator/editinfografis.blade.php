@@ -51,6 +51,24 @@
                             </div>
                         </div>
 
+                        <!-- ==== NEW: Tableau input (placed right below Title) ==== -->
+                        <div class="row mb-3">
+                            <label for="tableau" class="col-sm-2 col-form-label">URL Tableau (opsional)</label>
+                            <div class="col-sm-10">
+                                <textarea name="tableau" id="tableau" rows="3"
+                                    class="form-control @error('tableau') is-invalid @enderror"
+                                    placeholder="Masukkan isi tableau (opsional)">{{ old('tableau', $infografis->tableau) }}</textarea>
+
+                                @error('tableau')
+                                <div class="alert alert-danger mt-2">
+                                    {{ $message }}
+                                </div>
+                                @enderror
+                                <small class="form-text text-muted mt-1">Boleh kosong — hanya untuk data tambahan berupa teks.</small>
+                            </div>
+                        </div>
+                        <!-- ==== END NEW: Tableau input ==== -->
+
                         <div class="row mb-3">
                             <label for="content" class="col-sm-2 col-form-label">Konten</label>
                             <div class="col-sm-10">

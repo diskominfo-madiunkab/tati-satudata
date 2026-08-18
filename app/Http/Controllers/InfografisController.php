@@ -41,7 +41,8 @@ class InfografisController extends Controller
         $this->validate($request, [
             'image'     => 'required|image|mimes:png,jpg,jpeg',
             'title'     => 'required',
-            'content'   => 'required'
+            'content'   => 'required',
+            'tableau' => 'nullable|string',
         ]);
 
         //upload image
@@ -51,6 +52,7 @@ class InfografisController extends Controller
         $blog = Infografis::create([
             'image'     => $image->hashName(),
             'title'     => $request->title,
+            'tableau' => $request->tableau,
             'content'   => $request->content
         ]);
 
@@ -98,6 +100,7 @@ class InfografisController extends Controller
     {
         $this->validate($request, [
             'title'     => 'required',
+            'tableau' => 'nullable|string',
             'content'   => 'required',
             'image'     => 'image|mimes:png,jpg,jpeg'
         ]);
@@ -109,6 +112,7 @@ class InfografisController extends Controller
 
             $blog->update([
                 'title'     => $request->title,
+                'tableau' => $request->tableau,
                 'content'   => $request->content
             ]);
         } else {
@@ -123,6 +127,7 @@ class InfografisController extends Controller
             $blog->update([
                 'image'     => $image->hashName(),
                 'title'     => $request->title,
+                'tableau' => $request->tableau,
                 'content'   => $request->content
             ]);
         }

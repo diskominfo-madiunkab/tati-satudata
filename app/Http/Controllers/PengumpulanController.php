@@ -741,14 +741,12 @@ class PengumpulanController extends Controller
 
 
         $updateStandarData = [];
-        $standarDataFields = ['konsep', 'definisi', 'klasifikasi_penyajian', 'satuan', 'ukuran'];
+        // Tidak termasuk klasifikasi_penyajian karena tidak boleh mengubah klasifikasi di standar_data
+        $standarDataFields = ['konsep', 'definisi', 'satuan', 'ukuran'];
         foreach ($standarDataFields as $field) {
             if ($request->filled($field)) {
                 $updateStandarData[$field] = $request->get($field);
             }
-        }
-        if (isset($updateStandarData['klasifikasi_penyajian'])) {
-            $updateStandarData['klasifikasi'] = $updateStandarData['klasifikasi_penyajian'];
         }
 
         // dd($updateStandarData);
@@ -834,14 +832,12 @@ class PengumpulanController extends Controller
         );
 
         $updateStandarData = [];
-        $standarDataFields = ['konsep', 'definisi', 'klasifikasi_isian', 'satuan', 'ukuran'];
+        // Tidak termasuk klasifikasi_isian karena tidak boleh mengubah klasifikasi di standar_data
+        $standarDataFields = ['konsep', 'definisi', 'satuan', 'ukuran'];
         foreach ($standarDataFields as $field) {
             if ($request->filled($field)) {
                 $updateStandarData[$field] = $request->get($field);
             }
-        }
-        if (isset($updateStandarData['klasifikasi_isian'])) {
-            $updateStandarData['klasifikasi'] = $updateStandarData['klasifikasi_isian'];
         }
 
         $data->standar()->updateOrCreate(

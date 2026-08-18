@@ -12,14 +12,14 @@ env=${APP_ENV:-production}
 
 if [ "$role" = "app" ]; then
 
-    exec php-fpm
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
 elif [ "$role" = "queue" ]; then
 
     echo "Executing queue..."
-	sleep 60
-    echo "Running the queue..."
-    php /var/www/artisan queue:work redis --verbose --daemon
+    sleep 30
+    echo "Running the queue worker..."
+    php /var/www/artisan queue:work --verbose --tries=3 --timeout=600 --sleep=3
 
 elif [ "$role" = "scheduler" ]; then
 
