@@ -1,0 +1,44 @@
+version: "3"
+services:
+    #PHP Service
+    sdi-madiun-beta:
+        container_name: sdi-madiun-beta
+        build:
+            context: ./dockerconf
+            args:
+                uid: 1001
+                user: tati
+            dockerfile: Dockerfile
+        image: "laravel-php-8.2-beta"
+        restart: unless-stopped
+        tty: true
+        environment:
+            SERVICE_NAME: sdi-madiun-beta
+            SERVICE_TAGS: beta
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./dockerconf/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - sdi-madiun-beta-network
+            - ckan-docker_ckannet
+
+    # Nginx Service
+    sdi-madiun-nginx-beta:
+        container_name: sdi-madiun-nginx-beta
+        image: nginx:alpine
+        restart: unless-stopped
+        tty: true
+        ports:
+            - 8002:8002
+        volumes:
+            - ./:/var/www
+            - ./dockerconf/nginx.app.beta.conf:/etc/nginx/conf.d/app.conf
+        networks:
+            - sdi-madiun-beta-network
+
+networks:
+    sdi-madiun-beta-network:
+        name: sdi-madiun-beta-network
+    ckan-docker_ckannet:
+        external: true
