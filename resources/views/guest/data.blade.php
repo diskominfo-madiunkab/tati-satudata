@@ -253,10 +253,14 @@
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="unduhDropdown{{$d['id']}}">
                                                                     @foreach($d['resources'] as $res)
+                                                                        @php
+                                                                            $resUrl = $res['url_download'] ?? $res['url'] ?? '#';
+                                                                            $resFormat = strtoupper($res['format'] ?? 'BERKAS');
+                                                                        @endphp
                                                                         <li>
-                                                                            <a class="dropdown-item small" href="{{$res['url_download']}}" target="_blank">
-                                                                                <i class="fas fa-file-{{$res['format'] == 'CSV' ? 'csv' : ($res['format'] == 'XLSX' || $res['format'] == 'EXCEL' ? 'excel' : 'alt')}} text-{{$res['format'] == 'CSV' ? 'info' : ($res['format'] == 'XLSX' || $res['format'] == 'EXCEL' ? 'success' : 'primary')}} me-2"></i>
-                                                                                Unduh Format {{$res['format'] ?: 'Berkas'}}
+                                                                            <a class="dropdown-item small" href="{{$resUrl}}" target="_blank">
+                                                                                <i class="fas fa-file-{{$resFormat == 'CSV' ? 'csv' : ($resFormat == 'XLSX' || $resFormat == 'EXCEL' ? 'excel' : 'alt')}} text-{{$resFormat == 'CSV' ? 'info' : ($resFormat == 'XLSX' || $resFormat == 'EXCEL' ? 'success' : 'primary')}} me-2"></i>
+                                                                                Unduh Format {{$resFormat ?: 'Berkas'}}
                                                                             </a>
                                                                         </li>
                                                                     @endforeach

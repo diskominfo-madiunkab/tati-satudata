@@ -98,14 +98,18 @@
                                                                 target="_blank">
                                                                 <i style="color: green" class="fas fa-download"></i>
                                                                 Unduh</a> --}}
-                                                                    <a href="{{ $resource['url_download'] }}"
-                                                                        data-url-download="{{ $resource['url_download'] }}"
+                                                                    @php
+                                                                        $resUrl = $resource['url_download'] ?? $resource['url'] ?? '#';
+                                                                        $resPreview = $resource['url_preview'] ?? '#';
+                                                                    @endphp
+                                                                    <a href="{{ $resUrl }}"
+                                                                        data-url-download="{{ $resUrl }}"
                                                                         class="download-btn" target="_blank">
                                                                         <i style="color: green" class="fas fa-download"></i>
                                                                         Unduh
                                                                     </a>
                                                                     <br>
-                                                                    <a href="{{ $resource['url_preview'] }}"
+                                                                    <a href="{{ $resPreview }}"
                                                                         target="_blank"> <i style="color: blue"
                                                                             class="fas fa-eye"></i>
                                                                         Pratinjau</a>
