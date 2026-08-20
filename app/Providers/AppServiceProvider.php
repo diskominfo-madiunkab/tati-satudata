@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('id');
         Paginator::useBootstrap();
-        if (!$this->app->environment('local')) {
+        if (!$this->app->environment('local') && !$this->app->runningInConsole()) {
             URL::forceScheme('https');
         }
     }
