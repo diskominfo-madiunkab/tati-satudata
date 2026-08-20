@@ -3,13 +3,7 @@ services:
     #PHP Service
     sdi-madiun-beta:
         container_name: sdi-madiun-beta
-        build:
-            context: ./dockerconf
-            args:
-                uid: 1001
-                user: tati
-            dockerfile: Dockerfile
-        image: "laravel-php-8.2-beta"
+        image: "laravel-php-8.2"
         restart: unless-stopped
         tty: true
         environment:
