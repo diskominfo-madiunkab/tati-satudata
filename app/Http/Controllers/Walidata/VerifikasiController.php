@@ -737,4 +737,89 @@ class VerifikasiController extends Controller
             ));
         }
     }
+
+    public function batchVerifyAll($id, Request $request)
+    {
+        $data = Data::with(['verifikasi', 'standar', 'indikator', 'variabel', 'kegiatan', 'berkas'])->findOrFail($id);
+
+        // Fields to verify depending on metadata
+        $fields = ['konsep', 'definisi', 'klasifikasi', 'ukuran', 'satuan'];
+        if ($data->standar) {
+            foreach (['konsep', 'definisi', 'klasifikasi', 'ukuran', 'satuan'] as $field) {
+                Verifikasi::updateOrCreate(
+                    ['data_id' => $data->id, 'field' => $field, 'category' => 'standar'],
+                    ['user_id' => auth()->id(), 'status' => 1, 'comment' => 'Sesuai (Batch Verification)']
+                );
+            }
+        }
+
+        if ($data->berkas) {
+            foreach ($data->berkas as $berkas) {
+                Verifikasi::updateOrCreate(
+                    ['data_id' => $data->id, 'field' => $berkas->id, 'category' => 'berkas'],
+                    ['user_id' => auth()->id(), 'status' => 1, 'comment' => 'Sesuai (Batch Verification)']
+                );
+            }
+        }
+
+        // Add history log note
+        \App\Models\RevisiNote::create([
+            'data_id' => $data->id,
+            'user_id' => auth()->id(),
+            'tahapan' => 'pemeriksaan',
+            'catatan' => 'Verifikasi seluruh isian metadata (Select All Valid) oleh Walidata',
+            'status_sebelumnya' => 'Belum Lengkap',
+            'status_sesudahnya' => 'Terverifikasi Sesuai',
+        ]);
+
+        activity()->causedBy(auth()->id())->performedOn($data)->log('Melakukan verifikasi seluruh metadata untuk: ' . $data->nama_data);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Seluruh metadata dan berkas berhasil diverifikasi (Sesuai)!'
+        ]);
+    }
+
+    public function getRiwayatRevisi($id)
+    {
+        $notes = \App\Models\RevisiNote::with('user:id,name')
+            ->where('data_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'ok' => true,
+            'data' => $notes
+        ]);
+    }
+
+    public function addCatatanRevisi($id, Request $request)
+    {
+        $request->validate([
+            'catatan' => 'required|string',
+            'tahapan' => 'nullable|string',
+        ]);
+
+        $data = Data::findOrFail($id);
+
+        $note = \App\Models\RevisiNote::create([
+            'data_id' => $data->id,
+            'user_id' => auth()->id(),
+            'tahapan' => $request->input('tahapan', 'pemeriksaan'),
+            'catatan' => $request->input('catatan'),
+            'status_sebelumnya' => $data->status ? $data->status->status : 'Draft',
+            'status_sesudahnya' => 'Revisi',
+        ]);
+
+        $data->update(['status_id' => Data::STATUS_REVISI]);
+
+        activity()->causedBy(auth()->id())->performedOn($data)->log('Memberikan catatan revisi: ' . $request->catatan);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Catatan revisi berhasil disimpan dan status data diubah menjadi Revisi!',
+            'data' => $note
+        ]);
+    }
+
 }

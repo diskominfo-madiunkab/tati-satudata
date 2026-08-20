@@ -117,6 +117,31 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Level Data</label>
+                                        <div class="col-sm-10">
+                                            <select id="level_data" style="width: 100%" name="level_data" class="form-select select2">
+                                                <option value="Kabupaten" selected>Kabupaten</option>
+                                                <option value="Kecamatan">Kecamatan</option>
+                                                <option value="Desa/Kelurahan">Desa / Kelurahan</option>
+                                                <option value="Puskesmas / Faskes">Puskesmas / Faskes</option>
+                                                <option value="Individu">Individu</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Periode Data</label>
+                                        <div class="col-sm-10">
+                                            <select id="periode_data" style="width: 100%" name="periode_data" class="form-select select2">
+                                                <option value="Tahunan" selected>Tahunan</option>
+                                                <option value="Semesteran">Semesteran</option>
+                                                <option value="Triwulanan">Triwulanan</option>
+                                                <option value="Bulanan">Bulanan</option>
+                                                <option value="Mingguan">Mingguan</option>
+                                                <option value="Harian">Harian</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
                                         <label for="jadwal_rilis" class="col-sm-2 col-form-label">Jadwal Rilis</label>
                                         <div class="col-sm-10">
                                             <input id="jadwal_rilis" name="jadwal_rilis" type="date"

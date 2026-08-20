@@ -659,4 +659,45 @@ class PublikasiController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $data->nama_data . '.zip"',
         ]);
     }
+
+    public function previewData($id)
+    {
+        $data = Data::with(['opd', 'standar', 'sumberData', 'kegiatan', 'variabel', 'indikator', 'visualtable.header', 'visualtable.isi'])
+            ->findOrFail($id);
+
+        $tables = [];
+        if ($data->visualtable) {
+            foreach ($data->visualtable as $vTable) {
+                $headers = $vTable->header ? $vTable->header->pluck('header')->toArray() : [];
+                $isis = $vTable->isi ? $vTable->isi->groupBy('urutan_kebawah')->map(function($row) {
+                    return $row->pluck('isi')->toArray();
+                })->values()->toArray() : [];
+
+                $tables[] = [
+                    'table_name' => $vTable->nama_table,
+                    'headers' => $headers,
+                    'rows' => $isis,
+                ];
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'data' => [
+                'id' => $data->id,
+                'nama_data' => $data->nama_data,
+                'opd' => $data->opd ? $data->opd->nama_opd : '-',
+                'tahun' => $data->tahun,
+                'jenis_data' => $data->jenis_data,
+                'sumber_referensi' => $data->sumber_referensi ?: $data->sumber_data,
+                'level_data' => $data->level_data,
+                'periode_data' => $data->periode_data,
+                'jadwal_rilis' => $data->jadwal_rilis,
+                'jadwal_pemutakhiran' => $data->jadwal_pemutakhiran,
+                'standar' => $data->standar,
+                'tables' => $tables,
+            ]
+        ]);
+    }
+
 }

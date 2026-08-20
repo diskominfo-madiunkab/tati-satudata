@@ -920,18 +920,101 @@ class PengumpulanController extends Controller
         return response()->noContent();
     }
 
+    public function simpanGrid($id, Request $request)
+    {
+        $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))->findOrFail($id);
+
+        $request->validate([
+            'headers' => 'required|array',
+            'rows' => 'required|array',
+        ]);
+
+        $headers = $request->input('headers');
+        $rows = $request->input('rows');
+        $namaTabel = $request->input('nama_tabel') ?: $data->nama_data;
+
+        $gridPayload = [
+            'nama_tabel' => $namaTabel,
+            'level_data' => $request->input('level_data', $data->level_data),
+            'periode_data' => $request->input('periode_data', $data->periode_data),
+            'headers' => $headers,
+            'rows' => $rows,
+            'updated_at' => now()->toDateTimeString(),
+        ];
+
+        $data->update([
+            'data_grid_json' => json_encode($gridPayload),
+            'level_data' => $request->input('level_data', $data->level_data),
+            'periode_data' => $request->input('periode_data', $data->periode_data),
+        ]);
+
+        // Sync to visual_tables, visual_headers, and visual_isis
+        $vTable = VisualTable::updateOrCreate(
+            ['id_data' => $data->id],
+            ['namatabel' => $namaTabel]
+        );
+
+        VisualHeader::where('id_namatabel', $vTable->id)->delete();
+        VisualIsi::where('id_namatabel', $vTable->id)->delete();
+
+        $headerMap = [];
+        foreach ($headers as $colIdx => $headerName) {
+            $vh = VisualHeader::create([
+                'id_namatabel' => $vTable->id,
+                'header' => $headerName,
+                'urutan_menyamping' => $colIdx + 1,
+            ]);
+            $headerMap[$colIdx] = $vh->id;
+        }
+
+        foreach ($rows as $rowIdx => $rowCols) {
+            foreach ($rowCols as $colIdx => $cellVal) {
+                if (isset($headerMap[$colIdx])) {
+                    VisualIsi::create([
+                        'id_namatabel' => $vTable->id,
+                        'id_header' => $headerMap[$colIdx],
+                        'urutan_kebawah' => $rowIdx + 1,
+                        'isi' => $cellVal ?? '',
+                    ]);
+                }
+            }
+        }
+
+        activity()->causedBy(auth()->id())->performedOn($data)->log('Menyimpan data grid tabular untuk: ' . $data->nama_data);
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Data tabular berhasil disimpan!',
+            'data' => $gridPayload
+        ]);
+    }
+
     public function siapVerifikasi($id)
     {
-        $data = Data::with(['kegiatan', 'standar'])
+        $data = Data::with(['kegiatan', 'standar', 'indikator', 'variabel', 'visualtable'])
             ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->findOrFail($id);
 
-        if (in_array(strtolower($data->jenis_data), ['variabel', 'indikator'])) {
-            $data->with(strtolower($data->jenis_data));
+        if (!$data->standar || empty($data->standar->konsep) || empty($data->standar->definisi) || empty($data->standar->satuan)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Mohon lengkapi seluruh Standar Data (Konsep, Definisi, Satuan, Ukuran, Klasifikasi) terlebih dahulu!'
+            ]);
         }
 
-        if ($data->calculateProgress() < 60) {
-            return response()->json(['ok' => false, 'message' => 'Mohon lengkapi isian metadata terlebih dahulu sebelum lanjut ke proses verifikasi']);
+        $jenisData = strtolower($data->jenis_data);
+        if ($jenisData == 'variabel' && !$data->variabel) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Mohon lengkapi isian Metadata Variabel terlebih dahulu!'
+            ]);
+        }
+
+        if ($jenisData == 'indikator' && !$data->indikator) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Mohon lengkapi isian Metadata Indikator terlebih dahulu!'
+            ]);
         }
 
         if ($data->status_id == Data::STATUS_PROSES_VERIFIKASI) {

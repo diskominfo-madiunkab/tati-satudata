@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -34,23 +34,17 @@
                 <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                     <div class="topbar-left-area">
                         <ul>
-                            <li><a href="{{url('/')}}"><i class="fas fa-envelope"></i> <span class=""
-                                        data-cfemail="">diskominfo@madiunkab.go.id</span></a>
+                            <li><a href="{{url('/')}}"><i class="fas fa-envelope"></i> <span>diskominfo@madiunkab.go.id</span></a>
                             </li>
-                            <li><a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6"><i
-                                        class="fas fa-map-marker-alt"></i>Kabupaten Madiun, Jawa
-                                    Timur</a></li>
+                            <li><a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6" target="_blank"><i
+                                        class="fas fa-map-marker-alt"></i>Kabupaten Madiun, Jawa Timur</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                     <div class="topbar-right-area">
                         <ul>
-                            {{-- <li><a href="{{ url('/clear-cache') }}"><i class="fas fa-user"
-                                        style="color:red"></i></a>
-                            </li> --}}
-                            <li><a href="{{route('login')}}"><i class="fas fa-user"></i> Login</a></li>
-
+                            <li><a href="{{route('login')}}"><i class="fas fa-user"></i> Login DAPUR SDI</a></li>
                         </ul>
                     </div>
                 </div>
@@ -58,15 +52,12 @@
         </div>
     </section>
 
-
     <div class="navbar-area">
-
         <div class="main-responsive-nav">
             <div class="container-fluid plr-50">
-                <div class="mobile-nav" style="background-color: red">
-                    <a href="{{url('/')}}" class="logo"><img style="width: 10%; height:auto"
+                <div class="mobile-nav" style="background-color: #0d3b66">
+                    <a href="{{url('/')}}" class="logo"><img style="width: 20%; height:auto"
                             src="/landing-assets/img/services/logo2.png" alt="logo" /></a>
-
                 </div>
             </div>
         </div>
@@ -80,36 +71,36 @@
                     <div class="collapse navbar-collapse mean-menu" id="navbarSupportedContent">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('/') ? 'active' : null }}" href="/">Beranda</a>
+                                <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="/">Beranda</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(1) === 'dataset' ? 'active' : null }}"
-                                    href="{{route('dataset')}}">Dataset</a>
+                                <a class="nav-link {{ request()->is('katalog-data*') ? 'active' : '' }}" href="{{ route('guest.katalog') }}">Katalog Data</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(1) === 'publikasi-guest' ? 'active' : null }}"
-                                    href="{{route('guest.publikasi')}}">Publikasi</a>
+                                <a class="nav-link {{ request()->is('dataset*') ? 'active' : '' }}" href="{{ route('dataset') }}">Dataset</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(1) === 'infografis-guest' ? 'active' : null }}"
-                                    href="{{route('guest.infografis')}}">Infografis</a>
-                            </li>
-                            <li class="nav-item" style="min-width: 114px">
-                                <a class="nav-link" href="{{config('ckan_api.url')}}" target="_blank">Open-Data</a>
+                                <a class="nav-link {{ request()->is('kode-referensi*') ? 'active' : '' }}" href="{{ route('guest.kode-referensi') }}">Kode Referensi</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="http://madiunkab.ina-sdi.or.id/" target="_blank">Geoportal</a>
+                                <a class="nav-link {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">Publikasi</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::segment(1) === 'tentang' ? 'active' : null }}"
-                                    href="/tentang">Tentang</a>
+                                <a class="nav-link {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">Infografis</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->is('regulasi*') ? 'active' : '' }}" href="{{ route('guest.regulasi') }}">Regulasi</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->is('geoportal*') ? 'active' : '' }}" href="{{ route('guest.geoportal') }}">Geoportal</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->is('tentang*') ? 'active' : '' }}" href="/tentang">Tentang</a>
                             </li>
                         </ul>
                         <div class="menu-sidebar">
                             <ul>
-                                <li><a class="nav-link" href="{{route('dataset')}}"><i class="fas fa-search"></i></a>
-                                </li>
-                                {{-- <li><a class="default-button" href="contact.html">Get in Touch</a></li> --}}
+                                <li><a class="nav-link" href="{{route('dataset')}}"><i class="fas fa-search"></i></a></li>
                             </ul>
                         </div>
                     </div>
@@ -119,148 +110,84 @@
     </div>
     @yield('header')
 
-    {{-- content --}}
-
     @yield('content')
 
-    {{-- end content --}}
-
-    <section class="footer">
+    <section class="footer pt-100 pb-70 bg-black">
         <div class="container">
-            <div class="footer-content ptb-100">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="footer-logo-area">
-                            <a href="{{url('/')}}"><img style="width:100px; height:auto"
-                                    src="{{asset('landing-assets/img/services/120x120.png')}}" alt="image"></a>
-                            <h4 style="color: white">KABUPATEN MADIUN</h4>
-                            <p>Portal Data Terpadu Pemkab Madiun</p>
-                            <div class="footer-social-area">
-                                <ul>
-                                    <li><span>Sosial Media: </span></li>
-                                    <li><a href="https://www.facebook.com/pemkab.madiun/" target="_blank"><i
-                                                class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="https://www.youtube.com/channel/UCv2HWvm0mF1gHJ327SMhn1Q"
-                                            target="_blank"><i class="fab fa-youtube"></i></a></li>
-                                    <li><a href="https://twitter.com/pemkab_madiun" target="_blank"><i
-                                                class="fab fa-twitter"></i></a></li>
-                                    <li><a href="https://www.instagram.com/pemkabmadiun/" target="_blank"><i
-                                                class="fab fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="footer-links footer-contact">
-                            <h3>Hubungi Kami</h3>
-                            <div class="footer-contact-card">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <h5>Alamat: </h5>
-                                <p><a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6" target="_blank">Jl. Mastrip No.23
-                                        Kel. Klegen Kec. Kartoharjo Kota Madiun – Jawa Timur 63117, Indonesia</a></p>
-                            </div>
-                            <div class="footer-contact-card">
-                                <i class="fas fa-envelope"></i>
-                                <h5>Email: </h5>
-                                <p><a href=""><span class="" data-cfemail="">diskominfo@madiunkab.go.id</span></a>
-                                </p>
-                            </div>
-                            <div class="footer-contact-card">
-                                <i class="fas fa-phone-alt"></i>
-                                <h5>Telp: </h5>
-                                <p><a href="">0351-462927</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
-                        <div class="footer-links footer-quick-links">
-                            <h3>Akses Cepat</h3>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="footer-logo-area">
+                        <a href="/"><img src="/landing-assets/img/services/logo2.png" alt="image"></a>
+                        <p>Portal Resmi Satu Data Indonesia (SDI) Kabupaten Madiun untuk mewujudkan keterpaduan perencanaan, pelaksanaan, evaluasi, dan pengendalian pembangunan.</p>
+                        <div class="footer-social-icons">
+                            <span>Ikuti Kami:</span>
                             <ul>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a href="/">Beranda</a>
-                                </li>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a href="{{route('dataset')}}">Dataset</a>
-                                </li>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a
-                                        href="{{route('guest.publikasi')}}">Publikasi</a>
-                                </li>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a
-                                        href="{{route('guest.infografis')}}">Infografis</a>
-                                </li>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a href="{{config('ckan_api.url')}}"
-                                        target="_blank">Open-Data</a>
-                                </li>
-                                <li>
-                                    <i class="fas fa-angle-right"></i><a href="/tentang">Tentang</a>
-                                </li>
-
+                                <li><a href="https://www.facebook.com/pemkab.madiun/" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="https://www.youtube.com/channel/UCv2HWvm0mF1gHJ327SMhn1Q" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://twitter.com/pemkab_madiun" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://www.instagram.com/pemkabmadiun/" target="_blank"><i class="fab fa-instagram"></i></a></li>
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
-                        <?php 
-                                        $day=date("j");
-                                        $month=date("n");
-                                        $year=date("Y"); 
-                                    ?>
-                        <p style="color: white">Pengunjung Tahun {{date('Y')}}</p>
-                        <p style="color: white">Hari ini:
-                            <?= App\Models\Visitor::where('nama','pengunjung')->where('tgl', $day)->where('bln', $month)->where('thn', $year)->sum('jumlah'); ?>
-                            Orang
-                        </p>
-                        <p style="color: white">Bulan ini:
-                            <?= App\Models\Visitor::where('nama','pengunjung')->where('bln', $month)->where('thn', $year)->sum('jumlah'); ?>
-                            Orang
-                        </p>
-                        <p style="color: white">Tahun ini:
-                            <?= App\Models\Visitor::where('nama','pengunjung')->where('thn', $year)->sum('jumlah'); ?>
-                            Orang
-                        </p>
-                        <p style="color: white">Total Pengunjung:
-                            <?= App\Models\Visitor::where('nama','pengunjung')->sum('jumlah'); ?> Orang
-                        </p>
-                    </div>
-                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
-                        <div class="footer-links footer-newsletter">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.3095426230657!2d111.65157501474695!3d-7.541181294561197!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e79c7dca41021df%3A0xc15f5ab78e034eeb!2sPusat%20Pemerintahan%20Kabupaten%20Madiun!5e0!3m2!1sid!2sid!4v1618635895432!5m2!1sid!2sid"
-                                width="300" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="footer-links footer-contact">
+                        <h3>Hubungi Kami</h3>
+                        <div class="footer-contact-card">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h5>Alamat: </h5>
+                            <p><a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6" target="_blank">Jl. Mastrip No.23 Kel. Klegen Kec. Kartoharjo Kota Madiun – Jawa Timur 63117</a></p>
+                        </div>
+                        <div class="footer-contact-card">
+                            <i class="fas fa-envelope"></i>
+                            <h5>Email: </h5>
+                            <p><a href="mailto:diskominfo@madiunkab.go.id">diskominfo@madiunkab.go.id</a></p>
+                        </div>
+                        <div class="footer-contact-card">
+                            <i class="fas fa-phone-alt"></i>
+                            <h5>Telp: </h5>
+                            <p>0351-462927</p>
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="footer-links footer-quick-links">
+                        <h3>Akses Cepat</h3>
+                        <ul>
+                            <li><i class="fas fa-angle-right"></i><a href="/">Beranda</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.katalog') }}">Katalog Data</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('dataset') }}">Dataset</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.kode-referensi') }}">Kode Referensi</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.publikasi') }}">Publikasi</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.infografis') }}">Infografis</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.regulasi') }}">Regulasi</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.geoportal') }}">Geoportal</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="footer-links footer-contact">
+                        <h3>Statistik Pengunjung</h3>
+                        @php
+                            $day = date("j");
+                            $month = date("n");
+                            $year = date("Y"); 
+                        @endphp
+                        <p class="text-white mb-1"><i class="fas fa-user-clock me-2"></i>Hari ini: <strong>{{ App\Models\Visitor::where('nama','pengunjung')->where('tgl', $day)->where('bln', $month)->where('thn', $year)->sum('jumlah') }}</strong></p>
+                        <p class="text-white mb-1"><i class="fas fa-calendar-alt me-2"></i>Bulan ini: <strong>{{ App\Models\Visitor::where('nama','pengunjung')->where('bln', $month)->where('thn', $year)->sum('jumlah') }}</strong></p>
+                        <p class="text-white mb-1"><i class="fas fa-calendar me-2"></i>Tahun {{ date('Y') }}: <strong>{{ App\Models\Visitor::where('nama','pengunjung')->where('thn', $year)->sum('jumlah') }}</strong></p>
+                        <p class="text-white"><i class="fas fa-users me-2"></i>Total: <strong>{{ App\Models\Visitor::where('nama','pengunjung')->sum('jumlah') }}</strong></p>
+                    </div>
+                </div>
             </div>
-            <div class="copyright">
-                <p>©Copyright {{date('Y')}}. PEMERINTAH
-                    KABUPATEN MADIUN<a target="_blank" href=""></a></p>
-            </div>
+        </div>
+        <div class="copyright">
+            <p>©Copyright {{date('Y')}}. PEMERINTAH KABUPATEN MADIUN</p>
         </div>
     </section>
 
-    <div class="popup">
-        <div class="popup-content">
-            <button class="close-btn" id="popup-close"><i class="fas fa-times"></i></button>
-            <form action="{{route('dataset')}}">
-                <div class="input-group search-box">
-
-                    <input type="text" class="form-control" placeholder="Cari Dataset">
-                    <button class="btn" type="submit"><i class="fas fa-search"></i></button>
-
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-
     <div class="go-top"><i class="fas fa-chevron-up"></i></div>
 
-    {{-- <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
-    </script> --}}
-    @stack('js')
     <script src="{{asset('assets-guest/js/jquery.min.js')}}"></script>
     <script src="{{asset('assets-guest/js/jquery-ui.min.js')}}"></script>
     <script src="{{asset('assets-guest/js/bootstrap.bundle.min.js')}}"></script>
@@ -277,6 +204,6 @@
     <script src="{{asset('assets-guest/js/odometer.min.js')}}"></script>
     <script src="{{asset('assets-guest/js/custom.js')}}"></script>
     <script src="{{asset('landing-assets/vendor/wow/wow.min.js')}}"></script>
+    @stack('js')
 </body>
-
 </html>

@@ -41,13 +41,13 @@
                                                         </tr>
                                                         <tr>
                                                             <td><span class="font-weight-bold">Deskripsi</span></td>
-                                                            <td>: {{ $dataset['description'] }}</td>
+                                                            <td>: {{ $dataset['description'] ?? ($dataset['notes'] ?? '-') }}</td>
                                                         </tr>
                                                         <tr>
                                                             <td><span class="font-weight-bold">Organisasi / OPD</span></td>
                                                             <td>: @if (!empty($dataset['organization']))
                                                                     <a
-                                                                        href="{{ $dataset['organization']['link'] }}">{{ $dataset['organization']['title'] }}</a>
+                                                                        href="{{ $dataset['organization']['link'] ?? '#' }}">{{ $dataset['organization']['title'] ?? 'Pemkab Madiun' }}</a>
                                                                 @else
                                                                     Tidak ada informasi organisasi
                                                                 @endif
@@ -55,12 +55,12 @@
                                                         </tr>
                                                         <tr>
                                                             <td><span class="font-weight-bold">Dipublikasi</span></td>
-                                                            <td>: {{ $dataset['created'] }}</td>
+                                                            <td>: {{ $dataset['created'] ?? '-' }}</td>
                                                         </tr>
                                                         <tr>
                                                             <td><span class="font-weight-bold">Terakhir dimodifikasi:</span>
                                                             </td>
-                                                            <td>: {{ $dataset['modified'] }}</td>
+                                                            <td>: {{ $dataset['modified'] ?? '-' }}</td>
                                                         </tr>
                                                     </tbody>
 
@@ -727,19 +727,33 @@
                                 @if ($tables)
                                     <div class="card">
                                         <div class="card-body">
-                                            <h5 class="card-title"> Visualisasi Data </h5>
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <h5 class="card-title mb-0 fw-bold"><i class="fas fa-table text-primary me-2"></i>Visualisasi Tabel Data</h5>
+                                                <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
+                                                    <a href="{{ route('api.v1.datasets.detail.web', $getmeta ? $getmeta->id : ($dataset['id'] ?? 1)) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-code me-1"></i> Endpoint API JSON
+                                                    </a>
+                                                </div>
+                                            </div>
 
-                                            <div class="table-responsive">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <input type="text" id="liveTableFilterInput" class="form-control" placeholder="Filter / cari baris pada tabel..." onkeyup="filterDatasetTable()">
+                                                </div>
+                                            </div>
 
-                                                <div class="table-responsive">
+                                            <div class="table-responsive shadow-sm border rounded-3" style="max-height: 550px; overflow-y: auto; overflow-x: auto;">
+                                                <div class="p-2">
                                                     @foreach ($tables as $tableData)
                                                         @php
-                                                            $table = $tableData['table'];
-                                                            $headers = $tableData['headers'];
-                                                            $rows = $tableData['rows'];
+                                                            $table = is_array($tableData) ? ($tableData['table'] ?? null) : $tableData;
+                                                            $headers = is_array($tableData) ? ($tableData['headers'] ?? collect()) : ($tableData->header ?? collect());
+                                                            $rawRows = is_array($tableData) ? ($tableData['rows'] ?? collect()) : ($tableData->isi ? $tableData->isi->groupBy('urutan_kebawah') : collect());
+                                                            $rows = $rawRows;
+                                                            $tableName = $table ? ($table->namatabel ?? ($table->nama_table ?? 'Tabel Data')) : 'Tabel Data';
                                                         @endphp
 
-                                                        <h2>{{ $table->namatabel }}</h2>
+                                                        <h5 class="fw-bold text-dark mt-2 mb-3"><i class="fas fa-table text-primary me-2"></i>{{ $tableName }}</h5>
 
                                                         @if ($headers->isNotEmpty() && $rows->isNotEmpty())
                                                             <table class="table table-striped">
@@ -1192,6 +1206,33 @@
     </script>
 
 
+
+<script>
+function filterDatasetTable() {
+    var input, filter, tables, tr, td, i, j, txtValue, found;
+    input = document.getElementById("liveTableFilterInput");
+    filter = input.value.toUpperCase();
+    tables = document.querySelectorAll(".table-responsive table");
+    
+    tables.forEach(function(table) {
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            found = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            tr[i].style.display = found ? "" : "none";
+        }
+    });
+}
+</script>
 @endsection
 
 @push('js')

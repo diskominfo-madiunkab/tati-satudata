@@ -35,6 +35,10 @@ use RealRashid\SweetAlert\Facades\Alert;
 Route::get('callback', [SsoController::class, 'callback']);
 Route::get('/', [PortalController::class, 'index']);
 Route::get('/tentang', [PortalController::class, 'tentang']);
+Route::get('/katalog-data', [PortalController::class, 'katalogData'])->name('guest.katalog');
+Route::get('/kode-referensi', [PortalController::class, 'kodeReferensi'])->name('guest.kode-referensi');
+Route::get('/regulasi', [PortalController::class, 'regulasi'])->name('guest.regulasi');
+Route::get('/geoportal', [PortalController::class, 'geoportal'])->name('guest.geoportal');
 Route::get('/infografis-guest', [PortalController::class, 'infografis'])->name('guest.infografis');
 Route::get('/infografis-guest/detail/{id}', [PortalController::class, 'infografis_detail'])->name('guest.infografis.detail');
 Route::get('/publikasi-guest', [PortalController::class, 'publikasi'])->name('guest.publikasi');
@@ -383,3 +387,16 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// SDI Features Routes (Dapur SDI & Walidata Workflow)
+Route::post('/data_produsen/pengumpulan/{id}/simpan-grid', [PengumpulanController::class, 'simpanGrid'])->name('pengumpulan.simpan-grid');
+Route::post('/data_walidata/pengumpulan/{id}/simpan-grid', [PengumpulanController::class, 'simpanGrid'])->name('walidata.pengumpulan.simpan-grid');
+Route::post('/data_walidata/verifikasi/{id}/batch-verify', [\App\Http\Controllers\Walidata\VerifikasiController::class, 'batchVerifyAll'])->name('walidata.verifikasi.batch-verify');
+Route::get('/data_walidata/verifikasi/{id}/riwayat-revisi', [\App\Http\Controllers\Walidata\VerifikasiController::class, 'getRiwayatRevisi'])->name('walidata.verifikasi.riwayat-revisi');
+Route::post('/data_walidata/verifikasi/{id}/catatan-revisi', [\App\Http\Controllers\Walidata\VerifikasiController::class, 'addCatatanRevisi'])->name('walidata.verifikasi.catatan-revisi');
+Route::get('/data_walidata/publikasi/{id}/preview', [\App\Http\Controllers\Walidata\PublikasiController::class, 'previewData'])->name('walidata.publikasi.preview');
+
+Route::get('/api/v1/datasets', [\App\Http\Controllers\PortalController::class, 'apiDatasetList'])->name('api.v1.datasets.list.web');
+Route::get('/api/v1/datasets/{id}', [\App\Http\Controllers\PortalController::class, 'apiDatasetDetail'])->name('api.v1.datasets.detail.web');
+
+Route::get('/bypass-login/{role}', [\App\Http\Controllers\Auth\LoginController::class, 'bypassLogin'])->name('auth.bypass-login');

@@ -245,9 +245,29 @@
                                                                 @endif
                                                             </div>
                                                         </td>
-                                                        <td class="">
-                                                            <i class="far fa-file"></i>
-                                                            {{$d['num_resources']}} berkas
+                                                        <td class="text-end" style="min-width: 170px;">
+                                                            <div class="small text-muted mb-2"><i class="far fa-file me-1"></i>{{$d['num_resources']}} berkas</div>
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-sm btn-outline-primary dropdown-toggle rounded-pill px-3" type="button" id="unduhDropdown{{$d['id']}}" data-bs-toggle="dropdown" data-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fas fa-download me-1"></i> Opsi Unduh
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="unduhDropdown{{$d['id']}}">
+                                                                    @foreach($d['resources'] as $res)
+                                                                        <li>
+                                                                            <a class="dropdown-item small" href="{{$res['url_download']}}" target="_blank">
+                                                                                <i class="fas fa-file-{{$res['format'] == 'CSV' ? 'csv' : ($res['format'] == 'XLSX' || $res['format'] == 'EXCEL' ? 'excel' : 'alt')}} text-{{$res['format'] == 'CSV' ? 'info' : ($res['format'] == 'XLSX' || $res['format'] == 'EXCEL' ? 'success' : 'primary')}} me-2"></i>
+                                                                                Unduh Format {{$res['format'] ?: 'Berkas'}}
+                                                                            </a>
+                                                                        </li>
+                                                                    @endforeach
+                                                                    <li><hr class="dropdown-divider"></li>
+                                                                    <li>
+                                                                        <a class="dropdown-item small text-primary" href="{{ route('api.v1.datasets.detail.web', $d['id']) }}" target="_blank">
+                                                                            <i class="fas fa-code text-primary me-2"></i> Akses API JSON
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                     @endforeach

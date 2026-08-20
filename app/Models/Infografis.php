@@ -11,4 +11,9 @@ class Infografis extends Model
     protected $table = 'infografis';
     protected $primaryKey = 'id';
     protected $guarded = [];
+
+    public function images()
+    {
+        return $this->hasMany(InfografisImage::class, 'infografis_id')->orderBy('urutan', 'asc');
+    }
 }

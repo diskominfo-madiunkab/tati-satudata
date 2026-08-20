@@ -124,6 +124,36 @@
 
                                     </form>
 
+                                    @if(env('BYPASS_LOGIN', false) || config('app.bypass_login', false) || app()->isLocal())
+                                        <div class="col-12 mt-4 pt-3 border-top">
+                                            <div class="alert alert-warning py-2 px-3 mb-3 rounded-3 text-center border-0 shadow-sm">
+                                                <span class="fw-bold small text-dark"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Mode Bypass Aktif (1-Klik Login)</span>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <a href="{{ route('auth.bypass-login', 'administrator') }}" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-between px-3 py-2 rounded-2">
+                                                    <span><i class="bi bi-shield-lock-fill me-2 text-danger"></i>Login sebagai <strong>Administrator</strong></span>
+                                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                                </a>
+                                                <a href="{{ route('auth.bypass-login', 'walidata') }}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-between px-3 py-2 rounded-2">
+                                                    <span><i class="bi bi-person-badge-fill me-2 text-primary"></i>Login sebagai <strong>Walidata</strong></span>
+                                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                                </a>
+                                                <a href="{{ route('auth.bypass-login', 'produsen') }}" class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-between px-3 py-2 rounded-2">
+                                                    <span><i class="bi bi-pencil-square me-2 text-success"></i>Login sebagai <strong>Produsen Data</strong></span>
+                                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                                </a>
+                                                <a href="{{ route('auth.bypass-login', 'pembina') }}" class="btn btn-sm btn-outline-warning text-dark d-flex align-items-center justify-content-between px-3 py-2 rounded-2">
+                                                    <span><i class="bi bi-award-fill me-2 text-warning"></i>Login sebagai <strong>Pembina Data</strong></span>
+                                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                                </a>
+                                                <a href="{{ route('auth.bypass-login', 'walidatapendukung') }}" class="btn btn-sm btn-outline-info text-dark d-flex align-items-center justify-content-between px-3 py-2 rounded-2">
+                                                    <span><i class="bi bi-people-fill me-2 text-info"></i>Login sebagai <strong>Walidata Pendukung</strong></span>
+                                                    <i class="bi bi-arrow-right-short fs-5"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
+
                                 </div>
                             </div>
 

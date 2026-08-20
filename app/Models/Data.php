@@ -51,6 +51,10 @@ class Data extends Model implements HasMedia
         'kodeindikator',
         'value_sipd',
         'is_from_walidata',
+        'sumber_referensi',
+        'level_data',
+        'periode_data',
+        'data_grid_json',
     ];
 
     protected $guarded = [];
@@ -134,6 +138,16 @@ class Data extends Model implements HasMedia
     public function publikasi()
     {
         return $this->hasOne(Publikasi::class);
+    }
+
+    public function sumberData()
+    {
+        return $this->belongsTo(SumberData::class, 'sumber_data', 'sumber_data');
+    }
+
+    public function revisiNotes()
+    {
+        return $this->hasMany(RevisiNote::class, 'data_id')->orderBy('created_at', 'desc');
     }
 
     public function calculateProgress(): int

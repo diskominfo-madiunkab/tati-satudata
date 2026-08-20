@@ -771,14 +771,32 @@ class DataController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $data = Data::findOrFail($id);
         $get_statusdata = $data->status_id;
+
+        if (Auth::user()->role_id == '3' || (auth()->user() && auth()->user()->hasRole('produsen'))) {
+            $data->update([
+                'jadwal_rilis' => $request->jadwal_rilis,
+                'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
+                'sumber_referensi' => $request->input('sumber_referensi', $data->sumber_referensi),
+                'level_data' => $request->input('level_data', $data->level_data),
+                'periode_data' => $request->input('periode_data', $data->periode_data),
+            ]);
+
+            activity()->performedOn($data)->log('Memperbarui Jadwal Rilis/Pemutakhiran Data: ' . $data->nama_data);
+            Alert::info('Berhasil', 'Berhasil memperbarui Jadwal Rilis dan Pemutakhiran Data!');
+
+            return redirect('/data_produsen/draft');
+        }
+
         $data->update([
             'nama_data' => $request->nama_data,
             'opd_id' => $request->opd_id,
             'jenis_data' => $request->jenis_data,
             'sumber_data' => $request->sumber_data,
+            'sumber_referensi' => $request->sumber_referensi ?: $request->sumber_data,
+            'level_data' => $request->level_data,
+            'periode_data' => $request->periode_data,
             'jadwal_rilis' => $request->jadwal_rilis,
             'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
             'status_id' => $get_statusdata,
