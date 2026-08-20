@@ -61,8 +61,8 @@ class PortalController extends Controller
     {
         set_time_limit(600);
 
-        if (!isset($_COOKIE['newComer'])) {
-            setcookie("newComer", "uwu", time() + 7200, '/');
+        if (!request()->hasCookie('newComer') && !isset($_COOKIE['newComer'])) {
+            \Illuminate\Support\Facades\Cookie::queue('newComer', 'uwu', 120);
 
             $day = date("j");
             $month = date("n");
@@ -70,9 +70,7 @@ class PortalController extends Controller
             $cek_visitor = Visitor::where('tgl', $day)->where('bln', $month)->where('thn', $year)->first();
 
             if (!empty($cek_visitor)) {
-                Visitor::where('tgl', $day)->where('bln', $month)->where('thn', $year)->update([
-                    'jumlah' => $cek_visitor->jumlah + 1
-                ]);
+                $cek_visitor->increment('jumlah');
             } else {
                 Visitor::create([
                     'nama' => 'pengunjung',
