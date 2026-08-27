@@ -1,22 +1,35 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #2b2d42 0%, #d90429 100%);">
+<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Infografis Satu Data</h1>
-            <p class="text-white-50 mb-0">Visualisasi data statistik dan informasi pembangunan Kabupaten Madiun dalam format visual yang informatif.</p>
+            <h1 class="text-white fw-bold mb-2">Galeri Infografis</h1>
+            <p class="text-white-50 mb-0" style="font-size: 16px;">Visualisasi data statistik dan informasi tematik pembangunan Kabupaten Madiun dalam format infografis menarik</p>
         </div>
     </div>
 </div>
 
 <section class="infografis-area pt-50 pb-70 bg-light">
     <div class="container">
+        <!-- Search Filter -->
+        <div class="card shadow-sm border-0 mb-4 rounded-3">
+            <div class="card-body p-3">
+                <form action="{{ route('guest.infografis') }}" method="GET" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control" placeholder="Cari infografis..." value="{{ request('search') }}" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 16px;">
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold" style="border-radius: 8px;"><i class="fas fa-search me-1"></i> Cari</button>
+                    @if(request('search'))
+                        <a href="{{ route('guest.infografis') }}" class="btn btn-outline-secondary" style="border-radius: 8px;"><i class="fas fa-redo"></i></a>
+                    @endif
+                </form>
+            </div>
+        </div>
+
         <div class="row g-4">
             @forelse($infografis as $info)
             <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden bg-white hover-shadow transition">
-                    <a href="{{ route('guest.infografis.detail', encrypt($info->id)) }}">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white hover-shadow transition d-flex flex-column">
+                    <a href="{{ route('guest.infografis.detail', is_numeric($info->id) ? encrypt($info->id) : $info->id) }}" class="text-decoration-none">
                         <div class="position-relative overflow-hidden" style="height: 280px; background-color: #f8f9fa;">
                             @if($info->image)
                                 <img src="{{ asset('storage/public/blogs/' . $info->image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $info->title }}">
@@ -28,32 +41,26 @@
                                 </div>
                             @endif
 
-                            @if(($info->images && $info->images->count() > 1))
+                            @if($info->images && $info->images->count() > 1)
                                 <span class="badge bg-dark bg-opacity-75 position-absolute top-0 end-0 m-3">
                                     <i class="fas fa-images me-1"></i> {{ $info->images->count() }} Slide
                                 </span>
                             @endif
-
-                            @if($info->tableau)
-                                <span class="badge bg-primary position-absolute bottom-0 start-0 m-3">
-                                    <i class="fas fa-chart-pie me-1"></i> Tableau Interactive
-                                </span>
-                            @endif
                         </div>
                     </a>
-                    <div class="card-body p-4 d-flex flex-column">
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
                         <div class="text-muted small mb-2"><i class="fas fa-calendar-alt me-1"></i> {{ $info->created_at ? $info->created_at->translatedFormat('d F Y') : '-' }}</div>
-                        <h5 class="card-title fw-bold mb-3">
-                            <a href="{{ route('guest.infografis.detail', encrypt($info->id)) }}" class="text-dark text-decoration-none">
+                        <h5 class="card-title fw-bold mb-2">
+                            <a href="{{ route('guest.infografis.detail', is_numeric($info->id) ? encrypt($info->id) : $info->id) }}" class="text-dark text-decoration-none hover-primary">
                                 {{ $info->title }}
                             </a>
                         </h5>
-                        <p class="card-text text-muted small flex-grow-1">
-                            {{ Str::limit(strip_tags($info->content), 110) }}
+                        <p class="card-text text-muted small mb-4 flex-grow-1">
+                            {{ Str::limit(strip_tags($info->content), 100) }}
                         </p>
-                        <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                            <a href="{{ route('guest.infografis.detail', encrypt($info->id)) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                Lihat Visualisasi <i class="fas fa-arrow-right ms-1"></i>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <a href="{{ route('guest.infografis.detail', is_numeric($info->id) ? encrypt($info->id) : $info->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 fw-semibold w-100 text-center">
+                                Lihat Selengkapnya <i class="fas fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -69,7 +76,7 @@
 
         @if(method_exists($infografis, 'hasPages') && $infografis->hasPages())
             <div class="d-flex justify-content-center mt-5">
-                {{ $infografis->links() }}
+                {{ $infografis->withQueryString()->links() }}
             </div>
         @endif
     </div>

@@ -313,8 +313,8 @@
     <section class="services pt-100 pb-70">
         <div class="container">
             <div class="default-section-title default-section-title-middle">
-                <h3>KELOMPOK DATA</h3>
-                <p>Dibawah ini merupakan daftar dari kelompok data</p>
+                <h3>DATA BERDASARKAN URUSAN</h3>
+                <p>Dibawah ini merupakan daftar data berdasarkan urusan</p>
             </div>
             <div class="section-content">
                 <div class="service-slider-area-1 owl-carousel">

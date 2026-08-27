@@ -1,11 +1,11 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
             <h1 class="text-white fw-bold mb-2">Katalog Data</h1>
-            <p class="text-white-50 mb-0">Daftar keseluruhan data statistik dan sektoral Pemerintah Kabupaten Madiun beserta status terkininya.</p>
+            <p class="text-white-50 mb-0" style="font-size: 16px;">Menampilkan Daftar Data Pemerintah Kabupaten Madiun</p>
         </div>
     </div>
 </div>
@@ -19,11 +19,11 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-search me-1"></i> Cari Data</label>
-                            <input type="text" name="search" class="form-control" placeholder="Kata kunci nama data atau OPD..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control border-secondary-subtle" placeholder="Kata kunci nama data..." value="{{ request('search') }}" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 14px;">
                         </div>
                         <div class="col-lg-2 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-calendar-alt me-1"></i> Tahun</label>
-                            <select name="tahun" class="form-select">
+                            <select name="tahun" class="form-select border-secondary-subtle" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 14px;">
                                 <option value="">Semua Tahun</option>
                                 @foreach($tahuns as $th)
                                     <option value="{{ $th->tahun }}" {{ request('tahun') == $th->tahun ? 'selected' : '' }}>{{ $th->tahun }}</option>
@@ -32,16 +32,16 @@
                         </div>
                         <div class="col-lg-3 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-building me-1"></i> Produsen / OPD</label>
-                            <select name="opd_id" class="form-select">
-                                <option value="">Semua OPD</option>
+                            <select name="opd_id" class="form-select border-secondary-subtle" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 14px; text-overflow: ellipsis;">
+                                <option value="">Semua Produsen / OPD</option>
                                 @foreach($opds as $opd)
                                     <option value="{{ $opd->id }}" {{ request('opd_id') == $opd->id ? 'selected' : '' }}>{{ $opd->nama_opd }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                            <a href="{{ route('guest.katalog') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
+                            <button type="submit" class="btn btn-primary w-100 fw-semibold" style="border-radius: 8px; padding: 9px 14px;"><i class="fas fa-search me-1"></i> Cari</button>
+                            <a href="{{ route('guest.katalog') }}" class="btn btn-outline-secondary" title="Reset Filter" style="border-radius: 8px; padding: 9px 14px;"><i class="fas fa-redo"></i></a>
                         </div>
                     </div>
                 </form>
@@ -82,7 +82,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="small fw-semibold">{{ $item->opd ? $item->opd->nama_opd : '-' }}</div>
+                                <div class="small fw-semibold text-break">{{ $item->opd ? $item->opd->nama_opd : '-' }}</div>
                             </td>
                             <td class="text-center">
                                 <span class="badge bg-secondary">{{ $item->tahun }}</span>
