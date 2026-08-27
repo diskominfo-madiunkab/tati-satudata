@@ -134,6 +134,8 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::post('/sumberdata/store', [SumberDataController::class, 'store']);
     Route::get('/sumberdata/edit/{id}', [SumberDataController::class, 'edit']);
     Route::post('/sumberdata/update/{id}', [SumberDataController::class, 'update']);
+    Route::delete('/sumberdata/destroy/{id}', [SumberDataController::class, 'destroy'])->name('sumberdata.destroy');
+    Route::get('/sumberdata/destroy/{id}', [SumberDataController::class, 'destroy']);
     Route::get('master_sumberdata_ubah/{id}', [SumberDataController::class, 'aktifkan'])->name('master-sumberdata-ubah');
 
     Route::get('/tag', [TagController::class, 'index'])->name('tag.index');

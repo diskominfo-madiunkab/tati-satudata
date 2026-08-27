@@ -4,8 +4,8 @@
 <div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Buku Publikasi & Rencana Terbit</h1>
-            <p class="text-white-50 mb-0" style="font-size: 16px;">Koleksi dokumen resmi, buku statistik daerah, serta jadwal rencana terbit publikasi Pemerintah Kabupaten Madiun</p>
+            <h1 class="text-white fw-bold mb-2">Publikasi</h1>
+            <p class="text-white-50 mb-0" style="font-size: 16px;">Menampilkan Koleksi Buku Publikasi Kegiatan Statistik serta Jadwal Rencana Terbit Publikasi Kegiatan Statistik</p>
         </div>
     </div>
 </div>

@@ -4,8 +4,8 @@
 <div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Galeri Infografis</h1>
-            <p class="text-white-50 mb-0" style="font-size: 16px;">Visualisasi data statistik dan informasi tematik pembangunan Kabupaten Madiun dalam format infografis menarik</p>
+            <h1 class="text-white fw-bold mb-2">Infografis</h1>
+            <p class="text-white-50 mb-0" style="font-size: 16px;">Menampilkan Koleksi Infografis dan Visualisasi dari dataset yang telah dikumpulkan pada Portal Satu Data Kabupaten Madiun</p>
         </div>
     </div>
 </div>
