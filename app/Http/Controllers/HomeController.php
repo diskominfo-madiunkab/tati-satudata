@@ -48,36 +48,78 @@ class HomeController extends Controller
 
     public function dashboardAdmin(Request $request)
     {
-        $tahun = MasterTahun::where('is_active', 1)->orderBy('tahun', 'desc')->get();
+
+        $tahun = MasterTahun::where('is_active', 1)->get();
         $selectedTahun = $request->input('tahun', '');
-        $opdId = $request->input('opd_id', '');
+        $dataPrioritas = Data::where('data_prioritas', 1)->count();
+        $daftardata = Data::count();
+        $dataStandarData = Data::whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->count();
 
-        $query = Data::query();
-        if (!empty($selectedTahun)) {
-            $query->where('tahun', $selectedTahun);
-        }
-        if (!empty($opdId)) {
-            $query->where('opd_id', $opdId);
-        }
-
-        $daftardata = (clone $query)->count();
-        $dataPrioritas = (clone $query)->where('data_prioritas', 1)->count();
-        $dataStandarData = (clone $query)->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->count();
-        $dataPengumpulan = (clone $query)->whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->count();
-        $dataTelahLengkap = (clone $query)->whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->count();
-        $dataRevisi = (clone $query)->whereIn('status_id', [Data::STATUS_REVISI])->count();
-        $dataSiapPublish = (clone $query)->where('status_id', Data::STATUS_SIAP_PUBLIKASI)->count();
-        $dataTerpublikasi = (clone $query)->where('status_id', Data::STATUS_TERPUBLIKASI)->count();
-        $dataDitolak = (clone $query)->where('status_id', Data::STATUS_TOLAK)->count();
-
-        // 3 Rumus Persentase SDI (Hal 19)
-        $denominator = max(1, $daftardata - $dataDitolak);
-        $persenKeterisian = round((($dataTelahLengkap + $dataRevisi + $dataSiapPublish + $dataTerpublikasi) / $denominator) * 100, 1);
-        $persenValid = round((($dataSiapPublish + $dataTerpublikasi) / $denominator) * 100, 1);
-        $persenTerpublikasi = round(($dataTerpublikasi / $denominator) * 100, 1);
-
-        $dataTerbaru = (clone $query)->with('opd')->latest()->take(10)->get();
+        $dataPengumpulan = Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->count();
+        // $dataTelahLengkap = Data::whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI, Data::STATUS_REVISI, Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])->count();
+        $dataTelahLengkap = Data::whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->count();
+        $dataRevisi = Data::whereIn('status_id', [Data::STATUS_REVISI])->count();
+        $dataSiapPublish = Data::where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->count();
+        $dataTerpublikasi = Data::where('status_id', '=', Data::STATUS_TERPUBLIKASI)->count();
+        $dataTerbaru = Data::with('opd')->latest()->take(10)->get();
         $lastActivities = Activity::with('causer')->latest()->take(20)->get();
+        if (!empty($selectedTahun)) {
+            $daftardata = Data::where('tahun', $selectedTahun)->count();
+
+            $dataPrioritas = Data::where('data_prioritas', 1)->where('tahun', $selectedTahun)->count();
+            $dataStandarData = Data::whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+
+            $dataPengumpulan = Data::whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+            $dataTelahLengkap = Data::whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->where('tahun', $selectedTahun)->count();
+            $dataRevisi = Data::whereIn('status_id', [Data::STATUS_REVISI])->where('tahun', $selectedTahun)->count();
+            $dataSiapPublish = Data::where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->where('tahun', $selectedTahun)->count();
+            $dataTerpublikasi = Data::where('status_id', '=', Data::STATUS_TERPUBLIKASI)->where('tahun', $selectedTahun)->count();
+            $dataTerbaru = Data::with('opd')->latest()->where('tahun', $selectedTahun)->take(10)->get();
+            $lastActivities = Activity::with('causer')->whereYear('created_at', $selectedTahun)->latest()->take(20)->get();
+        }
+        $day = date("j");
+        $month = date("n");
+        $year = date("Y");
+        $harian = Visitor::where('nama', 'pengunjung')->where('tgl', $day)->where('bln', $month)->where('thn', $year)->sum('jumlah');
+        $bulanan = Visitor::where('nama', 'pengunjung')->where('bln', $month)->where('thn', $year)->sum('jumlah');
+        $tahunan = Visitor::where('nama', 'pengunjung')->where('thn', $year)->sum('jumlah');
+        $totalan = Visitor::where('nama', 'pengunjung')->sum('jumlah');
+        // dd($harian);
+        return view('pages.contents.walidata.dashboard', compact('dataStandarData', 'harian', 'bulanan', 'tahunan', 'totalan', 'dataRevisi', 'dataPrioritas', 'daftardata', 'selectedTahun', 'tahun', 'dataPengumpulan', 'dataTelahLengkap', 'dataSiapPublish', 'dataTerpublikasi', 'dataTerbaru', 'lastActivities'));
+    }
+
+    public function dashboardWalidata(Request $request)
+    {
+        $tahun = MasterTahun::where('is_active', 1)->get();
+        $selectedTahun = $request->input('tahun', '');
+        $daftardata = Data::count();
+        $dataPrioritas = Data::where('data_prioritas', 1)->count();
+        $dataStandarData = Data::whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->count();
+        $dataPengumpulan = Data::where('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->count();
+        $dataRevisi = Data::whereIn('status_id', [Data::STATUS_REVISI])->count();
+
+        $dataTelahLengkap = Data::where('status_id', [Data::STATUS_PROSES_VERIFIKASI])->count();
+        $dataSiapPublish = Data::where('status_id',  [Data::STATUS_SIAP_PUBLIKASI])->count();
+        $dataTerpublikasi = Data::where('status_id', [Data::STATUS_TERPUBLIKASI])->count();
+        // dd($dataTerpublikasi);
+        $dataTerbaru = Data::with('opd')->latest()->take(10)->get();
+        $lastActivities = Activity::with('causer')->latest()->take(20)->get();
+        if (!empty($selectedTahun)) {
+
+            // Filter data berdasarkan tahun yang dipilih
+            $daftardata = Data::where('tahun', $selectedTahun)->count();
+            $dataRevisi = Data::whereIn('status_id', [Data::STATUS_REVISI])->where('tahun', $selectedTahun)->count();
+
+            $dataPrioritas = Data::where('data_prioritas', 1)->where('tahun', $selectedTahun)->count();
+            $dataStandarData = Data::whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+
+            $dataPengumpulan = Data::where('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+            $dataTelahLengkap = Data::where('status_id', [Data::STATUS_PROSES_VERIFIKASI])->where('tahun', $selectedTahun)->count();
+            $dataSiapPublish = Data::where('status_id', [Data::STATUS_SIAP_PUBLIKASI])->where('tahun', $selectedTahun)->count();
+            $dataTerpublikasi = Data::where('status_id', [Data::STATUS_TERPUBLIKASI])->where('tahun', $selectedTahun)->count();
+            $dataTerbaru = Data::with('opd')->where('tahun', $selectedTahun)->latest()->take(10)->get();
+            $lastActivities = Activity::with('causer')->whereYear('created_at', $selectedTahun)->latest()->take(20)->get();
+        }
 
         $day = date("j");
         $month = date("n");
@@ -87,30 +129,7 @@ class HomeController extends Controller
         $tahunan = Visitor::where('nama', 'pengunjung')->where('thn', $year)->sum('jumlah');
         $totalan = Visitor::where('nama', 'pengunjung')->sum('jumlah');
 
-        $opds = Opd::whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI'])->orderBy('nama_opd', 'asc')->get();
-
-        // Rekapitulasi Data OPD
-        $opdData = Data::query()->selectRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun, count(data.id) as total')
-            ->join('opds', 'opds.id', '=', 'data.opd_id')
-            ->join('status', 'status.id', '=', 'data.status_id')
-            ->when(!empty($selectedTahun), fn($q) => $q->where('data.tahun', $selectedTahun))
-            ->when(!empty($opdId), fn($q) => $q->where('data.opd_id', $opdId))
-            ->groupByRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun')
-            ->orderByRaw('opds.nama_opd asc, status.status asc')
-            ->get();
-
-        return view('pages.contents.walidata.dashboard', compact(
-            'dataStandarData', 'harian', 'bulanan', 'tahunan', 'totalan', 'dataRevisi',
-            'dataPrioritas', 'daftardata', 'selectedTahun', 'tahun', 'dataPengumpulan',
-            'dataTelahLengkap', 'dataSiapPublish', 'dataTerpublikasi', 'dataDitolak',
-            'dataTerbaru', 'lastActivities', 'persenKeterisian', 'persenValid', 'persenTerpublikasi',
-            'opds', 'opdId', 'opdData'
-        ));
-    }
-
-    public function dashboardWalidata(Request $request)
-    {
-        return $this->dashboardAdmin($request);
+        return view('pages.contents.walidata.dashboard', compact('dataStandarData', 'harian', 'bulanan', 'tahunan', 'totalan', 'dataRevisi', 'dataPrioritas', 'daftardata', 'dataPengumpulan', 'dataTelahLengkap', 'dataSiapPublish', 'dataTerpublikasi', 'dataTerbaru', 'lastActivities', 'tahun', 'selectedTahun'));
     }
 
     public function dashboardProdusen(Request $request)
@@ -131,44 +150,22 @@ class HomeController extends Controller
         $dataSiapPublish = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->count();
         $dataTerpublikasi = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_TERPUBLIKASI)->count();
         $dataTerbaru = Data::where('opd_id', $opdId)->with('opd', 'status')->latest()->take(10)->get();
-        $tahun = MasterTahun::where('is_active', 1)->orderBy('tahun', 'desc')->get();
-        $selectedTahun = $request->input('tahun', '');
-        $opdId = auth()->user()->opd_id;
-
-        $query = Data::where('opd_id', $opdId);
         if (!empty($selectedTahun)) {
-            $query->where('tahun', $selectedTahun);
+            $opdId = auth()->user()->opd_id;
+            $dataRevisi = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_REVISI])->where('tahun', $selectedTahun)->count();
+
+            $daftardata = Data::where('opd_id', $opdId)->where('tahun', $selectedTahun)->count();
+            $data = Data::where('data_prioritas', 1)->where('opd_id', $opdId)->where('tahun', $selectedTahun)->count();
+            $dataStandarData = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+            $dataPengumpulan = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->where('tahun', $selectedTahun)->count();
+            $dataTelahLengkap = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->where('tahun', $selectedTahun)->count();
+            $dataTidakLengkap = Data::where('opd_id', $opdId)->where('status_id', '>=', Data::STATUS_PROSES_PENGUMPULAN)->where('tahun', $selectedTahun)->count();
+            $dataSiapPublish = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->where('tahun', $selectedTahun)->count();
+            $dataTerpublikasi = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_TERPUBLIKASI)->where('tahun', $selectedTahun)->count();
+            $dataTerbaru = Data::where('opd_id', $opdId)->with('opd', 'status')->where('tahun', $selectedTahun)->latest()->take(10)->get();
         }
 
-        $daftardata = (clone $query)->count();
-        $dataRevisi = (clone $query)->whereIn('status_id', [Data::STATUS_REVISI])->count();
-        $data = (clone $query)->where('data_prioritas', 1)->count();
-        $dataStandarData = (clone $query)->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->count();
-        $dataPengumpulan = (clone $query)->whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->count();
-        $dataTelahLengkap = (clone $query)->whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->count();
-        $dataTidakLengkap = (clone $query)->where('status_id', '>=', Data::STATUS_PROSES_PENGUMPULAN)->count();
-        $dataSiapPublish = (clone $query)->where('status_id', Data::STATUS_SIAP_PUBLIKASI)->count();
-        $dataTerpublikasi = (clone $query)->where('status_id', Data::STATUS_TERPUBLIKASI)->count();
-        $dataDitolak = (clone $query)->where('status_id', Data::STATUS_TOLAK)->count();
-
-        // 3 Rumus Persentase SDI (Hal 19)
-        $denominator = max(1, $daftardata - $dataDitolak);
-        $persenKeterisian = round((($dataTelahLengkap + $dataRevisi + $dataSiapPublish + $dataTerpublikasi) / $denominator) * 100, 1);
-        $persenValid = round((($dataSiapPublish + $dataTerpublikasi) / $denominator) * 100, 1);
-        $persenTerpublikasi = round(($dataTerpublikasi / $denominator) * 100, 1);
-
-        $dataTerbaru = (clone $query)->with('opd', 'status')->latest()->take(10)->get();
-
-        return view('pages.contents.produsen.dashboard', compact(
-            'dataStandarData', 'dataRevisi', 'dataPengumpulan', 'daftardata', 'tahun',
-            'selectedTahun', 'data', 'dataTelahLengkap', 'dataTidakLengkap', 'dataSiapPublish',
-            'dataTerpublikasi', 'dataTerbaru', 'persenKeterisian', 'persenValid', 'persenTerpublikasi'
-        ));
-    }
-
-    public function panduanProdusen()
-    {
-        return view('pages.contents.produsen.panduan');
+        return view('pages.contents.produsen.dashboard', compact('dataStandarData', 'dataRevisi', 'dataPengumpulan', 'daftardata', 'tahun', 'selectedTahun',  'data', 'dataTelahLengkap', 'dataTidakLengkap', 'dataSiapPublish', 'dataTerpublikasi', 'dataTerbaru'));
     }
 
 

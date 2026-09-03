@@ -2,100 +2,166 @@
 
 @section('content')
 
-    <div class="page-banner pt-50 pb-50" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+    <section class="uni-banner">
         <div class="container">
-            <div class="page-banner-content text-center text-white">
-                <h1 class="text-white fw-bold mb-2">Detail Dataset</h1>
-                <ul class="d-flex justify-content-center list-unstyled gap-2 text-white-50 mb-0 small">
-                    <li><a href="{{ '/' }}" class="text-white-50 text-decoration-none">Beranda</a></li>
-                    <li>/</li>
-                    <li><a href="{{ '/dataset' }}" class="text-white-50 text-decoration-none">Dataset</a></li>
-                    <li>/</li>
-                    <li class="text-white">Detail</li>
+            <div class="uni-banner-text-area">
+                <h1>Detail Dataset</h1>
+                <ul>
+                    <li><a href="{{ '/' }}">Beranda</a></li>
+                    <li><a href="{{ '/dataset' }}">Dataset</a></li>
+                    <li>Detail Dataset</li>
                 </ul>
             </div>
         </div>
-    </div>
+    </section>
 
-    <section class="blog-details pt-50 pb-70 bg-light">
+    <section class="blog-details ptb-100">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="blog-details-text-area details-text-area">
-                        <!-- Top Metadata Card -->
-                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4 bg-white">
-                            <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <div>
-                                    <h4 class="fw-bold text-dark mb-1">{{ $dataset['title'] }}</h4>
-                                    <span class="badge bg-primary px-3 py-1 me-2"><i class="fas fa-database me-1"></i> Data Sektoral</span>
-                                    <span class="badge bg-light text-dark border px-3 py-1"><i class="fas fa-building me-1"></i> {{ $dataset['organization']['title'] ?? 'Pemkab Madiun' }}</span>
-                                </div>
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-eye text-primary me-1"></i> Dilihat: <strong>{{ $getmeta->views_count ?? 1 }}</strong> kali
-                                    </span>
-                                    <span class="badge bg-light text-dark border px-3 py-2">
-                                        <i class="fas fa-download text-success me-1"></i> Diunduh: <strong>{{ $getmeta->downloads_count ?? 0 }}</strong> kali
-                                    </span>
-                                </div>
-                            </div>
+                        {{-- content --}}
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        {{-- @php
+                                    dd($dataset['resources']);
+                                    @endphp --}}
+                                        <div class="card-header">Detail Dataset</div>
 
-                            <div class="card-body p-4 pt-2">
-                                <div class="p-3 bg-light rounded-3 mb-4">
-                                    <h6 class="fw-bold text-muted small mb-1"><i class="fas fa-info-circle me-1"></i> Deskripsi Dataset:</h6>
-                                    <p class="text-secondary mb-0" style="line-height: 1.6;">
-                                        {{ $dataset['description'] ?? ($dataset['notes'] ?? ($getmeta->standar ? $getmeta->standar->definisi : 'Tidak ada deskripsi tambahan.')) }}
-                                    </p>
-                                </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive table-berkas">
+                                                <h5>{{ $dataset['title'] }}</h5>
+                                                <table class="table table-stripped">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">Judul</span></td>
+                                                            <td>: {{ $dataset['title'] }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">Deskripsi</span></td>
+                                                            <td>: {{ $dataset['description'] ?? ($dataset['notes'] ?? '-') }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">Organisasi / OPD</span></td>
+                                                            <td>: @if (!empty($dataset['organization']))
+                                                                    <a
+                                                                        href="{{ $dataset['organization']['link'] ?? '#' }}">{{ $dataset['organization']['title'] ?? 'Pemkab Madiun' }}</a>
+                                                                @else
+                                                                    Tidak ada informasi organisasi
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">Dipublikasi</span></td>
+                                                            <td>: {{ $dataset['created'] ?? '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">Terakhir dimodifikasi:</span>
+                                                            </td>
+                                                            <td>: {{ $dataset['modified'] ?? '-' }}</td>
+                                                        </tr>
+                                                    </tbody>
 
-                                <!-- Action Buttons: Direct Downloads in Detail -->
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border rounded-3 bg-white">
-                                    <div>
-                                        <span class="fw-semibold text-dark small d-block mb-1"><i class="fas fa-file-download text-primary me-1"></i> Unduh Dataset Lengkap:</span>
-                                        <span class="text-muted small">Pilih format data yang Anda butuhkan (CSV, Excel XLSX, atau JSON).</span>
-                                    </div>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <a href="{{ route('dataset.download.format', ['id' => $getmeta ? $getmeta->id : ($dataset['id'] ?? 1), 'format' => 'csv']) }}" class="btn btn-sm btn-outline-info fw-semibold rounded-pill px-3 py-2">
-                                            <i class="fas fa-file-csv me-1"></i> Unduh CSV
-                                        </a>
-                                        <a href="{{ route('dataset.download.format', ['id' => $getmeta ? $getmeta->id : ($dataset['id'] ?? 1), 'format' => 'xlsx']) }}" class="btn btn-sm btn-outline-success fw-semibold rounded-pill px-3 py-2">
-                                            <i class="fas fa-file-excel me-1"></i> Unduh XLSX
-                                        </a>
-                                        <a href="{{ route('dataset.download.format', ['id' => $getmeta ? $getmeta->id : ($dataset['id'] ?? 1), 'format' => 'json']) }}" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3 py-2" target="_blank">
-                                            <i class="fas fa-code me-1"></i> Akses JSON API
-                                        </a>
+                                                </table>
+                                            </div>
+
+                                            <div class="table-responsive table-berkas">
+                                                <h5>Daftar Berkas</h5>
+                                                <table class="table table-stripped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama</th>
+                                                            <th>Deskripsi</th>
+                                                            <th>Tgl. Diunggah</th>
+                                                            <th>Format</th>
+                                                            <th>Unduh | Pratinjau</th>
+                                                            <th>Jumlah Unduh Dokumen</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {{-- @php
+                                                    dd($dataset['resources']);
+                                                    @endphp --}}
+                                                        @foreach ($dataset['resources'] as $resource)
+                                                            <tr>
+                                                                <td>{{ $resource['name'] }}</td>
+                                                                <td>{{ $resource['description'] ?? '-' }}</td>
+                                                                <td>{{ $resource['created'] }}</td>
+                                                                <td>{{ $resource['format'] }}</td>
+                                                                <td>
+                                                                    {{-- @php
+                                                            dd($resource);
+                                                            @endphp --}}
+                                                                    {{-- <a href="{{ $resource['url_download'] }}"
+                                                                target="_blank">
+                                                                <i style="color: green" class="fas fa-download"></i>
+                                                                Unduh</a> --}}
+                                                                    @php
+                                                                        $resUrl = $resource['url_download'] ?? $resource['url'] ?? '#';
+                                                                        $resPreview = $resource['url_preview'] ?? '#';
+                                                                    @endphp
+                                                                    <a href="{{ $resUrl }}"
+                                                                        data-url-download="{{ $resUrl }}"
+                                                                        class="download-btn" target="_blank">
+                                                                        <i style="color: green" class="fas fa-download"></i>
+                                                                        Unduh
+                                                                    </a>
+                                                                    <br>
+                                                                    <a href="{{ $resPreview }}"
+                                                                        target="_blank"> <i style="color: blue"
+                                                                            class="fas fa-eye"></i>
+                                                                        Pratinjau</a>
+                                                                </td>
+                                                                <td>
+                                                                    <div style="align-item:center">
+                                                                        <i style="color: black" class="fas fa-download"></i>
+                                                                        {{ $resource['download_count'] }} Kali
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <br>
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info"
+                                    type="button" role="tab" aria-controls="info" aria-selected="true">Informasi
+                                    Data</button>
+                            </li>
 
-                        <!-- Tabs Nav -->
-                        <ul class="nav nav-tabs nav-fill bg-white p-2 rounded-3 shadow-sm mb-4" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active fw-semibold" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">
-                                    <i class="fas fa-info-circle me-1"></i> Informasi Data
-                                </button>
+                                <button class="nav-link" id="standar-tab" data-bs-toggle="tab" data-bs-target="#standar"
+                                    type="button" role="tab" aria-controls="standar" aria-selected="false">Standar
+                                    Data</button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="meta-tab" data-bs-toggle="tab" data-bs-target="#meta"
+                                    type="button" role="tab" aria-controls="meta"
+                                    aria-selected="false">Metadata</button>
+                            </li>
+                            {{-- @if ($tables) --}}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tabel-tab" data-bs-toggle="tab" data-bs-target="#tabel"
+                                    type="button" role="tab" aria-controls="tabel" aria-selected="false">Tabel
+                                    Data</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold" id="standar-tab" data-bs-toggle="tab" data-bs-target="#standar" type="button" role="tab" aria-controls="standar" aria-selected="false">
-                                    <i class="fas fa-certificate me-1"></i> Standar Data
-                                </button>
+                                <button class="nav-link" id="grafik-tab" data-bs-toggle="tab" data-bs-target="#grafik"
+                                    type="button" role="tab" aria-controls="grafik" aria-selected="false">Grafik
+                                    Data</button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold" id="meta-tab" data-bs-toggle="tab" data-bs-target="#meta" type="button" role="tab" aria-controls="meta" aria-selected="false">
-                                    <i class="fas fa-tags me-1"></i> Metadata
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold" id="tabel-tab" data-bs-toggle="tab" data-bs-target="#tabel" type="button" role="tab" aria-controls="tabel" aria-selected="false">
-                                    <i class="fas fa-table me-1"></i> Tabel Data
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold" id="grafik-tab" data-bs-toggle="tab" data-bs-target="#grafik" type="button" role="tab" aria-controls="grafik" aria-selected="false">
-                                    <i class="fas fa-chart-line me-1"></i> Grafik Data
-                                </button>
-                            </li>
+                            {{-- @endif --}}
                         </ul>
                         <div class="tab-content pt-2" id="myTabContent">
                             <div class="tab-pane fade show active" id="info" role="tabpanel"
@@ -508,9 +574,12 @@
                                             <div class="row mb-3">
                                                 <label for="definisi" class="col-sm-2 col-form-label">Definisi</label>
                                                 <div class="col-sm-10">
-                                                    <textarea id="definisi" name="definisi"
+                                                    <input id="definisi" name="definisi" type="text"
                                                         class="form-control {{ isset($definisi) ? ($definisi->accepted ? 'is-valid' : 'is-invalid') : '' }}"
-                                                        style="min-height: 100px; max-height: 250px; overflow-y: auto;" spellcheck="false" placeholder="Definisi" readonly>{{ old('definisi', optional($getmeta->variabel)->definisi ?? optional($getmeta->standar)->definisi) }}</textarea>
+                                                        placeholder="Definisi"
+                                                        value="{{ old('definisi', optional($getmeta->variabel)->definisi ?? optional($getmeta->standar)->definisi) }}"
+                                                        readonly>
+
                                                 </div>
                                             </div>
 
@@ -545,14 +614,14 @@
                                                 <label for="tipe_data" class="col-sm-2 col-form-label">Tipe Data</label>
                                                 <div class="col-sm-10">
                                                     <select
-                                                        class="form-select form-control {{ isset($tipe_data) ? ($tipe_data->accepted ? 'is-valid' : 'is-invalid') : '' }}"
-                                                        style="width: 100%; border-radius: 8px;"
+                                                        class="form-control {{ isset($tipe_data) ? ($tipe_data->accepted ? 'is-valid' : 'is-invalid') : '' }}"
                                                         name="tipe_data" id="tipe_data" disabled>
                                                         <option value="integer"
                                                             {{ old('tipe_data', optional($getmeta->variabel)->tipe_data) == 'integer' ||
                                                             empty(optional($getmeta->variabel)->tipe_data)
                                                                 ? 'selected'
-                                                                : '' }}>Integer</option>
+                                                                : '' }}
+                                                            disabled>Integer</option>
                                                         <option value="float"
                                                             {{ old('tipe_data', optional($getmeta->variabel)->tipe_data) == 'float' ? 'selected' : '' }}>
                                                             Float</option>
@@ -566,6 +635,7 @@
                                                             {{ old('tipe_data', optional($getmeta->variabel)->tipe_data) == 'array' ? 'selected' : '' }}>
                                                             Array</option>
                                                     </select>
+
                                                 </div>
                                             </div>
 

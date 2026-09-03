@@ -41,15 +41,12 @@ Route::get('/regulasi', [PortalController::class, 'regulasi'])->name('guest.regu
 Route::get('/geoportal', [PortalController::class, 'geoportal'])->name('guest.geoportal');
 Route::get('/infografis-guest', [PortalController::class, 'infografis'])->name('guest.infografis');
 Route::get('/infografis-guest/detail/{id}', [PortalController::class, 'infografis_detail'])->name('guest.infografis.detail');
-Route::get('/visualisasi-guest', [PortalController::class, 'visualisasi'])->name('guest.visualisasi');
-Route::get('/visualisasi-guest/detail/{id}', [PortalController::class, 'visualisasi_detail'])->name('guest.visualisasi.detail');
 Route::get('/publikasi-guest', [PortalController::class, 'publikasi'])->name('guest.publikasi');
 Route::get('/publikasi-guest/detail/{id}', [PortalController::class, 'publikasi_detail'])->name('guest.publikasi.detail');
 Route::get('/download-publikasi-pdf/{id}', [PortalController::class, 'download'])->name('guest.publikasi.download.pdf');
 Route::get('/dataset', [PortalController::class, 'data'])->name('dataset');
 // Route::get('/dataset/{name}', [PortalController::class, 'detail'])->name('dataset.detail');
 Route::get('/dataset/{name}', [PortalController::class, 'showDataset'])->name('dataset.show');
-Route::get('/dataset/download/{id}/{format}', [PortalController::class, 'downloadDatasetFormat'])->name('dataset.download.format');
 Route::get('/download-file-count', [PortalController::class, 'downloadFileCount'])->name('download.file.count');
 Route::post('/dataset/grafik', [PortalController::class, 'storeDataByFilter'])->name('dataset.chart.storeDataByFilter');
 Route::get('/download-detail-infografis/{id}', [PortalController::class, 'downloadImage'])->name('download.image.infografis');
@@ -173,22 +170,6 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::post('/publikasi-admin/update/{id}', [PublikasiGuestController::class, 'update'])->name('publikasi.update');
     Route::get('/publikasi-admin/destroy/{id}', [PublikasiGuestController::class, 'destroy'])->name('publikasi.delete');
     Route::get('/publikasi-admin/download/{id}', [PublikasiGuestController::class, 'download'])->name('publication.download');
-
-    // Kelola Visualisasi (Admin)
-    Route::get('/kelola-visualisasi', [\App\Http\Controllers\VisualisasiController::class, 'index'])->name('kelola-visualisasi.index');
-    Route::get('/kelola-visualisasi/create', [\App\Http\Controllers\VisualisasiController::class, 'create'])->name('kelola-visualisasi.create');
-    Route::post('/kelola-visualisasi/store', [\App\Http\Controllers\VisualisasiController::class, 'store'])->name('kelola-visualisasi.store');
-    Route::get('/kelola-visualisasi/edit/{id}', [\App\Http\Controllers\VisualisasiController::class, 'edit'])->name('kelola-visualisasi.edit');
-    Route::post('/kelola-visualisasi/update/{id}', [\App\Http\Controllers\VisualisasiController::class, 'update'])->name('kelola-visualisasi.update');
-    Route::get('/kelola-visualisasi/destroy/{id}', [\App\Http\Controllers\VisualisasiController::class, 'destroy'])->name('kelola-visualisasi.delete');
-
-    // Kelola Regulasi (Admin)
-    Route::get('/kelola-regulasi', [\App\Http\Controllers\RegulasiController::class, 'index'])->name('kelola-regulasi.index');
-    Route::get('/kelola-regulasi/create', [\App\Http\Controllers\RegulasiController::class, 'create'])->name('kelola-regulasi.create');
-    Route::post('/kelola-regulasi/store', [\App\Http\Controllers\RegulasiController::class, 'store'])->name('kelola-regulasi.store');
-    Route::get('/kelola-regulasi/edit/{id}', [\App\Http\Controllers\RegulasiController::class, 'edit'])->name('kelola-regulasi.edit');
-    Route::post('/kelola-regulasi/update/{id}', [\App\Http\Controllers\RegulasiController::class, 'update'])->name('kelola-regulasi.update');
-    Route::get('/kelola-regulasi/destroy/{id}', [\App\Http\Controllers\RegulasiController::class, 'destroy'])->name('kelola-regulasi.delete');
 });
 
 Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'auth:web'])->group(function () {
@@ -379,8 +360,6 @@ Route::middleware(['role:produsen|pembina|administrator', 'auth:web'])->group(fu
     Route::get('/data_produsen/detail-data-standar/{id}', [DataController::class, 'detailDataStandar'])->name('produsen.data.detailDataStandar');
 
     Route::post('/filter_publikasi_produsen', [Produsen\PublikasiController::class, 'filter_publikasi_produsen'])->name('filter_publikasi_produsen');
-
-    Route::get('/data_produsen/panduan', [HomeController::class, 'panduanProdusen'])->name('produsen.panduan');
 
     Route::post('/data_produsen/import', function () {
         Excel::import(new DataImport, request()->file('file'));

@@ -1,11 +1,11 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
             <h1 class="text-white fw-bold mb-2">Regulasi Satu Data</h1>
-            <p class="text-white-50 mb-0" style="font-size: 16px;">Dasar hukum, peraturan daerah, dan pedoman teknis penyelenggaraan Satu Data Indonesia di Kabupaten Madiun</p>
+            <p class="text-white-50 mb-0">Dasar hukum, peraturan, dan pedoman teknis penyelenggaraan Satu Data Indonesia di Kabupaten Madiun.</p>
         </div>
     </div>
 </div>
@@ -19,11 +19,11 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-5 col-md-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-search me-1"></i> Cari Regulasi</label>
-                            <input type="text" name="search" class="form-control" placeholder="Kata kunci judul, nomor, atau perihal..." value="{{ request('search') }}" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px;">
+                            <input type="text" name="search" class="form-control" placeholder="Kata kunci judul, nomor, atau tentang peraturan..." value="{{ request('search') }}">
                         </div>
                         <div class="col-lg-3 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-tags me-1"></i> Kategori</label>
-                            <select name="kategori" class="form-select" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 14px;">
+                            <select name="kategori" class="form-select">
                                 <option value="">Semua Kategori</option>
                                 @foreach($kategoris as $kat)
                                     <option value="{{ $kat }}" {{ request('kategori') == $kat ? 'selected' : '' }}>{{ $kat }}</option>
@@ -32,7 +32,7 @@
                         </div>
                         <div class="col-lg-2 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-calendar-alt me-1"></i> Tahun</label>
-                            <select name="tahun" class="form-select" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 14px;">
+                            <select name="tahun" class="form-select">
                                 <option value="">Semua Tahun</option>
                                 @foreach($tahuns as $th)
                                     <option value="{{ $th }}" {{ request('tahun') == $th ? 'selected' : '' }}>{{ $th }}</option>
@@ -40,10 +40,8 @@
                             </select>
                         </div>
                         <div class="col-lg-2 col-md-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100 fw-semibold" style="border-radius: 8px; padding: 9px 14px;"><i class="fas fa-search me-1"></i> Cari</button>
-                            @if(request()->hasAny(['search', 'kategori', 'tahun']))
-                                <a href="{{ route('guest.regulasi') }}" class="btn btn-outline-secondary" style="border-radius: 8px; padding: 9px 14px;"><i class="fas fa-redo"></i></a>
-                            @endif
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
+                            <a href="{{ route('guest.regulasi') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
                         </div>
                     </div>
                 </form>
@@ -123,15 +121,15 @@
                         @empty
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
-                                <p class="mb-0">Tidak ada regulasi yang sesuai dengan kriteria pencarian.</p>
+                                <i class="fas fa-gavel fa-3x mb-3 text-muted"></i>
+                                <p class="mb-0">Tidak ada regulasi yang ditemukan.</p>
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            @if(method_exists($regulasi, 'hasPages') && $regulasi->hasPages())
+            @if($regulasi->hasPages())
                 <div class="card-footer bg-white p-3 d-flex justify-content-center">
                     {{ $regulasi->withQueryString()->links() }}
                 </div>

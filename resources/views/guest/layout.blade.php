@@ -360,65 +360,6 @@
             color: #0284c7;
         }
 
-        .sdi-nav-dropdown {
-            position: relative;
-        }
-
-        .sdi-nav-dropdown:hover .sdi-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .sdi-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            min-width: 220px;
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
-            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-            padding: 8px;
-            list-style: none;
-            margin: 0;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(8px);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1050;
-        }
-
-        .sdi-dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 12px;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #334155;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.15s ease;
-        }
-
-        .sdi-dropdown-item:hover {
-            background: #f0f9ff;
-            color: #0284c7;
-        }
-
-        .sdi-dropdown-item.active {
-            background: #e0f2fe;
-            color: #0284c7;
-            font-weight: 700;
-        }
-
-        .sdi-dropdown-item i {
-            width: 18px;
-            font-size: 14px;
-            color: #0284c7;
-        }
-
         .sdi-drawer-link i {
             width: 20px;
             color: #64748b;
@@ -443,9 +384,9 @@
                         <i class="fas fa-shield-alt"></i> PORTAL RESMI
                     </span>
                     <span class="text-white-50">|</span>
-                    <a href="mailto:sdi@madiunkab.go.id" class="d-inline-flex align-items-center gap-2">
+                    <a href="mailto:diskominfo@madiunkab.go.id" class="d-inline-flex align-items-center gap-2">
                         <i class="fas fa-envelope text-info"></i>
-                        <span>sdi@madiunkab.go.id</span>
+                        <span>diskominfo@madiunkab.go.id</span>
                     </a>
                     <span class="text-white-50">|</span>
                     <a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6" target="_blank" class="d-inline-flex align-items-center gap-2">
@@ -454,7 +395,10 @@
                     </a>
                 </div>
                 <div>
-                    <span class="small text-white-50"><i class="fas fa-calendar-alt me-1"></i> {{ date('d F Y') }}</span>
+                    <a href="{{ route('login') }}" class="sdi-topbar-btn">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Login DAPUR SDI</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -492,31 +436,15 @@
                             Kode Referensi
                         </a>
                     </li>
-                    <!-- Dropdown Menu Publikasi (Buku, Infografis, Visualisasi) -->
-                    <li class="sdi-nav-item sdi-nav-dropdown">
-                        <a class="sdi-nav-link {{ (request()->is('publikasi-guest*') || request()->is('infografis-guest*') || request()->is('visualisasi-guest*')) ? 'active' : '' }}" href="#" role="button">
-                            Publikasi <i class="fas fa-chevron-down ms-1" style="font-size: 11px;"></i>
+                    <li class="sdi-nav-item">
+                        <a class="sdi-nav-link {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
+                            Publikasi
                         </a>
-                        <ul class="sdi-dropdown-menu">
-                            <li>
-                                <a class="sdi-dropdown-item {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
-                                    <i class="fas fa-book"></i>
-                                    <span>Buku</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="sdi-dropdown-item {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
-                                    <i class="fas fa-image"></i>
-                                    <span>Infografis</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="sdi-dropdown-item {{ request()->is('visualisasi-guest*') ? 'active' : '' }}" href="{{ route('guest.visualisasi') }}">
-                                    <i class="fas fa-chart-line"></i>
-                                    <span>Visualisasi</span>
-                                </a>
-                            </li>
-                        </ul>
+                    </li>
+                    <li class="sdi-nav-item">
+                        <a class="sdi-nav-link {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
+                            Infografis
+                        </a>
                     </li>
                     <li class="sdi-nav-item">
                         <a class="sdi-nav-link {{ request()->is('regulasi*') ? 'active' : '' }}" href="{{ route('guest.regulasi') }}">
@@ -585,17 +513,12 @@
             <a class="sdi-drawer-link {{ request()->is('kode-referensi*') ? 'active' : '' }}" href="{{ route('guest.kode-referensi') }}">
                 <i class="fas fa-list-ol"></i> <span>Kode Referensi</span>
             </a>
-            <div class="px-3 py-1 text-muted small fw-bold text-uppercase mt-2">Publikasi</div>
-            <a class="sdi-drawer-link ps-4 {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
-                <i class="fas fa-book"></i> <span>Buku</span>
+            <a class="sdi-drawer-link {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
+                <i class="fas fa-newspaper"></i> <span>Publikasi</span>
             </a>
-            <a class="sdi-drawer-link ps-4 {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
-                <i class="fas fa-image"></i> <span>Infografis</span>
+            <a class="sdi-drawer-link {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
+                <i class="fas fa-chart-pie"></i> <span>Infografis</span>
             </a>
-            <a class="sdi-drawer-link ps-4 {{ request()->is('visualisasi-guest*') ? 'active' : '' }}" href="{{ route('guest.visualisasi') }}">
-                <i class="fas fa-chart-line"></i> <span>Visualisasi</span>
-            </a>
-            <div class="border-top my-2"></div>
             <a class="sdi-drawer-link {{ request()->is('regulasi*') ? 'active' : '' }}" href="{{ route('guest.regulasi') }}">
                 <i class="fas fa-gavel"></i> <span>Regulasi</span>
             </a>
@@ -609,7 +532,7 @@
             <div class="mt-4 pt-3 border-top">
                 <a href="{{ route('login') }}" class="sdi-cta-btn w-100 justify-content-center py-2">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>Masuk Portal</span>
+                    <span>Masuk DAPUR SDI</span>
                 </a>
             </div>
         </div>
@@ -647,7 +570,7 @@
                         <div class="footer-contact-card">
                             <i class="fas fa-envelope"></i>
                             <h5>Email: </h5>
-                            <p><a href="mailto:sdi@madiunkab.go.id">sdi@madiunkab.go.id</a></p>
+                            <p><a href="mailto:diskominfo@madiunkab.go.id">diskominfo@madiunkab.go.id</a></p>
                         </div>
                         <div class="footer-contact-card">
                             <i class="fas fa-phone-alt"></i>
@@ -664,9 +587,8 @@
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.katalog') }}">Katalog Data</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('dataset') }}">Dataset</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.kode-referensi') }}">Kode Referensi</a></li>
-                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.publikasi') }}">Buku Publikasi</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.publikasi') }}">Publikasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.infografis') }}">Infografis</a></li>
-                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.visualisasi') }}">Visualisasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.regulasi') }}">Regulasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.geoportal') }}">Geoportal</a></li>
                         </ul>

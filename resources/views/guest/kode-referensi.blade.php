@@ -1,11 +1,11 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #0f4c81 0%, #1b263b 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
             <h1 class="text-white fw-bold mb-2">Kode Referensi</h1>
-            <p class="text-white-50 mb-0" style="font-size: 16px;">Menampilkan Kode Referensi Wilayah, Puskesmas dan Kode Referensi Indikator Pembangunan</p>
+            <p class="text-white-50 mb-0">Standar Kode Referensi Wilayah, Puskesmas, dan Indikator Pembangunan Satu Data Kabupaten Madiun.</p>
         </div>
     </div>
 </div>
@@ -15,40 +15,42 @@
         <!-- Navigation Tabs -->
         <ul class="nav nav-pills nav-fill mb-4 bg-white p-2 rounded-3 shadow-sm" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link fw-semibold {{ $tab == 'wilayah' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'wilayah']) }}">
+                <a class="nav-link {{ $tab == 'wilayah' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'wilayah']) }}">
                     <i class="fas fa-map-marked-alt me-2"></i> Kode Wilayah Kecamatan (15)
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link fw-semibold {{ $tab == 'desa' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'desa']) }}">
+                <a class="nav-link {{ $tab == 'desa' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'desa']) }}">
                     <i class="fas fa-city me-2"></i> Kode Wilayah Desa / Kelurahan
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link fw-semibold {{ $tab == 'puskesmas' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'puskesmas']) }}">
-                    <i class="fas fa-hospital me-2"></i> Kode Referensi Puskesmas (26)
+                <a class="nav-link {{ $tab == 'puskesmas' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'puskesmas']) }}">
+                    <i class="fas fa-hospital me-2"></i> Kode Referensi Puskesmas
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link fw-semibold {{ $tab == 'sdsn' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'sdsn']) }}">
-                    <i class="fas fa-book me-2"></i> Standar SDSN (BPS) & Indikator
+                <a class="nav-link {{ $tab == 'sdsn' ? 'active' : '' }}" href="{{ route('guest.kode-referensi', ['tab' => 'sdsn']) }}">
+                    <i class="fas fa-book me-2"></i> Standar SDSN & Bappenas
                 </a>
             </li>
         </ul>
 
         <!-- Search Bar -->
+        @if($tab != 'sdsn')
         <div class="card shadow-sm border-0 mb-4 rounded-3">
             <div class="card-body p-3">
                 <form action="{{ route('guest.kode-referensi') }}" method="GET" class="d-flex gap-2">
                     <input type="hidden" name="tab" value="{{ $tab }}">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama atau kode referensi..." value="{{ $search }}" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 16px;">
-                    <button type="submit" class="btn btn-primary px-4 fw-semibold" style="border-radius: 8px;"><i class="fas fa-search me-1"></i> Cari</button>
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama atau kode referensi..." value="{{ $search }}">
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-search me-1"></i> Cari</button>
                     @if($search)
-                        <a href="{{ route('guest.kode-referensi', ['tab' => $tab]) }}" class="btn btn-outline-secondary" style="border-radius: 8px;"><i class="fas fa-redo"></i></a>
+                        <a href="{{ route('guest.kode-referensi', ['tab' => $tab]) }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
                     @endif
                 </form>
             </div>
         </div>
+        @endif
 
         <!-- Tab 1: Kecamatan -->
         @if($tab == 'wilayah')
@@ -130,25 +132,21 @@
         </div>
         @endif
 
-        <!-- Tab 3: Puskesmas (26 Puskesmas Sesuai KMK Kemenkes 2023) -->
+        <!-- Tab 3: Puskesmas -->
         @if($tab == 'puskesmas')
         <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-clinic-medical text-primary me-2"></i>Daftar Kode Referensi Puskesmas Kabupaten Madiun</h5>
-                    <small class="text-muted">Berdasarkan Keputusan Menteri Kesehatan RI No. HK.01.07/MENKES/2099/2023</small>
-                </div>
-                <span class="badge bg-danger">Total: {{ count($puskesmas) }} Puskesmas</span>
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-clinic-medical text-primary me-2"></i>Daftar Kode Referensi Puskesmas Kabupaten Madiun</h5>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th style="width: 50px;" class="text-center">No</th>
-                            <th class="text-center" style="width: 150px;">Kode Puskesmas</th>
+                            <th style="width: 60px;" class="text-center">No</th>
+                            <th class="text-center" style="width: 160px;">Kode Faskes (Kemenkes)</th>
                             <th>Nama Puskesmas</th>
                             <th>Kecamatan</th>
-                            <th class="text-center">Kemampuan Pelayanan</th>
+                            <th class="text-center">Jenis Layanan</th>
                             <th>Alamat / Wilayah Kerja</th>
                         </tr>
                     </thead>
@@ -156,11 +154,11 @@
                         @forelse($puskesmas as $index => $item)
                         <tr>
                             <td class="text-center text-muted">{{ $index + 1 }}</td>
-                            <td class="text-center"><span class="badge bg-danger font-monospace fs-6">{{ $item['kode'] }}</span></td>
+                            <td class="text-center"><span class="badge bg-danger font-monospace">{{ $item['kode'] }}</span></td>
                             <td class="fw-bold text-dark">{{ $item['nama'] }}</td>
                             <td><span class="badge bg-light text-dark border">Kec. {{ $item['kecamatan'] }}</span></td>
                             <td class="text-center">
-                                <span class="badge {{ $item['tipe'] == 'Rawat Inap' ? 'bg-success' : 'bg-secondary' }}">
+                                <span class="badge {{ $item['tipe'] == 'Rawat Inap' ? 'bg-success' : 'bg-primary' }}">
                                     {{ $item['tipe'] }}
                                 </span>
                             </td>
@@ -177,84 +175,39 @@
         </div>
         @endif
 
-        <!-- Tab 4: SDSN & Bappenas Reference Table (Live API BPS & Standards) -->
+        <!-- Tab 4: SDSN & Bappenas Reference Documentation -->
         @if($tab == 'sdsn')
-        <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-chart-line text-success me-2"></i>Standar Data Statistik Nasional (SDSN BPS & SDI)</h5>
-                    <small class="text-muted">Katalog referensi konsep, definisi, ukuran, satuan, dan klasifikasi standar nasional</small>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary text-white p-3 rounded-3 me-3"><i class="fas fa-database fa-2x"></i></div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Kode Referensi Satu Data Indonesia (Bappenas)</h5>
+                            <span class="text-muted small">data.go.id/reference</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Pedoman standardisasi kode referensi induk Satu Data Indonesia yang mencakup data wilayah administratif, kode instansi/OPD, klasifikasi baku lapangan usaha (KBLI), dan metadata standar nasional.</p>
+                    <div class="mt-auto">
+                        <a href="https://data.go.id/reference" target="_blank" class="btn btn-outline-primary w-100"><i class="fas fa-external-link-alt me-1"></i> Buka Portal Referensi data.go.id</a>
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="https://dna.web.bps.go.id" target="_blank" class="btn btn-sm btn-outline-success">
-                        <i class="fas fa-external-link-alt me-1"></i> Buka Portal SDSN BPS
-                    </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-3 h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success text-white p-3 rounded-3 me-3"><i class="fas fa-chart-line fa-2x"></i></div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Standar Data Statistik Nasional (SDSN BPS)</h5>
+                            <span class="text-muted small">dna.web.bps.go.id</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Katalog referensi konsep, definisi, klasifikasi, ukuran, dan satuan yang diterbitkan oleh Badan Pusat Statistik (BPS) Republik Indonesia sebagai Pembina Data Statistik Nasional.</p>
+                    <div class="mt-auto">
+                        <a href="https://dna.web.bps.go.id/api/documentation" target="_blank" class="btn btn-outline-success w-100"><i class="fas fa-external-link-alt me-1"></i> Buka Dokumentasi API SDSN BPS</a>
+                    </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="width: 50px;" class="text-center">No</th>
-                            <th class="text-center" style="width: 140px;">Kode SDS</th>
-                            <th>Nama Data / Indikator</th>
-                            <th>Konsep</th>
-                            <th>Definisi</th>
-                            <th class="text-center">Ukuran / Satuan</th>
-                            <th class="text-center">Klasifikasi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($sdsnData as $idx => $sds)
-                        @php
-                            $sdsArr = (array) $sds;
-                            $code = $sdsArr['code'] ?? $sdsArr['kode'] ?? ('SDS-3519-' . str_pad($idx + 1, 3, '0', STR_PAD_LEFT));
-                            $dataName = $sdsArr['data_name'] ?? $sdsArr['nama_data'] ?? '-';
-                            $concept = $sdsArr['concept'] ?? $sdsArr['konsep'] ?? '-';
-                            $definition = $sdsArr['definition'] ?? $sdsArr['definisi'] ?? '-';
-                            $size = $sdsArr['size'] ?? $sdsArr['ukuran'] ?? '-';
-                            $unit = $sdsArr['unit'] ?? $sdsArr['satuan'] ?? '-';
-                            $classification = $sdsArr['classification'] ?? $sdsArr['klasifikasi'] ?? '-';
-                        @endphp
-                        <tr>
-                            <td class="text-center text-muted small">{{ (($sdsnPage - 1) * 15) + $idx + 1 }}</td>
-                            <td class="text-center"><span class="badge bg-success font-monospace">{{ $code }}</span></td>
-                            <td class="fw-bold text-dark">{{ $dataName }}</td>
-                            <td class="small text-muted">{{ $concept }}</td>
-                            <td class="small text-secondary" style="max-width: 300px;">{{ Str::limit($definition, 120) }}</td>
-                            <td class="text-center small">
-                                <span class="badge bg-light text-dark border">{{ $size }}</span><br>
-                                <span class="text-muted">{{ $unit }}</span>
-                            </td>
-                            <td class="text-center small">
-                                <span class="badge bg-info text-dark">{{ $classification }}</span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Data Standar Data Statistik Nasional tidak ditemukan.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            @if($sdsnTotal > 15)
-            <div class="card-footer bg-white p-3 d-flex justify-content-center">
-                <nav>
-                    <ul class="pagination mb-0">
-                        <li class="page-item {{ $sdsnPage <= 1 ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ route('guest.kode-referensi', ['tab' => 'sdsn', 'sdsn_page' => $sdsnPage - 1, 'search' => $search]) }}">« Sebelumnya</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link">Halaman {{ $sdsnPage }} (Total: {{ $sdsnTotal }} data)</span>
-                        </li>
-                        <li class="page-item {{ ($sdsnPage * 15) >= $sdsnTotal ? 'disabled' : '' }}">
-                            <a class="page-link" href="{{ route('guest.kode-referensi', ['tab' => 'sdsn', 'sdsn_page' => $sdsnPage + 1, 'search' => $search]) }}">Selanjutnya »</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            @endif
         </div>
         @endif
     </div>

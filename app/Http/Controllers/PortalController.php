@@ -18,16 +18,12 @@ use App\Models\Visitor;
 use App\Models\VisualData;
 use App\Models\VisualIsi;
 use App\Models\VisualTable;
-use App\Models\Visualisasi;
 use App\Models\Wilayah;
 use App\Services\CkanApi\Facades\CkanApi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class PortalController extends Controller
 {
@@ -121,10 +117,8 @@ class PortalController extends Controller
     {
         $query = Infografis::with('images')->orderBy('created_at', 'desc');
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
+            $query->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('content', 'like', '%' . $request->search . '%');
-            });
         }
         $infografis = $query->paginate(12);
         return view('guest.infografis', compact('infografis'));
@@ -142,67 +136,12 @@ class PortalController extends Controller
         }
     }
 
-    public function visualisasi(Request $request)
-    {
-        $query = Visualisasi::orderBy('created_at', 'desc');
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
-            });
-        }
-        $visualisasis = $query->paginate(9);
-
-        // Fallback: If visualisasis is empty, check if any infografis has tableau
-        if ($visualisasis->total() == 0) {
-            $infografisTableau = Infografis::whereNotNull('tableau')->where('tableau', '!=', '')->orderBy('created_at', 'desc')->paginate(9);
-            if ($infografisTableau->total() > 0) {
-                $visualisasis = $infografisTableau;
-            }
-        }
-
-        return view('guest.visualisasi', compact('visualisasis'));
-    }
-
-    public function visualisasi_detail($id)
-    {
-        try {
-            $decryptedId = is_numeric($id) ? $id : decrypt($id);
-            $visualisasi = Visualisasi::find($decryptedId);
-            if (!$visualisasi) {
-                $infografis = Infografis::findOrFail($decryptedId);
-                $visualisasi = (object)[
-                    'id' => $infografis->id,
-                    'title' => $infografis->title,
-                    'tableau_url' => $infografis->tableau,
-                    'content' => $infografis->content,
-                    'created_at' => $infografis->created_at,
-                ];
-            }
-            return view('guest.detail-visualisasi', compact('visualisasi'));
-        } catch (\Throwable $th) {
-            return redirect()->route('guest.visualisasi')->with('error', 'Data visualisasi tidak ditemukan');
-        }
-    }
-
     public function publikasi(Request $request)
     {
-        $query = PublikasiGuest::with('opd')->orderBy('created_at', 'desc');
+        $query = PublikasiGuest::orderBy('created_at', 'desc');
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%")
-                  ->orWhere('instansi', 'like', "%{$search}%");
-            });
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
-        if ($request->filled('tahun')) {
-            $query->where('tahun', $request->tahun);
-        }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
         $publikasi = $query->paginate(12);
         $tahuns = MasterTahun::orderBy('tahun', 'desc')->get();
         $jadwalTerbit = JadwalTerbit::orderBy('rencana_terbit', 'desc')->get();
@@ -214,7 +153,7 @@ class PortalController extends Controller
     {
         try {
             $decryptedId = is_numeric($id) ? $id : decrypt($id);
-            $publikasi = PublikasiGuest::with('opd')->findOrFail($decryptedId);
+            $publikasi = PublikasiGuest::findOrFail($decryptedId);
             $pop = PublikasiGuest::where('id', '!=', $decryptedId)->orderBy('created_at', 'desc')->limit(4)->get();
             return view('guest.detail-publikasi', compact('publikasi', 'pop'));
         } catch (\Throwable $th) {
@@ -316,96 +255,41 @@ class PortalController extends Controller
         }
         $villages = $villagesQuery->paginate(20, ['*'], 'village_page');
 
-        // 2. Puskesmas List (26 Puskesmas Kabupaten Madiun - KMK Kemenkes No. HK.01.07/MENKES/2099/2023)
+        // 2. Puskesmas List
         $puskesmas = [
-            ['kode' => '35190200001', 'nama' => 'Puskesmas Gantrung', 'kecamatan' => 'Kebonsari', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. P Diponegoro No 311, Ds. Mojorejo, Kec Kebonsari'],
-            ['kode' => '35190200002', 'nama' => 'Puskesmas Kebonsari', 'kecamatan' => 'Kebonsari', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Husni Thamrin RT 008/RW 001, Ds. Balerejo Kec. Kebonsari'],
-            ['kode' => '35190200003', 'nama' => 'Puskesmas Geger', 'kecamatan' => 'Geger', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Ponorogo No. 48, Ds. Purworejo, Kec Geger'],
-            ['kode' => '35190200004', 'nama' => 'Puskesmas Kaibon', 'kecamatan' => 'Geger', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Pancotaruno No. 407, Ds. Kaibon, Kec. Geger'],
-            ['kode' => '35190200005', 'nama' => 'Puskesmas Mlilir', 'kecamatan' => 'Dolopo', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Madiun Ponorogo Km 19 Kel. Mlilir Kec. Dolopo'],
-            ['kode' => '35190200006', 'nama' => 'Puskesmas Bangunsari', 'kecamatan' => 'Dolopo', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Panjang Punjung Kel. Bangunsari Kec. Dolopo'],
-            ['kode' => '35190200007', 'nama' => 'Puskesmas Dagangan', 'kecamatan' => 'Dagangan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Dagangan Pagotan No. 57 Ds. Dagangan, Kec. Dagangan'],
-            ['kode' => '35190200008', 'nama' => 'Puskesmas Jetis', 'kecamatan' => 'Dagangan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Jetis, Ds. Jetis, Kec. Dagangan'],
-            ['kode' => '35190200009', 'nama' => 'Puskesmas Wungu', 'kecamatan' => 'Wungu', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Kare No. 113, Ds. Wungu, Kec. Wungu'],
-            ['kode' => '35190200010', 'nama' => 'Puskesmas Mojopurno', 'kecamatan' => 'Wungu', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Dungus, Ds. Mojopurno, Kec. Wungu'],
-            ['kode' => '35190200011', 'nama' => 'Puskesmas Kare', 'kecamatan' => 'Kare', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl Raya Randualas Kare, RT 02 RW 01 Ds.Kare, Kec.Kare'],
-            ['kode' => '35190200012', 'nama' => 'Puskesmas Gemarang', 'kecamatan' => 'Gemarang', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Tentara Genie Pelajar No 17, Ds. Gemarang, Kec. Gemarang'],
-            ['kode' => '35190200013', 'nama' => 'Puskesmas Saradan', 'kecamatan' => 'Saradan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Saradan – Madiun Ds. Sugihwaras Kec. Saradan'],
-            ['kode' => '35190200014', 'nama' => 'Puskesmas Sumbersari', 'kecamatan' => 'Saradan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Tulung No. 05, Ds. Sumbersari, Kec. Saradan'],
-            ['kode' => '35190200015', 'nama' => 'Puskesmas Pilangkenceng', 'kecamatan' => 'Pilangkenceng', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Kenongorejo No. 774 Ds. Kenongorejo Kec. Pilangkenceng'],
-            ['kode' => '35190200016', 'nama' => 'Puskesmas Krebet', 'kecamatan' => 'Pilangkenceng', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Gawang Utara No. 55 Ds. Krebet Kec. Pilangkenceng'],
-            ['kode' => '35190200017', 'nama' => 'Puskesmas Klecorejo', 'kecamatan' => 'Mejayan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Wates, Ds. Klecorejo, Kec. Mejayan'],
-            ['kode' => '35190200018', 'nama' => 'Puskesmas Mejayan', 'kecamatan' => 'Mejayan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Panglima Sudirman No. 52, Ds. Mejayan, Kec. Mejayan'],
-            ['kode' => '35190200019', 'nama' => 'Puskesmas Wonoasri', 'kecamatan' => 'Wonoasri', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Wonoasri, Ds. Wonoasri, Kec. Wonoasri'],
-            ['kode' => '35190200020', 'nama' => 'Puskesmas Balerejo', 'kecamatan' => 'Balerejo', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Madiun Surabaya No. 82, Ds. Balerejo, Kec. Balerejo'],
-            ['kode' => '35190200021', 'nama' => 'Puskesmas Simo', 'kecamatan' => 'Balerejo', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Balerejo-Muneng No.96, Ds. Simo, Kec. Balerejo'],
-            ['kode' => '35190200022', 'nama' => 'Puskesmas Madiun', 'kecamatan' => 'Madiun', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Puskesmas No.9, Ds. Tiron, Kec. Madiun'],
-            ['kode' => '35190200023', 'nama' => 'Puskesmas Dimong', 'kecamatan' => 'Madiun', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Dimong, Ds. Dimong, Kec. Madiun'],
-            ['kode' => '35190200024', 'nama' => 'Puskesmas Sawahan', 'kecamatan' => 'Sawahan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Kajang No. 31 Ds. Kajang Kec. Sawahan'],
-            ['kode' => '35190200025', 'nama' => 'Puskesmas Klagenserut', 'kecamatan' => 'Jiwan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Klagenserut Rt 08 Rw 03 Kec. Jiwan'],
-            ['kode' => '35190200026', 'nama' => 'Puskesmas Jiwan', 'kecamatan' => 'Jiwan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Jl. Raya Solo No.85, Ds. Jiwan, Kec. Jiwan'],
+            ['kode' => 'P3519010101', 'nama' => 'Puskesmas Kebonsari', 'kecamatan' => 'Kebonsari', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Kebonsari No. 12'],
+            ['kode' => 'P3519020101', 'nama' => 'Puskesmas Dolopo', 'kecamatan' => 'Dolopo', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Dolopo No. 45'],
+            ['kode' => 'P3519020102', 'nama' => 'Puskesmas Bangunsari', 'kecamatan' => 'Dolopo', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Bangunsari'],
+            ['kode' => 'P3519030101', 'nama' => 'Puskesmas Geger', 'kecamatan' => 'Geger', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Ponorogo-Madiun Km 9'],
+            ['kode' => 'P3519030102', 'nama' => 'Puskesmas Kaibon', 'kecamatan' => 'Geger', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Kaibon'],
+            ['kode' => 'P3519040101', 'nama' => 'Puskesmas Dagangan', 'kecamatan' => 'Dagangan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Dagangan'],
+            ['kode' => 'P3519050101', 'nama' => 'Puskesmas Kare', 'kecamatan' => 'Kare', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Kare No. 5'],
+            ['kode' => 'P3519060101', 'nama' => 'Puskesmas Gemarang', 'kecamatan' => 'Gemarang', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Gemarang No. 10'],
+            ['kode' => 'P3519070101', 'nama' => 'Puskesmas Wungu', 'kecamatan' => 'Wungu', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Mojopurno No. 2'],
+            ['kode' => 'P3519070102', 'nama' => 'Puskesmas Kresek', 'kecamatan' => 'Wungu', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Kresek'],
+            ['kode' => 'P3519080101', 'nama' => 'Puskesmas Madiun', 'kecamatan' => 'Madiun', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Nglames No. 34'],
+            ['kode' => 'P3519080102', 'nama' => 'Puskesmas Dimong', 'kecamatan' => 'Madiun', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Dimong'],
+            ['kode' => 'P3519090101', 'nama' => 'Puskesmas Jiwan', 'kecamatan' => 'Jiwan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Solo No. 78'],
+            ['kode' => 'P3519100101', 'nama' => 'Puskesmas Balerejo', 'kecamatan' => 'Balerejo', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Madiun-Surabaya'],
+            ['kode' => 'P3519100102', 'nama' => 'Puskesmas Simo', 'kecamatan' => 'Balerejo', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Simo'],
+            ['kode' => 'P3519110101', 'nama' => 'Puskesmas Mejayan', 'kecamatan' => 'Mejayan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Panglima Sudirman Caruban'],
+            ['kode' => 'P3519110102', 'nama' => 'Puskesmas Klecorejo', 'kecamatan' => 'Mejayan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Klecorejo'],
+            ['kode' => 'P3519120101', 'nama' => 'Puskesmas Saradan', 'kecamatan' => 'Saradan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Saradan No. 15'],
+            ['kode' => 'P3519120102', 'nama' => 'Puskesmas Sumbersari', 'kecamatan' => 'Saradan', 'tipe' => 'Non Rawat Inap', 'alamat' => 'Desa Sumbersari'],
+            ['kode' => 'P3519130101', 'nama' => 'Puskesmas Pilangkenceng', 'kecamatan' => 'Pilangkenceng', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Kenep No. 8'],
+            ['kode' => 'P3519140101', 'nama' => 'Puskesmas Sawahan', 'kecamatan' => 'Sawahan', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Sawahan No. 22'],
+            ['kode' => 'P3519150101', 'nama' => 'Puskesmas Wonoasri', 'kecamatan' => 'Wonoasri', 'tipe' => 'Rawat Inap', 'alamat' => 'Jl. Raya Buduran No. 1'],
         ];
 
         if ($search && $tab === 'puskesmas') {
             $puskesmas = array_values(array_filter($puskesmas, function($item) use ($search) {
                 return stripos($item['nama'], $search) !== false ||
                        stripos($item['kode'], $search) !== false ||
-                       stripos($item['kecamatan'], $search) !== false ||
-                       stripos($item['alamat'], $search) !== false;
+                       stripos($item['kecamatan'], $search) !== false;
             }));
         }
 
-        // 3. Live SDSN BPS API Fetching with token
-        $sdsnData = [];
-        $sdsnTotal = 0;
-        $sdsnPage = max(1, intval($request->get('sdsn_page', 1)));
-        $sdsnToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpaSI6MzMyNzc0MzAwZjczMjdkZjU0NjE0YzU1YmNTNTVhOTlhMjdmNjFiZTIwM2M2MDBiNjk3ZWZjY2U2NTYhZTIxMTYwMjcwNmUzMWVmZGIxZmQ3MjM1LCJpYXQiOjE3NjI0ODYxMDYuMDk4MTM4LCJuYmYiOjE3NjI0ODYxMDYuMDk4MTQyLCJleHAiOjE3OTQwMjE3MDYsInN1YiI6IjE0MDFkOTM4LTgzZTgtNDBmYi1iNzUxLTIwOTZhYmFhNDFhMSIsInNjb3BlcyI6W119.EJGhhcsMimYu9QWEXEjiqUqFbhe1c9Km21OK9zYMbfAarIRhvrDGRuPMBiyKUidaMiWY6zgUky9tTwdv3NE7iXvzXbMiTeTfNZm1zJYj_8JGeaD-ScrjWQtX-5_g9gtYZO9TVViK5PDv7XEWhitDVhM0sRpIKcFZYe4AGSN9qnBkjKgXO4yiQXLdZb2kqHvGsTSMPWTtQ44DK8atRYw7KZWjwsYxhth9tFSNv_4GjpHgpenqEggZCZd1XreY_S-5U8MfctoOV1CD-llQ5BkOBxJ-znKZwSTAWbiHF13RvkLhib5s_bunqSIe2A';
-
-        if ($tab === 'sdsn') {
-            $cacheKey = 'sdsn_bps_page_' . $sdsnPage . '_' . md5($search);
-            $sdsnResponse = Cache::remember($cacheKey, 1800, function() use ($sdsnToken, $sdsnPage, $search) {
-                try {
-                    $response = Http::withToken($sdsnToken)
-                        ->timeout(2)
-                        ->get('https://dna.web.bps.go.id/api/sdsn/search', [
-                            'length' => 15,
-                            'page' => $sdsnPage,
-                            'search' => $search ?: ''
-                        ]);
-                    if ($response->successful()) {
-                        return $response->json();
-                    }
-                } catch (\Throwable $e) {
-                    // Fail silently to local fallback
-                }
-                return null;
-            });
-
-            if ($sdsnResponse && isset($sdsnResponse['data'])) {
-                $sdsnData = $sdsnResponse['data'];
-                $sdsnTotal = $sdsnResponse['total'] ?? count($sdsnData);
-            } else {
-                // Fallback local standard data
-                $localStandar = DB::table('standar_data')
-                    ->leftJoin('data', 'standar_data.data_id', '=', 'data.id')
-                    ->select('standar_data.*', 'data.nama_data')
-                    ->get();
-                $sdsnData = $localStandar->map(function($st) {
-                    return [
-                        'code' => $st->kode_referensi_bps ?? $st->kode_referensi_bappenas ?? ('SDS-3519-' . str_pad($st->id, 3, '0', STR_PAD_LEFT)),
-                        'data_name' => $st->nama_data ?? 'Standar Data Statistik Daerah',
-                        'concept' => $st->konsep ?? 'Statistik Sektoral',
-                        'definition' => $st->definisi ?? 'Definisi Standar Data SDI',
-                        'size' => $st->ukuran ?? 'Persentase / Jumlah',
-                        'unit' => $st->satuan ?? 'Satuan Unit',
-                        'classification' => $st->klasifikasi ?? 'Standar Nasional',
-                    ];
-                })->toArray();
-                $sdsnTotal = count($sdsnData);
-            }
-        }
-
-        return view('guest.kode-referensi', compact('districts', 'villages', 'puskesmas', 'tab', 'search', 'sdsnData', 'sdsnTotal', 'sdsnPage'));
+        return view('guest.kode-referensi', compact('districts', 'villages', 'puskesmas', 'tab', 'search'));
     }
 
     public function geoportal()
@@ -542,8 +426,6 @@ class PortalController extends Controller
         }
         $searchQuery['fq'] = implode(' AND ', $searchQuery['fq']);
 
-        $totalDatasetCount = Data::where('status_id', Data::STATUS_TERPUBLIKASI)->count();
-
         try {
             $ckanData = CkanApi::dataset()->all($searchQuery);
             $orgs = CkanApi::organization()->all(['limit' => 1000]);
@@ -558,12 +440,6 @@ class PortalController extends Controller
             $localQuery = Data::with('opd')->where('status_id', Data::STATUS_TERPUBLIKASI);
             if ($request->filled('q')) {
                 $localQuery->where('nama_data', 'like', '%' . $request->get('q') . '%');
-            }
-            if ($request->filled('sumber_referensi')) {
-                $localQuery->where('sumber_referensi', $request->sumber_referensi);
-            }
-            if ($request->filled('tahun')) {
-                $localQuery->where('tahun', $request->tahun);
             }
             $totalCount = $localQuery->count();
             $localItems = $localQuery->skip($start)->take($limit)->get();
@@ -589,10 +465,8 @@ class PortalController extends Controller
         $pages = ceil(($result['count'] ?? 0) / $limit);
         $hasPrevPage = $page > 1;
         $hasNextPage = $page < $pages;
-        $tahuns = MasterTahun::orderBy('tahun', 'desc')->get();
-        $sumberReferensiList = ['RPJMD', 'Renstra', 'SPM', 'SDGs', 'LPPK', 'IKP', 'Lainnya'];
 
-        return view('guest.data', compact('data', 'groups', 'orgs', 'pages', 'page', 'hasPrevPage', 'hasNextPage', 'totalDatasetCount', 'tahuns', 'sumberReferensiList'));
+        return view('guest.data', compact('data', 'groups', 'orgs', 'pages', 'page', 'hasPrevPage', 'hasNextPage'));
     }
 
     public function showDataset($name)
@@ -633,14 +507,9 @@ class PortalController extends Controller
         }
 
         $getmeta = Data::with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
-            ->where('nama_data', $dataset['title'] ?? '')
-            ->orWhere('id', $dataset['id'] ?? 0)
+            ->where('nama_data', $dataset['title'])
             ->latest()
             ->first();
-
-        if ($getmeta) {
-            $getmeta->increment('views_count');
-        }
 
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
@@ -653,74 +522,6 @@ class PortalController extends Controller
         $axis_y_name = '';
 
         return view('guest.detail-dataset', compact('dataset', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'tables', 'axis_y_name', 'getmeta', 'opd', 'seriesDataLine'));
-    }
-
-    public function downloadDatasetFormat($id, $format)
-    {
-        $data = Data::with(['berkas', 'visualtable.header', 'visualtable.isi', 'standar', 'opd'])->find($id);
-        if (!$data) {
-            return redirect()->route('dataset')->with('error', 'Dataset tidak ditemukan');
-        }
-
-        // Increment download counter
-        $data->increment('downloads_count');
-
-        $filename = Str::slug($data->nama_data ?: 'dataset-madiun') . '-' . ($data->tahun ?: date('Y'));
-
-        if ($format === 'json') {
-            $jsonData = [
-                'id' => $data->id,
-                'nama_data' => $data->nama_data,
-                'tahun' => $data->tahun,
-                'opd' => $data->opd ? $data->opd->nama_opd : null,
-                'sumber_referensi' => $data->sumber_referensi ?: $data->sumber_data,
-                'level_data' => $data->level_data,
-                'standar' => $data->standar,
-                'tables' => $data->visualtable->map(function($t) {
-                    return [
-                        'nama_tabel' => $t->nama_table,
-                        'headers' => $t->header ? $t->header->pluck('header') : [],
-                        'rows' => $t->isi ? $t->isi->groupBy('urutan_kebawah')->map(fn($r) => $r->pluck('isi')->toArray())->values() : []
-                    ];
-                })
-            ];
-            return response()->json($jsonData, 200, [
-                'Content-Disposition' => 'attachment; filename="' . $filename . '.json"',
-            ]);
-        }
-
-        if ($format === 'csv') {
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '.csv"',
-            ];
-
-            return response()->stream(function() use ($data) {
-                $file = fopen('php://output', 'w');
-                $firstTable = $data->visualtable->first();
-                if ($firstTable && $firstTable->header && $firstTable->header->count() > 0) {
-                    fputcsv($file, $firstTable->header->pluck('header')->toArray());
-                    if ($firstTable->isi) {
-                        $rows = $firstTable->isi->groupBy('urutan_kebawah');
-                        foreach ($rows as $row) {
-                            fputcsv($file, $row->pluck('isi')->toArray());
-                        }
-                    }
-                } else {
-                    fputcsv($file, ['No', 'Nama Data', 'Tahun', 'Produsen Data', 'Sumber Referensi']);
-                    fputcsv($file, [1, $data->nama_data, $data->tahun, $data->opd ? $data->opd->nama_opd : '-', $data->sumber_referensi ?: $data->sumber_data]);
-                }
-                fclose($file);
-            }, 200, $headers);
-        }
-
-        // For xlsx / excel
-        $berkas = $data->berkas->first();
-        if ($berkas && !empty($berkas->path_berkas) && Storage::exists($berkas->path_berkas)) {
-            return Storage::download($berkas->path_berkas, $filename . '.xlsx');
-        }
-
-        return $this->downloadDatasetFormat($id, 'csv');
     }
 
     public function downloadFileCount(Request $request)

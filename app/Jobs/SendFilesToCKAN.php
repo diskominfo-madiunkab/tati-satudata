@@ -37,8 +37,35 @@ class SendFilesToCKAN implements ShouldQueue
 
         $jenisData = strtolower($this->data->jenis_data);
         $relativePath = 'public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun;
-        // Catatan Revisi Hal 27: File Metadata.xlsx tidak lagi diunggah ke CKAN resource.
-        // CKAN resource hanya mengunggah file data tabular aktual.
+        $metadataPath = Storage::path($relativePath . '/Metadata.xlsx');
+
+        Storage::makeDirectory($relativePath);
+
+        if ($jenisData === 'indikator') {
+            $metadata = new IndikatorExport($this->data->indikator, $this->data->opd);
+        } else if ($jenisData === 'variabel') {
+            $metadata = new VariabelExport($this->data->variabel, $this->data->opd);
+            $metadata->standarData($this->data->standar);
+        }
+
+        try {
+            if ($metadata->export($metadataPath)) {
+                $sendToCKAN = CkanApi::resource()->create([
+                    'package_id' => $this->datasetId,
+                    'url' => asset(Storage::url('public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun . '/Metadata.xlsx')),
+                    'name' => 'Metadata.xlsx',
+                    'format' => 'XLSX',
+                    'mimetype' => MimeType::fromExtension('xlsx')
+                ]);
+                if (!$sendToCKAN) {
+                    throw new Exception('Gagal mengirim metadata ke CKAN: ' . json_encode($sendToCKAN));
+                }
+            } else {
+                throw new Exception('Gagal export file metadata');
+            }
+        } catch (Exception $exception) {
+            Log::error(sprintf('[SendFilesToCKAN] Failed to upload metadata (ID: %s) to ckan: %s', $this->datasetId, $exception->getMessage()), [$this->datasetId, $jenisData, $metadataPath]);
+        }
 
         foreach ($this->data->berkas as $berkas) {
             if (!Storage::exists($berkas->path)) {

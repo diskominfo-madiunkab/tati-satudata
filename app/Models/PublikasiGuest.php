@@ -13,9 +13,4 @@ class PublikasiGuest extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
     public $timestamps = true;
-
-    public function opd()
-    {
-        return $this->belongsTo(Opd::class, 'opd_id');
-    }
 }

@@ -23,7 +23,7 @@ class ComprehensiveRouteAuditTest extends TestCase
             '/geoportal',
             '/publikasi-guest',
             '/infografis-guest',
-            '/visualisasi-guest',
+            '/dataset',
             '/tentang',
             '/login',
             '/api/v1/datasets',
@@ -40,16 +40,10 @@ class ComprehensiveRouteAuditTest extends TestCase
      */
     public function test_administrator_pages_render_without_error(): void
     {
-        $user = User::whereHas('roles', fn($q) => $q->where('name', 'administrator'))->first() ?? User::first();
-        if ($user && method_exists($user, 'assignRole') && !$user->hasRole('administrator')) {
-            $user->assignRole('administrator');
-        }
-
+        $user = User::where('role_id', 1)->first() ?? User::first();
         $adminRoutes = [
             '/data_administrator',
             '/data_administrator/create',
-            '/kelola-visualisasi',
-            '/kelola-regulasi',
         ];
 
         foreach ($adminRoutes as $route) {
@@ -63,13 +57,8 @@ class ComprehensiveRouteAuditTest extends TestCase
      */
     public function test_walidata_pages_render_without_error(): void
     {
-        $user = User::whereHas('roles', fn($q) => $q->where('name', 'walidata'))->first() ?? User::first();
-        if ($user && method_exists($user, 'assignRole') && !$user->hasRole('walidata')) {
-            $user->assignRole('walidata');
-        }
-
+        $user = User::where('role_id', 2)->first() ?? User::first();
         $walidataRoutes = [
-            '/d_walidata',
             '/data_walidata/draft',
             '/data_walidata/create',
             '/data_walidata/standar-data',
@@ -90,18 +79,12 @@ class ComprehensiveRouteAuditTest extends TestCase
      */
     public function test_produsen_pages_render_without_error(): void
     {
-        $user = User::whereHas('roles', fn($q) => $q->where('name', 'produsen'))->first() ?? User::first();
-        if ($user && method_exists($user, 'assignRole') && !$user->hasRole('produsen')) {
-            $user->assignRole('produsen');
-        }
-
+        $user = User::where('role_id', 3)->first() ?? User::first();
         $produsenRoutes = [
-            '/d_produsen',
             '/data_produsen/draft',
             '/data_produsen/create',
             '/data_produsen/standar-data',
             '/data_produsen/pengumpulan',
-            '/data_produsen/panduan',
         ];
 
         foreach ($produsenRoutes as $route) {
@@ -115,11 +98,7 @@ class ComprehensiveRouteAuditTest extends TestCase
      */
     public function test_pembina_and_pendukung_pages_render_without_error(): void
     {
-        $pembina = User::whereHas('roles', fn($q) => $q->where('name', 'pembina'))->first() ?? User::first();
-        if ($pembina && method_exists($pembina, 'assignRole') && !$pembina->hasRole('pembina')) {
-            $pembina->assignRole('pembina');
-        }
-
+        $pembina = User::where('role_id', 4)->first() ?? User::first();
         $routes = [
             '/data_walidata/draft',
             '/data_walidata/standar-data',

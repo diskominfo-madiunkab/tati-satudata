@@ -11,7 +11,7 @@
             </a>
         </li>
 
-        <li class="nav-heading">Penyelenggaraan Satu Data</li>
+        <li class="nav-heading">Perencanaan Data</li>
 
         <li class="nav-item">
             <a class="nav-link {{Str::contains(request()->url(), ['data_produsen/draft', 'data_produsen/selesai_konfirmasi', 'data_produsen/tolak_konfirmasi']) ? 'collapse' : 'collapsed'}}"
@@ -27,6 +27,8 @@
             </a>
         </li>
 
+        <li class="nav-heading">Pengumpulan Data</li>
+
         <li class="nav-item">
             <a class="nav-link {{Str::contains(request()->url(), 'data_produsen/pengumpulan') ? 'collapse' : 'collapsed'}}"
                 href="/data_produsen/pengumpulan">
@@ -34,6 +36,8 @@
                 <span>Pengumpulan Data</span>
             </a>
         </li>
+
+        <li class="nav-heading">Pemeriksaan Data</li>
 
         <li class="nav-item">
             <a class="nav-link {{Str::contains(request()->url(), 'data_produsen/verifikasi') ? 'collapse' : 'collapsed'}}"
@@ -43,20 +47,12 @@
             </a>
         </li>
 
+        <li class="nav-heading">Penyebarluasan Data</li>
         <li class="nav-item">
             <a class="nav-link {{Str::contains(request()->url(), 'data_produsen/penyebarluasan') ? 'collapse' : 'collapsed'}}"
                 href="/data_produsen/penyebarluasan">
                 <i class="bi bi-send"></i>
                 <span>Penyebarluasan Data</span>
-            </a>
-        </li>
-
-        <li class="nav-heading">Panduan Pengguna</li>
-        <li class="nav-item">
-            <a class="nav-link {{request()->routeIs('produsen.panduan') ? 'collapse' : 'collapsed'}}"
-                href="{{ route('produsen.panduan') }}">
-                <i class="bi bi-journal-bookmark-fill"></i>
-                <span>Buku Panduan Produsen</span>
             </a>
         </li>
     </ul>

@@ -26,9 +26,7 @@ class CkanApiServiceProvider extends ServiceProvider
             $config = [
                 'base_uri' => config('ckan_api.container'),
                 'headers' => ['Authorization' => config('ckan_api.api_key')],
-                'verify' => !app()->environment('local'),
-                'timeout' => 2,
-                'connect_timeout' => 1.5,
+                'verify' => !app()->environment('local')
             ];
 
             return new CkanApiClient(new Client($config));
