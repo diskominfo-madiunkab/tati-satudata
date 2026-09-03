@@ -99,7 +99,7 @@ class LoginController extends Controller
      */
     public function bypassLogin($role, Request $request)
     {
-        $isBypass = env('BYPASS_LOGIN', false) || config('app.bypass_login', false) || app()->isLocal() || app()->runningUnitTests() || app()->environment('staging');
+        $isBypass = env('BYPASS_LOGIN', false) || config('app.bypass_login', false) || app()->isLocal();
 
         if (!$isBypass) {
             abort(403, 'Bypass login dinonaktifkan.');
