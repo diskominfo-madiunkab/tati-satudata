@@ -49,14 +49,9 @@
                 </td>
                 @endif
                 <td>
-                  <div class="d-flex gap-1">
-                    <a href="{{ url('/sumberdata/edit/'.$dt->id) }}" class="btn btn-sm btn-primary" title="Edit"><i class="bi bi-pencil-fill"></i></a>
-                    <form action="{{ url('/sumberdata/destroy/'.$dt->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sumber referensi ini?');" class="d-inline">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-danger" title="Hapus"><i class="bi bi-trash-fill"></i></button>
-                    </form>
-                  </div>
+                  <form action="{{ url('/sumberdata/edit/'.$dt->id) }}">
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                  </form>
                 </td>
                 @if ($dt->is_active == '1')
                 <td>
