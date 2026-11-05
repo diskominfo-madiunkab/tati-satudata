@@ -1,328 +1,275 @@
 @extends('guest.layout')
 
-@section('header')
+@section('content')
 @push('style')
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <style>
-    .bootstrap-tagsinput {
-        margin: 0;
-        width: 100%;
-        padding: 0.5rem 0.75rem 0;
-        font-size: 1rem;
-        line-height: 1.25;
-        transition: border-color 0.15s ease-in-out;
+    .katalog-area .nice-select {
+        display: none !important;
     }
-
-    .bootstrap-tagsinput .tag {
-        display: inline-block;
-        background-color: #636c72;
-        padding: 0 .4em .15em;
-        border-radius: .25rem;
-        margin-bottom: 0.4em;
+    .select2-container {
+        width: 100% !important;
     }
-
-    .bootstrap-tagsinput .tag [data-role="remove"]:after {
-        content: '\00d7';
+    .select2-container .select2-selection--single {
+        height: 42px !important;
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px !important;
+        display: flex;
+        align-items: center;
     }
-
-    .bootstrap-tagsinput input {
-        margin-bottom: 0.5em;
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px !important;
+        padding-left: 12px !important;
+        color: #212529 !important;
+        font-size: 14px;
     }
-
-    .bootstrap-tagsinput.has-focus {
-        background-color: #fff;
-        border-color: #5cb3fd;
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        right: 8px !important;
+    }
+    .select2-dropdown {
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        font-size: 14px;
+        z-index: 1050;
+    }
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da !important;
+        border-radius: 4px;
+        padding: 6px 10px;
+    }
+    .katalog-area .form-control {
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px;
+        height: 42px;
+    }
+    .katalog-area .btn {
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .katalog-area .nice-select {
+        display: none !important;
+    }
+    .katalog-area select.form-select {
+        display: block !important;
     }
 </style>
 @endpush
-<section class="uni-banner">
+<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
-        <div class="uni-banner-text-area">
-            <h1>DATASET</h1>
-            <ul>
-                <li><a href="{{('/')}}">Home</a></li>
-                <li>Pencarian Dataset</li>
-            </ul>
+        <div class="page-banner-content text-center text-white">
+            <h1 class="text-white fw-bold mb-2">Dataset</h1>
+            <p class="text-white-50 mb-0">Pencarian Dataset Pemerintah Kabupaten Madiun</p>
         </div>
     </div>
-</section>
+</div>
 
-
-<div class="login pt-20 pb-10">
+<section class="katalog-area pt-40 pb-50 bg-light">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                <div class="log-in-card">
-                    {{-- ini --}}
-                    <div class="default-section-title wow fadeInLeft">
-                        <h1>Pencarian Dataset</h1>
-                    </div>
-                    <div class="login-form pr-20">
-                        <form method="GET" action="{{ url('dataset') }}">
-                            @csrf
-                            <div class="row col-lg-12">
-                                <div class="mb-2 col-lg-12">
-                                    <input type="text" style="background-color:aliceblue" name='q' class="form-control"
-                                        placeholder="Cari data" value="{{old('q', request()->q)}}">
-                                </div>
-                                <div class="col-lg-12">
-                                    <p style="margin-left:1%">Filter</p>
-                                </div>
-                                <div class="mb-1 col-lg-12">
-                                    <div class="form-group">
-                                        <select class="form-control" name="org" aria-label="Default select example">
-                                            <option value=""> - Organisasi / OPD - </option>
-                                            @foreach($orgs as $org)
-                                            <option value="{{$org['name']}}" {{request()->get('org') == $org['name'] ?
-                                                'selected' :
-                                                ''}}>{{$org['title']}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mb-1 col-lg-12">
-                                    <select class="form-control" name="group">
-                                        <option value=""> - Kelompok - </option>
-                                        @foreach($groups as $group)
-                                        <option value="{{$group['name']}}" {{request()->get('group') == $group['name'] ?
-                                            'selected'
-                                            : ''}}>{{$group['display_name']}}</option>
-                                        @endforeach
-                                    </select>
-
-                                </div>
-                                <br>
-                                <div class="mb-1 col-lg-12" style="margin-top: 30px">
-                                    <input type="text" id="tags" name="tags" class="form-control" data-role="tagsinput"
-                                        placeholder="Tambahkan tag" value="{{ old('tag', request()->tag) }}">
-                                    <small class="form-text text-muted">Pisahkan tag dengan koma atau tekan
-                                        enter</small>
-                                </div>
-                            </div>
-                            <br>
-
-
-
-                            <button class="default-button">Cari Dataset <i class="fas fa-search"></i></button>
-                            @if(!empty(request()->all()))
-                            <a style="margin-top: 20px" href="{{('dataset')}}" class="btn btn-danger">Reset Pencarian <i
-                                    class="fas fa-arrows-rotate"></i></a>
+        <!-- Filter Card -->
+        <div class="card shadow-sm border-0 mb-4 rounded-3">
+            <div class="card-body p-4">
+                <form method="GET" action="{{ route('dataset') }}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <label class="form-label fw-semibold text-muted small"><i class="fas fa-search me-1"></i> Cari Data</label>
+                            <input type="text" name="q" class="form-control" placeholder="Kata kunci data..." value="{{ request('q') }}">
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <label class="form-label fw-semibold text-muted small"><i class="fas fa-building me-1"></i> Organisasi / OPD</label>
+                            <select class="form-select select2-searchable" name="org" data-placeholder="- Organisasi / OPD -">
+                                <option value="">- Organisasi / OPD -</option>
+                                @foreach($orgs as $org)
+                                    @php
+                                        $oName = is_array($org) ? ($org['name'] ?? $org['title']) : $org->nama_opd;
+                                        $oTitle = is_array($org) ? ($org['title'] ?? $org['name']) : $org->nama_opd;
+                                    @endphp
+                                    <option value="{{ $oName }}" {{ request('org') == $oName ? 'selected' : '' }}>{{ $oTitle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-12">
+                            <label class="form-label fw-semibold text-muted small"><i class="fas fa-layer-group me-1"></i> Urusan</label>
+                            <select class="form-select select2-searchable" name="group" data-placeholder="- Urusan -">
+                                <option value="">- Urusan -</option>
+                                @foreach($groups as $group)
+                                    @php
+                                        $gName = is_array($group) ? ($group['name'] ?? $group['title']) : $group;
+                                        $gTitle = is_array($group) ? ($group['display_name'] ?? $group['title'] ?? $group['name']) : $group;
+                                    @endphp
+                                    <option value="{{ $gName }}" {{ request('group') == $gName ? 'selected' : '' }}>{{ $gTitle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-12">
+                            <label class="form-label fw-semibold text-muted small"><i class="fas fa-bookmark me-1"></i> Sumber Referensi</label>
+                            <select class="form-select select2-searchable" name="sumber" data-placeholder="- Sumber Referensi -">
+                                <option value="">- Sumber Referensi -</option>
+                                @foreach($sumberList as $sumber)
+                                    <option value="{{ $sumber }}" {{ request('sumber') == $sumber ? 'selected' : '' }}>{{ $sumber }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-12 col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i> Cari</button>
+                            @if(request()->filled('q') || request()->filled('org') || request()->filled('group') || request()->filled('sumber'))
+                            <a href="{{ route('dataset') }}" class="btn btn-outline-secondary" title="Reset Pencarian"><i class="fas fa-redo"></i></a>
                             @endif
-                        </form>
-                    </div>
-                    {{-- ini --}}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="login pt-0 pb-50">
-    {{-- <div class="container"> --}}
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                <div class="log-in-card">
-                    {{-- ini --}}
-                    {{-- <div class="login pb-50">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                                    <div class="log-in-card wow fadeInUpBig">
-                                        <div
-                                            class="card-header rounded-3 d-flex justify-content-between align-content-center col-lg-12">
-                                            <h4 class="card-title col-lg-8">Ditemukan {{count($data)}} dataset</h4>
-                                            <div class="form-group control-order-by col-lg-4">
-                                                <label for="field-order-by">Urutkan hasil</label>
-                                                <select style="border-width: 1px" id="field-order-by" name="sort"
-                                                    class="form-control">
-                                                    <option value="score desc, metadata_modified desc" {{request()->
-                                                        get('sort') ==
-                                                        'score desc, metadata_modified desc' ? 'selected' : ''}}>
-                                                        Relevansi
-                                                    </option>
-                                                    <option value="title_string asc" {{request()->get('sort') ==
-                                                        'title_string asc' ?
-                                                        'selected' : ''}}>Name Ascending</option>
-                                                    <option value="title_string desc" {{request()->get('sort') ==
-                                                        'title_string desc' ?
-                                                        'selected' : ''}}>Name Descending</option>
-                                                    <option value="metadata_modified desc" {{request()->get('sort') ==
-                                                        'metadata_modified desc' ? 'selected' : ''}}>Terakhir
-                                                        Dimodifikasi</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-                    {{-- ini --}}
-
-                    {{-- ini --}}
-                    <div class="login pb-50">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                                    <div class="log-in-card">
-                                        <div class="table-responsive">
-
-                                            @if($pages > 1)
-                                            <nav class="mt-2">
-                                                <ul class="pagination justify-content-center">
-                                                    <li class="page-item {{!$hasPrevPage ? 'disabled': ''}}">
-                                                        @if($hasPrevPage)
-                                                        <a class="page-link"
-                                                            href="{{route('dataset', array_merge(request()->input(), ['page' => $page - 1]))}}"
-                                                            rel="prev">« Sebelumnya</a>
-                                                        @else
-                                                        <span class="page-link">« Sebelumnya</span>
-                                                        @endif
-                                                    </li>
-
-                                                    <li class="page-item">
-                                                        <span class="page-link">Halaman - {{$page}} / {{$pages}}</span>
-                                                    </li>
-
-                                                    <li class="page-item {{ !$hasNextPage ? 'disabled' : '' }}">
-                                                        @if($hasNextPage)
-                                                        <a class="page-link"
-                                                            href="{{route('dataset', array_merge(request()->input(), ['page' => $page + 1]))}}"
-                                                            rel="prev">Selanjutnya »</a>
-                                                        @else
-                                                        <span class="page-link">Selanjutnya »</span>
-                                                        @endif
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                            @endif
-
-                                            <table class="table table-stripped wow" id="tableDataset">
-                                                <tbody>
-                                                    @foreach($data as $d)
-                                                    <tr class="wow fadeInRight">
-                                                        <td>
-                                                            {{-- <a href="javascript:void(0)"
-                                                                class="btn btn-outline-danger btn-sm"
-                                                                onclick='$("#modal-hapus").modal("show");'>{{$d['title']}}
-                                                            </a> --}}
-                                                            {{-- judul --}}
-                                                            <h5><a class="text-primary"
-                                                                    href="{{route('dataset.show', $d['id'])}}">{{$d['title']}}
-                                                                    <i class="fas fa-link"></i></a></h5>
-                                                            <p class="text-muted">{{Str::words($d['notes'], 30)}}
-                                                            </p>
-                                                            @if(!empty($d['organization']))
-                                                            <p class="text-muted">
-                                                                <i class="fas fa-building"></i>
-                                                                <a href="{{url()->current()}}?org={{$d['organization']['name']}}"
-                                                                    class="text-muted">{{$d['organization']['title']}}</a>
-                                                            </p>
-                                                            @endif
-
-                                                            <div class="">
-                                                                @foreach($d['resources'] as $res)
-                                                                @if($loop->index >= 3) @break @endif
-                                                                <span style="color: black"
-                                                                    class="badge badge-success">{{$res['format']}}</span>
-                                                                @endforeach
-
-                                                                <span class="mx-2" title="Tahun data ini dipublikasi"
-                                                                    data-published="{{$d['metadata_created']}}"><i
-                                                                        class="far fa-calendar"></i>
-                                                                    {{\Carbon\Carbon::parse($d['metadata_created'])->format('Y')}}</span>
-                                                                @if(count($d['groups']) > 0)
-                                                                <span class="mx-2"><i class="bi bi-tags"></i>
-                                                                    @foreach($d['groups'] as $group)
-                                                                    <a href="{{url()->current()}}?group={{$group['name']}}"
-                                                                        class="text-muted">{{$group['display_name']}}@if(!$loop->last)</a>,
-                                                                    @endif
-                                                                    @endforeach
-                                                                </span>
-                                                                @endif
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-end" style="min-width: 170px;">
-                                                            <div class="small text-muted mb-2"><i class="far fa-file me-1"></i>{{$d['num_resources']}} berkas</div>
-                                                            <div class="dropdown">
-                                                                <button class="btn btn-sm btn-outline-primary dropdown-toggle rounded-pill px-3" type="button" id="unduhDropdown{{$d['id']}}" data-bs-toggle="dropdown" data-toggle="dropdown" aria-expanded="false">
-                                                                    <i class="fas fa-download me-1"></i> Opsi Unduh
-                                                                </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="unduhDropdown{{$d['id']}}">
-                                                                    @foreach($d['resources'] as $res)
-                                                                        @php
-                                                                            $resUrl = $res['url_download'] ?? $res['url'] ?? '#';
-                                                                            $resFormat = strtoupper($res['format'] ?? 'BERKAS');
-                                                                        @endphp
-                                                                        <li>
-                                                                            <a class="dropdown-item small" href="{{$resUrl}}" target="_blank">
-                                                                                <i class="fas fa-file-{{$resFormat == 'CSV' ? 'csv' : ($resFormat == 'XLSX' || $resFormat == 'EXCEL' ? 'excel' : 'alt')}} text-{{$resFormat == 'CSV' ? 'info' : ($resFormat == 'XLSX' || $resFormat == 'EXCEL' ? 'success' : 'primary')}} me-2"></i>
-                                                                                Unduh Format {{$resFormat ?: 'Berkas'}}
-                                                                            </a>
-                                                                        </li>
-                                                                    @endforeach
-                                                                    <li><hr class="dropdown-divider"></li>
-                                                                    <li>
-                                                                        <a class="dropdown-item small text-primary" href="{{ route('api.v1.datasets.detail.web', $d['id']) }}" target="_blank">
-                                                                            <i class="fas fa-code text-primary me-2"></i> Akses API JSON
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-
-                                                </tbody>
-                                            </table>
-
-                                            {{-- @if(count($data) > 15) --}}
-                                            <nav class="mt-2">
-                                                <ul class="pagination justify-content-center">
-                                                    <li class="page-item {{!$hasPrevPage ? 'disabled': ''}}">
-                                                        @if($hasPrevPage)
-                                                        <a class="page-link"
-                                                            href="{{route('dataset', ['page' => $page - 1])}}"
-                                                            rel="prev">« Sebelumnya</a>
-                                                        @else
-                                                        <span class="page-link">« Sebelumnya</span>
-                                                        @endif
-                                                    </li>
-
-                                                    <li class="page-item">
-                                                        <span class="page-link">Halaman - {{$page}} / {{$pages}}</span>
-                                                    </li>
-
-                                                    <li class="page-item {{!$hasNextPage }}">
-                                                        @if($hasNextPage)
-                                                        <a class="page-link"
-                                                            href="{{route('dataset', ['page' => $page + 1])}}"
-                                                            rel="prev">Selanjutnya »</a>
-                                                        @else
-                                                        <span class="page-link">Selanjutnya »</span>
-                                                        @endif
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                            {{-- @endif --}}
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    {{-- ini --}}
-                </div>
+                </form>
             </div>
         </div>
 
-        {{--
-    </div> --}}
-</div>
+        <!-- Info Total Jumlah Dataset yang sudah disebarluaskan & Opsi Urutan -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white rounded-3 shadow-sm border gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <i class="fas fa-database fa-lg"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Informasi Dataset Terbuka</span>
+                    <span class="fw-bold text-dark fs-6">Total Jumlah Dataset: <span class="text-primary">{{ number_format($totalCount, 0, ',', '.') }}</span> Dataset</span>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto ms-md-0">
+                <label for="select-sort" class="text-muted small text-nowrap mb-0 d-none d-sm-inline"><i class="fas fa-sort-amount-down me-1"></i> Urutkan:</label>
+                <select id="select-sort" class="form-select form-select-sm" style="width: auto; min-width: 160px; height: 38px;" onchange="window.location.href = this.value;">
+                    @php
+                        $currSort = request('sort', 'newest');
+                        $urlNewest = route('dataset', array_merge(request()->except('page'), ['sort' => 'newest']));
+                        $urlOldest = route('dataset', array_merge(request()->except('page'), ['sort' => 'oldest']));
+                        $urlTitleAsc = route('dataset', array_merge(request()->except('page'), ['sort' => 'title_string asc']));
+                        $urlTitleDesc = route('dataset', array_merge(request()->except('page'), ['sort' => 'title_string desc']));
+                    @endphp
+                    <option value="{{ $urlNewest }}" {{ $currSort == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="{{ $urlOldest }}" {{ $currSort == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                    <option value="{{ $urlTitleAsc }}" {{ $currSort == 'title_string asc' ? 'selected' : '' }}>Judul (A - Z)</option>
+                    <option value="{{ $urlTitleDesc }}" {{ $currSort == 'title_string desc' ? 'selected' : '' }}>Judul (Z - A)</option>
+                </select>
+                @if(request()->filled('q') || request()->filled('org') || request()->filled('group') || request()->filled('sumber'))
+                <span class="badge bg-light text-dark border px-2 py-2"><i class="fas fa-filter text-primary me-1"></i> Filter aktif</span>
+                @endif
+            </div>
+        </div>
+
+        <!-- Dataset Listing Card -->
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+            <div class="list-group list-group-flush" id="datasetList">
+                @forelse($data as $d)
+                @php
+                    $orgTitle = !empty($d['organization']) ? (is_array($d['organization']) ? ($d['organization']['title'] ?? $d['organization']['name']) : $d['organization']) : null;
+                    $year = $d['tahun'] ?? (!empty($d['metadata_created']) ? \Carbon\Carbon::parse($d['metadata_created'])->format('Y') : null);
+                @endphp
+                <div class="list-group-item p-3 p-md-4 border-bottom dataset-item">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-2">
+                                <a class="text-primary text-decoration-none fw-semibold" href="{{ route('dataset.show', $d['id']) }}">
+                                    {{ $d['title'] }} <i class="fas fa-external-link-alt small ms-1 text-primary-subtle"></i>
+                                </a>
+                            </h5>
+                            <p class="text-muted small mb-2">{{ Str::words($d['notes'] ?? '', 30) }}</p>
+
+                            <!-- Hierarki 1: Produsen Data (OPD) -->
+                            @if($orgTitle)
+                            <div class="d-flex align-items-center mb-2 text-muted small">
+                                <i class="fas fa-building text-primary me-2"></i>
+                                <span class="fw-semibold text-dark">{{ $orgTitle }}</span>
+                            </div>
+                            @endif
+
+                            <!-- Hierarki 2: Atribut Teknis & Taksonomi Data -->
+                            <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
+                                {{-- Format Berkas Badges --}}
+                                @if(!empty($d['resources']) && count($d['resources']) > 0)
+                                    @foreach($d['resources'] as $res)
+                                        @if($loop->index >= 3) @break @endif
+                                        @php
+                                            $fmt = strtoupper($res['format'] ?? 'BERKAS');
+                                        @endphp
+                                        <span class="badge {{ $fmt == 'CSV' ? 'bg-info text-dark' : ($fmt == 'PDF' ? 'bg-danger text-white' : 'bg-success text-white') }} px-2 py-1">
+                                            {{ $fmt }}
+                                        </span>
+                                    @endforeach
+                                @endif
+
+                                {{-- Tahun Badge --}}
+                                @if($year)
+                                <span class="badge bg-light text-dark border px-2 py-1">
+                                    <i class="far fa-calendar-alt text-primary me-1"></i> {{ $year }}
+                                </span>
+                                @endif
+
+                                {{-- Urusan / Kelompok Badge --}}
+                                @if(!empty($d['groups']) && count($d['groups']) > 0)
+                                    @foreach($d['groups'] as $group)
+                                        @php
+                                            $gTitle = is_array($group) ? ($group['display_name'] ?? $group['title'] ?? $group['name']) : $group;
+                                        @endphp
+                                        <span class="badge bg-light text-dark border px-2 py-1">
+                                            <i class="fas fa-layer-group text-primary me-1"></i> {{ $gTitle }}
+                                        </span>
+                                    @endforeach
+                                @endif
+
+                                {{-- Sumber Referensi Badge --}}
+                                @if(!empty($d['sumber_data']))
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">
+                                    <i class="fas fa-bookmark me-1"></i> {{ $d['sumber_data'] }}
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Kolom Aksi & Jumlah Berkas -->
+                        <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between w-100 w-md-auto gap-2 pt-3 pt-md-0">
+                            <span class="badge bg-light text-secondary border px-2 py-1">
+                                <i class="far fa-file me-1 text-primary"></i> {{ $d['num_resources'] ?? count($d['resources'] ?? []) }} berkas
+                            </span>
+                            <a href="{{ route('dataset.show', $d['id']) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 text-nowrap d-inline-flex align-items-center">
+                                <i class="fas fa-eye me-1"></i> Detail Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="p-5 text-center text-muted">
+                    <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
+                    <p class="mb-0">Tidak ada dataset yang ditemukan.</p>
+                </div>
+                @endforelse
+            </div>
+            @if($pages > 1)
+            <div class="card-footer bg-white p-3">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item {{ !$hasPrevPage ? 'disabled' : '' }}">
+                            @if($hasPrevPage)
+                            <a class="page-link" href="{{ route('dataset', array_merge(request()->input(), ['page' => $page - 1])) }}" rel="prev">« Sebelumnya</a>
+                            @else
+                            <span class="page-link">« Sebelumnya</span>
+                            @endif
+                        </li>
+                        <li class="page-item">
+                            <span class="page-link">Halaman {{ $page }} / {{ $pages }}</span>
+                        </li>
+                        <li class="page-item {{ !$hasNextPage ? 'disabled' : '' }}">
+                            @if($hasNextPage)
+                            <a class="page-link" href="{{ route('dataset', array_merge(request()->input(), ['page' => $page + 1])) }}" rel="next">Selanjutnya »</a>
+                            @else
+                            <span class="page-link">Selanjutnya »</span>
+                            @endif
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            @endif
+        </div>
+</section>
 
 <!-- Modal -->
 <div class="modal fade" id="modal-hapus" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -444,24 +391,19 @@
 @endsection
 
 @push('js')
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-            $('#tags').tagsinput({
-                trimValue: true,
-                confirmKeys: [13, 44, 32],
-                focusClass: 'my-focus-class'
-            });
-
-            $('.bootstrap-tagsinput input').on('focus', function() {
-                $(this).closest('.bootstrap-tagsinput').addClass('has-focus');
-            }).on('blur', function() {
-                $(this).closest('.bootstrap-tagsinput').removeClass('has-focus');
-            });
+        try {
+            $('.select2-searchable').niceSelect('destroy');
+            $('#select-sort').niceSelect('destroy');
+        } catch(e) {}
+        $('.select2-searchable').select2({
+            allowClear: true,
+            width: '100%'
         });
+    });
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{asset('vendor/datatables/jquery.dataTables.min.js')}}"></script>
 {{-- <script>
     $(function() {

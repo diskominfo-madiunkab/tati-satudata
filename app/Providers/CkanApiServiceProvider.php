@@ -22,11 +22,13 @@ class CkanApiServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->bind('App\Services\CkanApi\CkanApiClient', function () {
-
+            $baseUri = config('ckan_api.container') ?: config('ckan_api.url') ?: 'https://ckan-data.madiunkab.go.id';
             $config = [
-                'base_uri' => config('ckan_api.container'),
+                'base_uri' => rtrim($baseUri, '/') . '/',
                 'headers' => ['Authorization' => config('ckan_api.api_key')],
-                'verify' => !app()->environment('local')
+                'verify' => false,
+                'timeout' => 5,
+                'connect_timeout' => 3,
             ];
 
             return new CkanApiClient(new Client($config));

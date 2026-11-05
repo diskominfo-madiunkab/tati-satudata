@@ -16,6 +16,7 @@ use App\Models\SumberData;
 use App\Models\UsulanData;
 use App\Models\Visitor;
 use App\Models\VisualData;
+use App\Models\VisualHeader;
 use App\Models\VisualIsi;
 use App\Models\VisualTable;
 use App\Models\Wilayah;
@@ -189,7 +190,9 @@ class PortalController extends Controller
     public function katalogData(Request $request)
     {
         $query = Data::with(['opd', 'status', 'standar', 'sumberData', 'kegiatan', 'variabel', 'indikator'])
-            ->orderBy('id', 'desc');
+            ->orderByDesc('tahun')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -410,7 +413,7 @@ class PortalController extends Controller
             'rows' => $limit,
             'start' => $start,
             'q' => $request->get('q'),
-            'sort' => $request->get('sort', 'score desc, metadata_modified desc'),
+            'sort' => $request->get('sort', 'metadata_modified desc, metadata_created desc'),
             'include_private' => false
         ];
 
@@ -426,6 +429,11 @@ class PortalController extends Controller
         }
         $searchQuery['fq'] = implode(' AND ', $searchQuery['fq']);
 
+        $data = [];
+        $totalCount = 0;
+        $orgs = [];
+        $groups = [];
+
         try {
             $ckanData = CkanApi::dataset()->all($searchQuery);
             $orgs = CkanApi::organization()->all(['limit' => 1000]);
@@ -433,70 +441,246 @@ class PortalController extends Controller
 
             $result = $ckanData['result'] ?? [];
             $data = ($ckanData && isset($ckanData['success']) && $ckanData['success']) ? ($ckanData['result']['results'] ?? []) : [];
+            $totalCount = $ckanData['result']['count'] ?? count($data);
             $orgs = ($orgs && isset($orgs['success']) && $orgs['success']) ? ($orgs['result'] ?? []) : [];
             $groups = ($groups && isset($groups['success']) && $groups['success']) ? ($groups['result'] ?? []) : [];
         } catch (\Throwable $e) {
-            // Graceful fallback to local database
-            $localQuery = Data::with('opd')->where('status_id', Data::STATUS_TERPUBLIKASI);
+            $data = [];
+        }
+
+        // Fallback ke database lokal jika CKAN kosong atau tidak terhubung
+        if (empty($data)) {
+            $localQuery = Data::with(['opd', 'standar', 'berkas'])->where('status_id', Data::STATUS_TERPUBLIKASI);
             if ($request->filled('q')) {
                 $localQuery->where('nama_data', 'like', '%' . $request->get('q') . '%');
             }
+            if ($request->filled('org')) {
+                $localQuery->whereHas('opd', function($q) use ($request) {
+                    $q->where('nama_opd', $request->get('org'));
+                });
+            }
+            if ($request->filled('group')) {
+                $localQuery->where('group_id', $request->get('group'));
+            }
+            if ($request->filled('sumber')) {
+                $localQuery->where(function($q) use ($request) {
+                    $q->where('sumber_referensi', 'like', '%' . $request->get('sumber') . '%')
+                      ->orWhere('sumber_data', 'like', '%' . $request->get('sumber') . '%');
+                });
+            }
+            $sort = $request->get('sort', 'newest');
+            if ($sort === 'title_string asc') {
+                $localQuery->orderBy('nama_data', 'asc');
+            } elseif ($sort === 'title_string desc') {
+                $localQuery->orderBy('nama_data', 'desc');
+            } elseif ($sort === 'oldest') {
+                $localQuery->orderBy('tahun', 'asc')->orderBy('created_at', 'asc')->orderBy('id', 'asc');
+            } else {
+                $localQuery->orderByDesc('tahun')->orderByDesc('created_at')->orderByDesc('id');
+            }
+
             $totalCount = $localQuery->count();
             $localItems = $localQuery->skip($start)->take($limit)->get();
-            
+
             $data = $localItems->map(function($item) {
+                $resources = [];
+                if ($item->berkas && $item->berkas->isNotEmpty()) {
+                    foreach ($item->berkas as $b) {
+                        $ext = strtoupper(pathinfo($b->name, PATHINFO_EXTENSION) ?: 'XLSX');
+                        $resources[] = ['format' => $ext];
+                    }
+                }
                 return [
                     'id' => $item->id,
                     'title' => $item->nama_data,
-                    'notes' => $item->standar ? $item->standar->definisi : 'Data Sektoral Pemkab Madiun',
+                    'notes' => $item->standar ? $item->standar->definisi : ($item->definisi ?: 'Data Sektoral Pemkab Madiun'),
                     'metadata_created' => $item->created_at ? $item->created_at->toIso8601String() : now()->toIso8601String(),
+                    'tahun' => $item->tahun ?: ($item->created_at ? $item->created_at->format('Y') : date('Y')),
                     'organization' => $item->opd ? ['name' => $item->opd->nama_opd, 'title' => $item->opd->nama_opd] : ['name' => 'madiun', 'title' => 'Pemkab Madiun'],
-                    'resources' => [],
-                    'num_resources' => 0,
-                    'groups' => [],
+                    'resources' => $resources,
+                    'num_resources' => $item->berkas ? $item->berkas->count() : 0,
+                    'groups' => $item->group_id ? [['name' => $item->group_id, 'display_name' => $item->group_id]] : [],
+                    'sumber_data' => $item->sumber_referensi ?: $item->sumber_data,
                 ];
             })->toArray();
-
-            $result = ['count' => $totalCount];
-            $orgs = Opd::whereNotIn('nama_opd', ['Administrator', 'Adminstrator', 'TATI'])->get()->map(fn($o) => ['name' => $o->nama_opd, 'title' => $o->nama_opd])->toArray();
-            $groups = [];
         }
 
-        $pages = ceil(($result['count'] ?? 0) / $limit);
+        if (empty($orgs)) {
+            $orgs = Opd::whereNotIn('nama_opd', ['Administrator', 'Adminstrator', 'TATI'])->orderBy('nama_opd')->get()->map(fn($o) => ['name' => $o->nama_opd, 'title' => $o->nama_opd])->toArray();
+        }
+
+        if (empty($groups)) {
+            $defaultUrusan = [
+                'Pendidikan', 'Kesehatan', 'Pekerjaan Umum dan Penataan Ruang', 'Perumahan Rakyat dan Kawasan Permukiman',
+                'Ketenteraman, Ketertiban Umum, dan Pelindungan Masyarakat', 'Sosial', 'Tenaga Kerja', 'Pemberdayaan Perempuan dan Perlindungan Anak',
+                'Pangan', 'Pertanahan', 'Lingkungan Hidup', 'Administrasi Kependudukan dan Pencatatan Sipil', 'Pemberdayaan Masyarakat dan Desa',
+                'Pengendalian Penduduk dan Keluarga Berencana', 'Perhubungan', 'Komunikasi dan Informatika', 'Koperasi, Usaha Kecil, dan Menengah',
+                'Penanaman Modal', 'Kepemudaan dan Olahraga', 'Statistik', 'Persandian', 'Kebudayaan', 'Perpustakaan', 'Kearsipan',
+                'Kelautan dan Perikanan', 'Pariwisata', 'Pertanian', 'Kehutanan', 'Energi dan Sumber Daya Mineral', 'Perdagangan', 'Perindustrian', 'Transmigrasi'
+            ];
+            $groups = array_map(fn($u) => ['name' => $u, 'title' => $u, 'display_name' => $u], $defaultUrusan);
+        }
+
+        $sumberList = SumberData::where('is_active', 1)->pluck('sumber_data')->filter()->values()->toArray();
+        if (empty($sumberList)) {
+            $sumberList = Data::whereNotNull('sumber_data')->where('sumber_data', '!=', '')->distinct()->pluck('sumber_data')->take(20)->toArray();
+        }
+
+        $pages = ceil($totalCount / $limit);
         $hasPrevPage = $page > 1;
         $hasNextPage = $page < $pages;
 
-        return view('guest.data', compact('data', 'groups', 'orgs', 'pages', 'page', 'hasPrevPage', 'hasNextPage'));
+        return view('guest.data', compact('data', 'groups', 'orgs', 'sumberList', 'totalCount', 'pages', 'page', 'hasPrevPage', 'hasNextPage'));
     }
 
     public function showDataset($name)
     {
+        $dataset = null;
         try {
-            $data = CkanApi::dataset()->show($name);
-            $dataset = $data['result'] ?? null;
+            $data = Cache::remember('data:detail:' . $name, 300, function() use ($name) {
+                return CkanApi::dataset()->show($name);
+            });
+            $dataset = ($data && isset($data['success']) && $data['success']) ? ($data['result'] ?? null) : null;
         } catch (\Throwable $e) {
             $dataset = null;
         }
 
+        $decodedName = urldecode($name);
+        $localData = null;
+
+        // 1. Jika numeric, cari berdasarkan ID lokal
+        if (is_numeric($name)) {
+            $localData = Data::with(['opd', 'status', 'standar', 'berkas', 'indikator', 'variabel', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+                ->where('id', (int)$name)
+                ->first();
+        }
+
+        // 2. Cari melalui tabel publikasi jika $name adalah CKAN dataset_id (UUID) atau slug
+        if (!$localData) {
+            $pubDataId = DB::table('publikasi')->where('dataset_id', $name)->orWhere('slug', $name)->value('data_id');
+            if ($pubDataId) {
+                $localData = Data::with(['opd', 'status', 'standar', 'berkas', 'indikator', 'variabel', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+                    ->where('id', $pubDataId)
+                    ->first();
+            }
+        }
+
+        // 3. Jika dataset dari CKAN tersedia, cari data lokal berdasarkan judul / slug CKAN
+        if (!$localData && !empty($dataset)) {
+            $ckanTitle = $dataset['title'] ?? '';
+            $ckanName = $dataset['name'] ?? '';
+            if ($ckanTitle) {
+                $localData = Data::with(['opd', 'status', 'standar', 'berkas', 'indikator', 'variabel', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+                    ->where('nama_data', $ckanTitle)
+                    ->orWhere('nama_data', 'like', '%' . $ckanTitle . '%')
+                    ->first();
+            }
+            if (!$localData && $ckanName) {
+                $localData = Data::with(['opd', 'status', 'standar', 'berkas', 'indikator', 'variabel', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+                    ->where('nama_data', str_replace('-', ' ', $ckanName))
+                    ->orWhere('nama_data', 'like', '%' . str_replace('-', ' ', $ckanName) . '%')
+                    ->first();
+            }
+        }
+
+        // 4. Jika masih belum ditemukan dan bukan UUID, cari berdasarkan string decodedName
+        if (!$localData && !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $name)) {
+            $cleanName = str_replace('-', ' ', $decodedName);
+            $localData = Data::with(['opd', 'status', 'standar', 'berkas', 'indikator', 'variabel', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+                ->where('nama_data', $decodedName)
+                ->orWhere('nama_data', $name)
+                ->orWhere('nama_data', 'like', '%' . $cleanName . '%')
+                ->first();
+        }
+
+        if ($localData) {
+            $localData->increment('views_count');
+        }
+
         if (!$dataset) {
-            $localData = Data::where('nama_data', $name)->orWhere('id', $name)->first();
             if ($localData) {
+                $resources = [];
+                if ($localData->berkas && $localData->berkas->isNotEmpty()) {
+                    foreach ($localData->berkas as $b) {
+                        $ext = pathinfo($b->name, PATHINFO_EXTENSION);
+                        $filePath = asset(str_replace('public/', 'storage/', $b->path));
+                        $dlCount = FileDownloadCount::where('file_name', $filePath)
+                            ->orWhere('file_name', 'like', '%' . basename($b->path) . '%')
+                            ->orWhere('file_name', 'like', '%' . $b->name . '%')
+                            ->value('download_count') ?? 0;
+                        $resources[] = [
+                            'name' => $b->name,
+                            'description' => 'Berkas ' . $localData->nama_data . ($b->tahun ? ' (' . $b->tahun . ')' : ''),
+                            'created' => $b->created_at ? $b->created_at->format('d/m/Y') : '-',
+                            'format' => strtoupper($ext ?: 'XLSX'),
+                            'url_download' => $filePath,
+                            'url_preview' => $filePath,
+                            'url' => $filePath,
+                            'download_count' => $dlCount,
+                            'tahun' => $b->tahun,
+                        ];
+                    }
+                }
+
+                $totalDownloads = max(intval($localData->downloads_count ?? 0), array_sum(array_column($resources, 'download_count')));
+
                 $dataset = [
                     'id' => $localData->id,
                     'title' => $localData->nama_data,
-                    'notes' => $localData->standar ? $localData->standar->definisi : '',
-                    'metadata_created' => $localData->created_at,
-                    'metadata_modified' => $localData->updated_at,
-                    'resources' => [],
-                    'organization' => ['title' => $localData->opd ? $localData->opd->nama_opd : 'Kabupaten Madiun']
+                    'notes' => $localData->standar ? $localData->standar->definisi : ($localData->definisi ?? ''),
+                    'description' => $localData->standar ? $localData->standar->definisi : ($localData->definisi ?? ''),
+                    'metadata_created' => $localData->created_at ? $localData->created_at->format('d/m/Y') : '-',
+                    'metadata_modified' => $localData->updated_at ? $localData->updated_at->format('d/m/Y') : '-',
+                    'created' => $localData->created_at ? $localData->created_at->format('d/m/Y') : '-',
+                    'modified' => $localData->updated_at ? $localData->updated_at->format('d/m/Y') : '-',
+                    'views_count' => $localData->views_count ?? 1,
+                    'downloads_count' => $totalDownloads,
+                    'tahun' => $localData->tahun ?: ($localData->created_at ? $localData->created_at->format('Y') : date('Y')),
+                    'group_id' => $localData->group_id,
+                    'sumber_data' => $localData->sumber_referensi ?: $localData->sumber_data,
+                    'resources' => $resources,
+                    'organization' => [
+                        'title' => $localData->opd ? $localData->opd->nama_opd : 'Kabupaten Madiun',
+                        'link' => route('dataset', ['org' => $localData->opd ? $localData->opd->nama_opd : ''])
+                    ]
                 ];
             } else {
                 return redirect()->route('dataset')->with('error', 'Dataset tidak ditemukan');
             }
+        } elseif (!empty($dataset) && empty($dataset['resources']) && $localData && $localData->berkas && $localData->berkas->isNotEmpty()) {
+            $resources = [];
+            foreach ($localData->berkas as $b) {
+                $ext = pathinfo($b->name, PATHINFO_EXTENSION);
+                $filePath = asset(str_replace('public/', 'storage/', $b->path));
+                $dlCount = FileDownloadCount::where('file_name', $filePath)
+                    ->orWhere('file_name', 'like', '%' . basename($b->path) . '%')
+                    ->orWhere('file_name', 'like', '%' . $b->name . '%')
+                    ->value('download_count') ?? 0;
+                $resources[] = [
+                    'name' => $b->name,
+                    'description' => 'Berkas ' . $localData->nama_data . ($b->tahun ? ' (' . $b->tahun . ')' : ''),
+                    'created' => $b->created_at ? $b->created_at->format('d/m/Y') : '-',
+                    'format' => strtoupper($ext ?: 'XLSX'),
+                    'url_download' => $filePath,
+                    'url_preview' => $filePath,
+                    'url' => $filePath,
+                    'download_count' => $dlCount,
+                    'tahun' => $b->tahun,
+                ];
+            }
+            $dataset['resources'] = $resources;
+            $dataset['views_count'] = $localData->views_count ?? 1;
+            $dataset['downloads_count'] = max(intval($localData->downloads_count ?? 0), array_sum(array_column($resources, 'download_count')));
+            $dataset['tahun'] = $localData->tahun;
+            $dataset['group_id'] = $localData->group_id;
+            $dataset['sumber_data'] = $localData->sumber_referensi ?: $localData->sumber_data;
         }
 
-        $existingData = VisualData::where('id_data', $dataset['id'] ?? 0)->get();
-        $rawTables = VisualTable::with(['header', 'isi'])->where('id_data', $dataset['id'] ?? 0)->get();
+        $targetDataId = $localData ? $localData->id : ($dataset['id'] ?? 0);
+        $rawTables = VisualTable::with(['header', 'isi'])->where('id_data', $targetDataId)->get();
+        if ($rawTables->isEmpty() && !empty($dataset['id']) && $dataset['id'] != $targetDataId) {
+            $rawTables = VisualTable::with(['header', 'isi'])->where('id_data', $dataset['id'])->get();
+        }
         $tables = [];
         foreach ($rawTables as $rTable) {
             $tables[] = [
@@ -506,14 +690,7 @@ class PortalController extends Controller
             ];
         }
 
-        $getmeta = Data::with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
-            ->where('nama_data', $dataset['title'])
-            ->latest()
-            ->first();
-
-        $opdsQuery = Opd::select('id', 'nama_opd')
-            ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
-        $opd = $opdsQuery->get();
+        $existingData = collect();
         $axis_x = '[]';
         $axis_y = '[]';
         $kategori = '[]';
@@ -521,13 +698,155 @@ class PortalController extends Controller
         $seriesDataLine = [];
         $axis_y_name = '';
 
+        if (!empty($targetDataId) && $rawTables->isNotEmpty()) {
+            $cekGrafik = GrafikData::where('id_data', $targetDataId)->first();
+            if (!$cekGrafik) {
+                foreach ($rawTables as $rTable) {
+                    if ($rTable->header && $rTable->header->isNotEmpty()) {
+                        $hdrList = $rTable->header;
+                        $katHdr = $hdrList->firstWhere('header', 'Tahun') ?: $hdrList->first();
+                        $numHdr = $hdrList->where('id', '!=', $katHdr->id)->last() ?: $hdrList->last();
+                        GrafikData::create([
+                            'id_data' => $targetDataId,
+                            'id_table' => $rTable->id,
+                            'axis_x' => 0,
+                            'axis_y' => $numHdr->id,
+                            'kategori' => $katHdr->id,
+                        ]);
+                    }
+                }
+            }
+
+            $existingData = GrafikData::where('id_data', $targetDataId)
+                ->leftJoin('visual_headers as vh_kat', 'grafik_data.kategori', '=', 'vh_kat.id')
+                ->leftJoin('visual_headers as vh_axis_x', 'grafik_data.axis_x', '=', 'vh_axis_x.id')
+                ->leftJoin('visual_headers as vh_axis_y', 'grafik_data.axis_y', '=', 'vh_axis_y.id')
+                ->select(
+                    'grafik_data.*',
+                    'vh_kat.header as header',
+                    'vh_axis_x.header as axis_x_header',
+                    'vh_axis_y.header as axis_y_header'
+                )
+                ->get();
+
+            $axis_x_arr = [];
+            $axis_y_arr = [];
+            $kategori_arr = [];
+
+            foreach ($existingData as $item) {
+                $axis_y_name = $item->axis_y_header ?: 'Nilai';
+
+                if ($item->header == 'Tahun') {
+                    $kategori_arr = VisualIsi::where('id_header', $item->kategori)
+                        ->orderBy('id_header')
+                        ->pluck('isi')
+                        ->unique()
+                        ->values()
+                        ->toArray();
+                } else {
+                    $kategori_arr = VisualIsi::where('id_header', $item->kategori)
+                        ->orderBy('id_header')
+                        ->pluck('isi')
+                        ->toArray();
+                }
+
+                if ($item->axis_x && $item->axis_x != 0) {
+                    $axis_x_arr = VisualIsi::where('id_header', $item->axis_x)
+                        ->orderBy('id_header')
+                        ->pluck('isi')
+                        ->unique()
+                        ->toArray();
+                } else {
+                    $axis_x_arr = [];
+                }
+
+                $rawAxisY = VisualIsi::where('id_header', $item->axis_y)
+                    ->orderBy('id_header')
+                    ->pluck('isi')
+                    ->toArray();
+
+                $axis_y_arr = array_map(function($v) {
+                    $clean = trim(str_replace(',', '.', (string)$v));
+                    return is_numeric($clean) ? (float)$clean : 0;
+                }, $rawAxisY);
+
+                foreach ($kategori_arr as $index => $name) {
+                    if ($item->header == 'Tahun') {
+                        $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
+                        $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
+                        $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
+                        $cleanData1 = array_map(function($v) {
+                            $clean = trim(str_replace(',', '.', (string)$v));
+                            return is_numeric($clean) ? (float)$clean : 0;
+                        }, $data1);
+
+                        $seriesData[$item->id][] = [
+                            'name' => $name,
+                            'data' => $cleanData1,
+                        ];
+                    } else {
+                        $val = $axis_y_arr[$index] ?? 0;
+                        $seriesData[$item->id][] = [
+                            'name' => $name,
+                            'data' => [$val],
+                        ];
+                    }
+                }
+
+                if (!empty($axis_x_arr)) {
+                    foreach ($axis_x_arr as $index => $name) {
+                        if ($item->header == 'Tahun') {
+                            $noUrut = VisualIsi::where('id_namatabel', $item->id_table)->pluck('urutan_kebawah')->unique()->toArray();
+                            $noUrutTahun = VisualIsi::where('id_namatabel', $item->id_table)->whereIn('urutan_kebawah', $noUrut)->where('isi', $name)->pluck('urutan_kebawah');
+                            $data1 = VisualIsi::where('id_namatabel', $item->id_table)->where('id_header', $item->axis_y)->whereIn('urutan_kebawah', $noUrutTahun)->pluck('isi')->toArray();
+                            $cleanData1 = array_map(function($v) {
+                                $clean = trim(str_replace(',', '.', (string)$v));
+                                return is_numeric($clean) ? (float)$clean : 0;
+                            }, $data1);
+
+                            $seriesDataLine[$item->id][] = [
+                                'name' => $name,
+                                'data' => $cleanData1,
+                            ];
+                        } else {
+                            $val = $axis_y_arr[$index] ?? 0;
+                            $seriesDataLine[$item->id][] = [
+                                'name' => $name,
+                                'data' => [$val],
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $kategori = json_encode($kategori_arr);
+            $axis_y = json_encode($axis_y_arr);
+            $axis_x = json_encode($axis_x_arr);
+        }
+
+        $getmeta = $localData ?: Data::with(['opd', 'status', 'berkas', 'indikator', 'variabel', 'standar', 'kegiatan', 'visualtable.header', 'visualtable.isi'])
+            ->where('nama_data', $dataset['title'])
+            ->latest()
+            ->first();
+
+        $opdsQuery = Opd::select('id', 'nama_opd')
+            ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
+        $opd = $opdsQuery->get();
+
         return view('guest.detail-dataset', compact('dataset', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'tables', 'axis_y_name', 'getmeta', 'opd', 'seriesDataLine'));
     }
 
     public function downloadFileCount(Request $request)
     {
         $urlDownload = $request->input('url_download');
-        $fileDownload = FileDownloadCount::where('file_name', $urlDownload)->first();
+        $idData = $request->input('id_data');
+        if ($idData) {
+            Data::where('id', $idData)->increment('downloads_count');
+        }
+
+        $fileDownload = FileDownloadCount::where('file_name', $urlDownload)
+            ->orWhere('file_name', 'like', '%' . basename($urlDownload) . '%')
+            ->first();
 
         if ($fileDownload) {
             $fileDownload->increment('download_count');

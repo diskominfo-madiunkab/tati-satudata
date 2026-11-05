@@ -384,20 +384,14 @@
                         <i class="fas fa-shield-alt"></i> PORTAL RESMI
                     </span>
                     <span class="text-white-50">|</span>
-                    <a href="mailto:diskominfo@madiunkab.go.id" class="d-inline-flex align-items-center gap-2">
+                    <a href="mailto:sdi@madiunkab.go.id" class="d-inline-flex align-items-center gap-2">
                         <i class="fas fa-envelope text-info"></i>
-                        <span>diskominfo@madiunkab.go.id</span>
+                        <span>sdi@madiunkab.go.id</span>
                     </a>
                     <span class="text-white-50">|</span>
                     <a href="https://goo.gl/maps/MHqcbdfZxLF7Rmxs6" target="_blank" class="d-inline-flex align-items-center gap-2">
                         <i class="fas fa-map-marker-alt text-danger"></i>
                         <span>Kabupaten Madiun, Jawa Timur</span>
-                    </a>
-                </div>
-                <div>
-                    <a href="{{ route('login') }}" class="sdi-topbar-btn">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Login DAPUR SDI</span>
                     </a>
                 </div>
             </div>
@@ -570,7 +564,7 @@
                         <div class="footer-contact-card">
                             <i class="fas fa-envelope"></i>
                             <h5>Email: </h5>
-                            <p><a href="mailto:diskominfo@madiunkab.go.id">diskominfo@madiunkab.go.id</a></p>
+                            <p><a href="mailto:sdi@madiunkab.go.id">sdi@madiunkab.go.id</a></p>
                         </div>
                         <div class="footer-contact-card">
                             <i class="fas fa-phone-alt"></i>

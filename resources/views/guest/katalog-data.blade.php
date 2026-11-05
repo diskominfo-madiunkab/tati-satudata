@@ -1,11 +1,73 @@
 @extends('guest.layout')
 
+@push('style')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-container .select2-selection--single {
+        height: 42px !important;
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px !important;
+        display: flex;
+        align-items: center;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px !important;
+        padding-left: 12px !important;
+        color: #212529 !important;
+        font-size: 14px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        right: 8px !important;
+    }
+    .select2-dropdown {
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        font-size: 14px;
+        z-index: 1050;
+    }
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da !important;
+        border-radius: 4px;
+        padding: 6px 10px;
+    }
+    /* Pastikan dropdown memiliki bingkai jelas dan panah tunggal */
+    .katalog-area .form-select {
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px;
+        background-color: #fff;
+        height: 42px;
+    }
+    .katalog-area .form-control {
+        border: 1px solid #adb5bd !important;
+        border-radius: 6px;
+        height: 42px;
+    }
+    .katalog-area .btn {
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .katalog-area .nice-select {
+        display: none !important;
+    }
+    .katalog-area select.form-select {
+        display: block !important;
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
             <h1 class="text-white fw-bold mb-2">Katalog Data</h1>
-            <p class="text-white-50 mb-0">Daftar keseluruhan data statistik dan sektoral Pemerintah Kabupaten Madiun beserta status terkininya.</p>
+            <p class="text-white-50 mb-0">Menampilkan Daftar Data Pemerintah Kabupaten Madiun</p>
         </div>
     </div>
 </div>
@@ -17,7 +79,7 @@
             <div class="card-body p-4">
                 <form action="{{ route('guest.katalog') }}" method="GET">
                     <div class="row g-3 align-items-end">
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-search me-1"></i> Cari Data</label>
                             <input type="text" name="search" class="form-control" placeholder="Kata kunci nama data atau OPD..." value="{{ request('search') }}">
                         </div>
@@ -30,18 +92,18 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-3 col-6">
+                        <div class="col-lg-5 col-md-6 col-12">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-building me-1"></i> Produsen / OPD</label>
-                            <select name="opd_id" class="form-select">
+                            <select name="opd_id" class="form-select select2-searchable" data-placeholder="Semua OPD">
                                 <option value="">Semua OPD</option>
                                 @foreach($opds as $opd)
                                     <option value="{{ $opd->id }}" {{ request('opd_id') == $opd->id ? 'selected' : '' }}>{{ $opd->nama_opd }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                            <a href="{{ route('guest.katalog') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
+                        <div class="col-lg-2 col-md-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i> Cari</button>
+                            <a href="{{ route('guest.katalog') }}" class="btn btn-outline-secondary" title="Reset"><i class="fas fa-redo"></i></a>
                         </div>
                     </div>
                 </form>
@@ -133,3 +195,18 @@
     </div>
 </section>
 @endsection
+
+@push('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        try {
+            $('.select2-searchable').niceSelect('destroy');
+        } catch(e) {}
+        $('.select2-searchable').select2({
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+@endpush
