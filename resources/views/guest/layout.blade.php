@@ -187,6 +187,29 @@
             border-radius: 3px;
         }
 
+        /* Dropdown Styling */
+        .sdi-nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+        .sdi-nav-item.dropdown .dropdown-menu {
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1) !important;
+            min-width: 175px;
+            margin-top: 4px;
+        }
+        .sdi-nav-item.dropdown .dropdown-item {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #334155;
+            transition: all 0.15s ease;
+        }
+        .sdi-nav-item.dropdown .dropdown-item:hover {
+            background-color: #f0f9ff;
+            color: #0284c7;
+            padding-left: 1.25rem !important;
+        }
+
         /* Right Nav Actions */
         .sdi-nav-actions {
             display: flex;
@@ -430,15 +453,27 @@
                             Kode Referensi
                         </a>
                     </li>
-                    <li class="sdi-nav-item">
-                        <a class="sdi-nav-link {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
+                    <li class="sdi-nav-item dropdown">
+                        <a class="sdi-nav-link dropdown-toggle {{ (request()->is('publikasi-guest*') || request()->is('infografis-guest*') || request()->is('visualisasi-guest*')) ? 'active' : '' }}" href="#" id="navbarDropdownPublikasi" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Publikasi
                         </a>
-                    </li>
-                    <li class="sdi-nav-item">
-                        <a class="sdi-nav-link {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
-                            Infografis
-                        </a>
+                        <ul class="dropdown-menu shadow border rounded-3 py-2" aria-labelledby="navbarDropdownPublikasi">
+                            <li>
+                                <a class="dropdown-item py-2 px-3 {{ request()->is('publikasi-guest*') ? 'active fw-bold' : '' }}" href="{{ route('guest.publikasi') }}">
+                                    <i class="fas fa-book-open me-2 text-primary"></i> Buku
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 px-3 {{ request()->is('infografis-guest*') ? 'active fw-bold' : '' }}" href="{{ route('guest.infografis') }}">
+                                    <i class="fas fa-images me-2 text-danger"></i> Infografis
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 px-3 {{ request()->is('visualisasi-guest*') ? 'active fw-bold' : '' }}" href="{{ route('guest.visualisasi') }}">
+                                    <i class="fas fa-chart-line me-2 text-info"></i> Visualisasi
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="sdi-nav-item">
                         <a class="sdi-nav-link {{ request()->is('regulasi*') ? 'active' : '' }}" href="{{ route('guest.regulasi') }}">
@@ -507,11 +542,15 @@
             <a class="sdi-drawer-link {{ request()->is('kode-referensi*') ? 'active' : '' }}" href="{{ route('guest.kode-referensi') }}">
                 <i class="fas fa-list-ol"></i> <span>Kode Referensi</span>
             </a>
-            <a class="sdi-drawer-link {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
-                <i class="fas fa-newspaper"></i> <span>Publikasi</span>
+            <div class="px-3 py-1 text-muted small fw-bold mt-2">PUBLIKASI</div>
+            <a class="sdi-drawer-link ps-4 {{ request()->is('publikasi-guest*') ? 'active' : '' }}" href="{{ route('guest.publikasi') }}">
+                <i class="fas fa-book-open"></i> <span>Buku</span>
             </a>
-            <a class="sdi-drawer-link {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
-                <i class="fas fa-chart-pie"></i> <span>Infografis</span>
+            <a class="sdi-drawer-link ps-4 {{ request()->is('infografis-guest*') ? 'active' : '' }}" href="{{ route('guest.infografis') }}">
+                <i class="fas fa-images"></i> <span>Infografis</span>
+            </a>
+            <a class="sdi-drawer-link ps-4 {{ request()->is('visualisasi-guest*') ? 'active' : '' }}" href="{{ route('guest.visualisasi') }}">
+                <i class="fas fa-chart-line"></i> <span>Visualisasi</span>
             </a>
             <a class="sdi-drawer-link {{ request()->is('regulasi*') ? 'active' : '' }}" href="{{ route('guest.regulasi') }}">
                 <i class="fas fa-gavel"></i> <span>Regulasi</span>
@@ -581,8 +620,9 @@
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.katalog') }}">Katalog Data</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('dataset') }}">Dataset</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.kode-referensi') }}">Kode Referensi</a></li>
-                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.publikasi') }}">Publikasi</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.publikasi') }}">Buku Publikasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.infografis') }}">Infografis</a></li>
+                            <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.visualisasi') }}">Visualisasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.regulasi') }}">Regulasi</a></li>
                             <li><i class="fas fa-angle-right"></i><a href="{{ route('guest.geoportal') }}">Geoportal</a></li>
                         </ul>

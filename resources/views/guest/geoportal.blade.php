@@ -20,7 +20,7 @@
 <div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #1b4965 0%, #2b2d42 100%);">
     <div class="container">
         <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Satu Peta / Geoportal Kabupaten Madiun</h1>
+            <h1 class="text-white fw-bold mb-2">Geoportal Kabupaten Madiun</h1>
             <p class="text-white-50 mb-0">Visualisasi Layer Data Spasial dan Pemetaan Geospasial Kabupaten Madiun Terintegrasi.</p>
         </div>
     </div>
@@ -51,7 +51,7 @@
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" id="layerPuskesmas" checked>
                         <label class="form-check-label fw-semibold" for="layerPuskesmas">
-                            <i class="fas fa-hospital text-success me-1"></i> Fasilitas Kesehatan / Puskesmas (21)
+                            <i class="fas fa-hospital text-success me-1"></i> Fasilitas Kesehatan / Puskesmas (26)
                         </label>
                     </div>
 
@@ -70,7 +70,7 @@
                     </p>
 
                     <div class="d-grid gap-2 mt-3">
-                        <a href="http://madiunkab.ina-sdi.or.id/" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <a href="https://madiunkab.ina-sdi.or.id/" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-external-link-alt me-1"></i> Buka Ina-SDI Geoportal
                         </a>
                         <a href="{{ route('guest.kode-referensi') }}" class="btn btn-outline-secondary btn-sm">
@@ -88,7 +88,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     // Pusat Kabupaten Madiun (Caruban / Mejayan)
-    const map = L.map('geoportal-map').setView([-7.54118, 111.65157], 11);
+    const map = L.map('geoportal-map').setView([-7.6000, 111.6000], 11);
 
     // OpenStreetMap Tile Layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .bindPopup("<strong>Pusat Pemerintahan Kabupaten Madiun</strong><br>Caruban, Mejayan - Jawa Timur");
     pemdaLayer.addLayer(pemdaMarker);
 
-    // 15 Kecamatan
+    // 15 Kecamatan di Kabupaten Madiun
     const kecamatans = [
         { name: "Kec. Mejayan (Caruban)", lat: -7.5450, lng: 111.6580 },
         { name: "Kec. Balerejo", lat: -7.5270, lng: 111.6110 },
@@ -137,25 +137,53 @@ document.addEventListener("DOMContentLoaded", function () {
         kecamatanLayer.addLayer(marker);
     });
 
-    // Puskesmas Sample Points
+    // 26 Puskesmas Resmi Kabupaten Madiun (Standar KMK HK.01.07/MENKES/2099/2023)
     const puskesmas = [
-        { name: "Puskesmas Mejayan", lat: -7.5480, lng: 111.6620 },
-        { name: "Puskesmas Balerejo", lat: -7.5290, lng: 111.6150 },
-        { name: "Puskesmas Dolopo", lat: -7.7750, lng: 111.5280 },
-        { name: "Puskesmas Geger", lat: -7.6990, lng: 111.5420 },
-        { name: "Puskesmas Jiwan", lat: -7.6150, lng: 111.4920 },
-        { name: "Puskesmas Saradan", lat: -7.5210, lng: 111.7320 }
+        { kode: "35190200001", name: "Puskesmas Gantrung", tipe: "Rawat Inap", kec: "Kebonsari", alamat: "Jl. P Diponegoro No 311, Ds. Mojorejo", lat: -7.7215, lng: 111.5152 },
+        { kode: "35190200002", name: "Puskesmas Kebonsari", tipe: "Non Rawat Inap", kec: "Kebonsari", alamat: "Jl. Husni Thamrin, Ds. Balerejo", lat: -7.7280, lng: 111.5200 },
+        { kode: "35190200003", name: "Puskesmas Geger", tipe: "Non Rawat Inap", kec: "Geger", alamat: "Jl. Raya Ponorogo No. 48, Ds. Purworejo", lat: -7.6970, lng: 111.5390 },
+        { kode: "35190200004", name: "Puskesmas Kaibon", tipe: "Non Rawat Inap", kec: "Geger", alamat: "Jl. Pancotaruno No. 407, Ds. Kaibon", lat: -7.6820, lng: 111.5350 },
+        { kode: "35190200005", name: "Puskesmas Mlilir", tipe: "Non Rawat Inap", kec: "Dolopo", alamat: "Jl. Raya Madiun Ponorogo Km 19", lat: -7.7650, lng: 111.5280 },
+        { kode: "35190200006", name: "Puskesmas Bangunsari", tipe: "Non Rawat Inap", kec: "Dolopo", alamat: "Jl. Panjang Punjung Kel. Bangunsari", lat: -7.7810, lng: 111.5240 },
+        { kode: "35190200007", name: "Puskesmas Dagangan", tipe: "Rawat Inap", kec: "Dagangan", alamat: "Jl. Raya Dagangan Pagotan No. 57", lat: -7.7120, lng: 111.5840 },
+        { kode: "35190200008", name: "Puskesmas Jetis", tipe: "Non Rawat Inap", kec: "Dagangan", alamat: "Jl. Jetis, Ds. Jetis", lat: -7.7020, lng: 111.5650 },
+        { kode: "35190200009", name: "Puskesmas Wungu", tipe: "Non Rawat Inap", kec: "Wungu", alamat: "Jl. Raya Kare No. 113, Ds. Wungu", lat: -7.6690, lng: 111.5850 },
+        { kode: "35190200010", name: "Puskesmas Mojopurno", tipe: "Non Rawat Inap", kec: "Wungu", alamat: "Jl. Raya Dungus, Ds. Mojopurno", lat: -7.6480, lng: 111.5620 },
+        { kode: "35190200011", name: "Puskesmas Kare", tipe: "Rawat Inap", kec: "Kare", alamat: "Jl Raya Randualas Kare, Ds. Kare", lat: -7.7330, lng: 111.6880 },
+        { kode: "35190200012", name: "Puskesmas Gemarang", tipe: "Rawat Inap", kec: "Gemarang", alamat: "Jl. Tentara Genie Pelajar No 17", lat: -7.6320, lng: 111.7580 },
+        { kode: "35190200013", name: "Puskesmas Saradan", tipe: "Rawat Inap", kec: "Saradan", alamat: "Jl. Raya Saradan – Madiun Ds. Sugihwaras", lat: -7.5180, lng: 111.7280 },
+        { kode: "35190200014", name: "Puskesmas Sumbersari", tipe: "Rawat Inap", kec: "Saradan", alamat: "Jl. Raya Tulung No. 05, Ds. Sumbersari", lat: -7.5350, lng: 111.7120 },
+        { kode: "35190200015", name: "Puskesmas Pilangkenceng", tipe: "Rawat Inap", kec: "Pilangkenceng", alamat: "Jl. Raya Kenongorejo No. 774", lat: -7.4980, lng: 111.6180 },
+        { kode: "35190200016", name: "Puskesmas Krebet", tipe: "Rawat Inap", kec: "Pilangkenceng", alamat: "Jl. Gawang Utara No. 55 Ds. Krebet", lat: -7.4820, lng: 111.6350 },
+        { kode: "35190200017", name: "Puskesmas Klecorejo", tipe: "Rawat Inap", kec: "Mejayan", alamat: "Jl. Raya Wates, Ds. Klecorejo", lat: -7.5550, lng: 111.6420 },
+        { kode: "35190200018", name: "Puskesmas Mejayan", tipe: "Non Rawat Inap", kec: "Mejayan", alamat: "Jl. Panglima Sudirman No. 52", lat: -7.5450, lng: 111.6580 },
+        { kode: "35190200019", name: "Puskesmas Wonoasri", tipe: "Non Rawat Inap", kec: "Wonoasri", alamat: "Jl. Raya Wonoasri, Ds. Wonoasri", lat: -7.5810, lng: 111.6370 },
+        { kode: "35190200020", name: "Puskesmas Balerejo", tipe: "Rawat Inap", kec: "Balerejo", alamat: "Jl. Raya Madiun Surabaya No. 82", lat: -7.5270, lng: 111.6110 },
+        { kode: "35190200021", name: "Puskesmas Simo", tipe: "Non Rawat Inap", kec: "Balerejo", alamat: "Jl. Raya Balerejo-Muneng No.96", lat: -7.5380, lng: 111.6240 },
+        { kode: "35190200022", name: "Puskesmas Madiun", tipe: "Non Rawat Inap", kec: "Madiun", alamat: "Jl. Raya Puskesmas No.9, Ds. Tiron", lat: -7.5930, lng: 111.5540 },
+        { kode: "35190200023", name: "Puskesmas Dimong", tipe: "Non Rawat Inap", kec: "Madiun", alamat: "Jl. Raya Dimong, Ds. Dimong", lat: -7.6080, lng: 111.5680 },
+        { kode: "35190200024", name: "Puskesmas Sawahan", tipe: "Non Rawat Inap", kec: "Sawahan", alamat: "Jl. Raya Kajang No. 31 Ds. Kajang", lat: -7.5760, lng: 111.5360 },
+        { kode: "35190200025", name: "Puskesmas Klagenserut", tipe: "Non Rawat Inap", kec: "Jiwan", alamat: "Jl. Raya Klagenserut Rt 08 Rw 03", lat: -7.6250, lng: 111.4780 },
+        { kode: "35190200026", name: "Puskesmas Jiwan", tipe: "Non Rawat Inap", kec: "Jiwan", alamat: "Jl. Raya Solo No.85, Ds. Jiwan", lat: -7.6180, lng: 111.4880 }
     ];
 
     puskesmas.forEach(p => {
         const marker = L.circleMarker([p.lat, p.lng], {
             radius: 7,
-            fillColor: "#2a9d8f",
+            fillColor: p.tipe === 'Rawat Inap' ? "#0077b6" : "#2a9d8f",
             color: "#ffffff",
             weight: 2,
             opacity: 1,
-            fillOpacity: 0.9
-        }).bindPopup("<strong>" + p.name + "</strong><br>Fasilitas Pelayanan Kesehatan");
+            fillOpacity: 0.95
+        }).bindPopup(
+            "<div style='min-width: 200px;'>" +
+            "<strong style='color:#023e8a;'>" + p.name + "</strong><br>" +
+            "<span class='badge' style='background:#e0f2fe; color:#0369a1; font-size:10px; margin: 4px 0;'>" + p.tipe + "</span><br>" +
+            "<small><strong>Kode:</strong> " + p.kode + "</small><br>" +
+            "<small><strong>Kecamatan:</strong> " + p.kec + "</small><br>" +
+            "<small class='text-muted'>" + p.alamat + "</small>" +
+            "</div>"
+        );
         puskesmasLayer.addLayer(marker);
     });
 

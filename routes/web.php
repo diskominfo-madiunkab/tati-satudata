@@ -13,6 +13,7 @@ use App\Http\Controllers\PengumpulanController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\Produsen;
 use App\Http\Controllers\PublikasiGuestController;
+use App\Http\Controllers\RegulasiController;
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\StandartDataController;
 use App\Http\Controllers\SumberDataController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\UpdownloadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsulanDataController;
 use App\Http\Controllers\VisualDataController;
+use App\Http\Controllers\VisualisasiController;
 use App\Http\Controllers\Walidata;
 use App\Http\Controllers\WilayahController;
 use App\Imports\DataImport;
@@ -43,6 +45,8 @@ Route::get('/infografis-guest', [PortalController::class, 'infografis'])->name('
 Route::get('/infografis-guest/detail/{id}', [PortalController::class, 'infografis_detail'])->name('guest.infografis.detail');
 Route::get('/publikasi-guest', [PortalController::class, 'publikasi'])->name('guest.publikasi');
 Route::get('/publikasi-guest/detail/{id}', [PortalController::class, 'publikasi_detail'])->name('guest.publikasi.detail');
+Route::get('/visualisasi-guest', [PortalController::class, 'visualisasi'])->name('guest.visualisasi');
+Route::get('/visualisasi-guest/detail/{id}', [PortalController::class, 'visualisasi_detail'])->name('guest.visualisasi.detail');
 Route::get('/download-publikasi-pdf/{id}', [PortalController::class, 'download'])->name('guest.publikasi.download.pdf');
 Route::get('/dataset', [PortalController::class, 'data'])->name('dataset');
 // Route::get('/dataset/{name}', [PortalController::class, 'detail'])->name('dataset.detail');
@@ -131,6 +135,7 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::post('/sumberdata/store', [SumberDataController::class, 'store']);
     Route::get('/sumberdata/edit/{id}', [SumberDataController::class, 'edit']);
     Route::post('/sumberdata/update/{id}', [SumberDataController::class, 'update']);
+    Route::get('/sumberdata/destroy/{id}', [SumberDataController::class, 'destroy'])->name('sumberdata.delete');
     Route::get('master_sumberdata_ubah/{id}', [SumberDataController::class, 'aktifkan'])->name('master-sumberdata-ubah');
 
     Route::get('/tag', [TagController::class, 'index'])->name('tag.index');
@@ -162,6 +167,21 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
     Route::get('/infografis/edit/{id}', [infografisController::class, 'edit'])->name('infografis.edit');
     Route::post('/infografis/update/{id}', [infografisController::class, 'update'])->name('infografis.update');
     Route::get('/infografis/destroy/{id}', [infografisController::class, 'destroy'])->name('infografis.delete');
+    Route::get('/infografis/image/destroy/{id}', [InfografisController::class, 'destroyImage'])->name('infografis.image.delete');
+
+    Route::get('/visualisasi-admin', [VisualisasiController::class, 'index'])->name('visualisasi.index');
+    Route::get('/visualisasi-admin/create', [VisualisasiController::class, 'create'])->name('visualisasi.create');
+    Route::post('/visualisasi-admin/store', [VisualisasiController::class, 'store'])->name('visualisasi.store');
+    Route::get('/visualisasi-admin/edit/{id}', [VisualisasiController::class, 'edit'])->name('visualisasi.edit');
+    Route::post('/visualisasi-admin/update/{id}', [VisualisasiController::class, 'update'])->name('visualisasi.update');
+    Route::get('/visualisasi-admin/destroy/{id}', [VisualisasiController::class, 'destroy'])->name('visualisasi.delete');
+
+    Route::get('/regulasi-admin', [RegulasiController::class, 'index'])->name('regulasi.index');
+    Route::get('/regulasi-admin/create', [RegulasiController::class, 'create'])->name('regulasi.create');
+    Route::post('/regulasi-admin/store', [RegulasiController::class, 'store'])->name('regulasi.store');
+    Route::get('/regulasi-admin/edit/{id}', [RegulasiController::class, 'edit'])->name('regulasi.edit');
+    Route::post('/regulasi-admin/update/{id}', [RegulasiController::class, 'update'])->name('regulasi.update');
+    Route::get('/regulasi-admin/destroy/{id}', [RegulasiController::class, 'destroy'])->name('regulasi.delete');
 
     Route::get('/publikasi-admin', [PublikasiGuestController::class, 'index'])->name('publikasi-guest.index');
     Route::get('/publikasi-admin/create', [PublikasiGuestController::class, 'create'])->name('publikasi.create');
@@ -173,7 +193,7 @@ Route::middleware(['role:administrator', 'auth:web'])->group(function () {
 });
 
 Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'auth:web'])->group(function () {
-    Route::get('/d_walidata', [HomeController::class, 'dashboardWalidata'])->name('d_walidata');
+    Route::get('/d_walidata', [HomeController::class, 'dashboardRekapOPD'])->name('d_walidata');
     Route::get('/d_walidata/rekap', [HomeController::class, 'dashboardRekapOPD'])->name('rekap_walidata');
     Route::get('/d_walidata/rekap/excel', [HomeController::class, 'dashboardRekapOPDExcel'])->name('rekap_walidata_excel');
 
@@ -181,24 +201,27 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::post('/filter_tahun', [DataController::class, 'data_filter_tahun'])->name('filter_tahun');
     Route::post('/data_walidata/search', [DataController::class, 'searchData'])->name('search_data');
     Route::post('/filter_insert_data_tahun_lalu', [DataController::class, 'data_filter_tahun_lalu'])->name('filter_tahun_lalu');
-    Route::get('/data_walidata/create', [DataController::class, 'create'])->middleware(['role:walidata|walidatapendukung'])->name('data_walidata.create');
+    Route::get('/data_walidata/create', [DataController::class, 'create'])->middleware(['role:walidata|walidatapendukung|pembina'])->name('data_walidata.create');
     Route::get('/data_walidata/draft/api', [DataController::class, 'apiData'])->name('walidata.draft.api');
-    Route::get('/data_walidata/fetch', [DataController::class, 'fetch_data_sipd'])->middleware(['role:walidata|walidatapendukung'])->name('data_walidata.fetch.sipd');
-    Route::get('/data_walidata', [DataController::class, 'index_data'])->middleware(['role:walidata|walidatapendukung'])->name('index_data.walidata');
+    Route::get('/data_walidata/fetch', [DataController::class, 'fetch_data_sipd'])->middleware(['role:walidata|walidatapendukung|pembina'])->name('data_walidata.fetch.sipd');
+    Route::get('/data_walidata', [DataController::class, 'index_data'])->middleware(['role:walidata|walidatapendukung|pembina'])->name('index_data.walidata');
 
     // tambah data dari tahun sebelumnya
-    Route::post('/data_walidata/add_last_years_data', [DataController::class, 'add_data_tahun_lalu'])->middleware(['role:walidata|walidatapendukung'])->name('add.data.tahun.lalu');
+    Route::post('/data_walidata/add_last_years_data', [DataController::class, 'add_data_tahun_lalu'])->middleware(['role:walidata|walidatapendukung|pembina'])->name('add.data.tahun.lalu');
 
-    Route::post('/data_walidata/store', [DataController::class, 'store'])->middleware(['role:walidata|walidatapendukung']);
+    Route::post('/data_walidata/store', [DataController::class, 'store'])->middleware(['role:walidata|walidatapendukung|pembina']);
     Route::get('/data_walidata/edit/{id}', [DataController::class, 'edit'])->name('edit_walidata');
     Route::get('/data_walidata/detail/{id}', [DataController::class, 'detail'])->name('detail_walidata');
-    Route::post('/data_walidata/update/{id}', [DataController::class, 'update'])->middleware(['role:walidata|walidatapendukung']);
-    Route::get('/data_walidata/destroy/{id}', [DataController::class, 'destroy'])->middleware(['role:walidata|walidatapendukung']);
+    Route::post('/data_walidata/update/{id}', [DataController::class, 'update'])->middleware(['role:walidata|walidatapendukung|pembina']);
+    Route::get('/data_walidata/destroy/{id}', [DataController::class, 'destroy'])->middleware(['role:walidata|walidatapendukung|pembina']);
     Route::get('/data_walidata/get_all_opdall', [DataController::class, 'get_all_opdall']);
 
     Route::resource('box-value', BoxValueController::class);
     // standardata
     Route::get('/data_walidata/standar-data', [StandartDataController::class, 'index_walidata'])->name('walidata.standar-data.index');
+    Route::post('/data_walidata/standar-data/store', [StandartDataController::class, 'storeMaster'])->name('walidata.standar-data.store');
+    Route::post('/data_walidata/standar-data/{id}/update', [StandartDataController::class, 'updateMaster'])->name('walidata.standar-data.update');
+    Route::delete('/data_walidata/standar-data/{id}/destroy', [StandartDataController::class, 'destroyMaster'])->name('walidata.standar-data.destroy');
     Route::get('/data_walidata/standar-data/revisi', [StandartDataController::class, 'revisi_walidata'])->name('walidata.standar-data.revisi');
     Route::get('/data_walidata/standar-data/setuju', [StandartDataController::class, 'setuju_walidata'])->name('walidata.standar-data.setuju');
     // Route::match(['get', 'post'], '/data_walidata/pengumpulan/{id}/standar', [PengumpulanController::class, 'standarData'])->name('standar');
@@ -210,13 +233,13 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     Route::get('/data_walidata/standar-data/verifikasi/{id}/komentar', [StandartDataController::class, 'getKomentar'])->name('walidata.standar-data.verifikasi.get-komentar');
     Route::post('/data_walidata/standar-data/verifikasi/{id}/komentar', [StandartDataController::class, 'komentar'])->name('walidata.standar-data.verifikasi.komentar');
 
-    Route::get('/get_data_opd', [DataController::class, 'get_all_opd'])->middleware(['role:walidata|walidatapendukung']);
-    Route::get('/get_all_opdall', [DataController::class, 'get_all_opdall'])->middleware(['role:walidata|walidatapendukung']);
-    Route::get('/get_all_opdall/cari/{id}', [DataController::class, 'cari_opd'])->middleware(['role:walidata|walidatapendukung']);
+    Route::get('/get_data_opd', [DataController::class, 'get_all_opd'])->middleware(['role:walidata|walidatapendukung|pembina']);
+    Route::get('/get_all_opdall', [DataController::class, 'get_all_opdall'])->middleware(['role:walidata|walidatapendukung|pembina']);
+    Route::get('/get_all_opdall/cari/{id}', [DataController::class, 'cari_opd'])->middleware(['role:walidata|walidatapendukung|pembina']);
 
     // Route::post('/data_walidata/export-pdf', [DataController::class, 'pdf2']);
-    Route::get('/data_walidata/export-pdf2', [DataController::class, 'pdf2'])->middleware(['role:walidata|walidatapendukung']);
-    Route::get('/data_walidata/verifikasi_data', [DataController::class, 'verifikasi_data'])->middleware(['role:walidata|walidatapendukung']);
+    Route::get('/data_walidata/export-pdf2', [DataController::class, 'pdf2'])->middleware(['role:walidata|walidatapendukung|pembina']);
+    Route::get('/data_walidata/verifikasi_data', [DataController::class, 'verifikasi_data'])->middleware(['role:walidata|walidatapendukung|pembina']);
     Route::get('/data_walidata/tolak_konfirmasi_walidata', [DataController::class, 'tolak_konfirmasi_walidata'])->name('tolak_konfirmasi_walidata');
     Route::get('/data_walidata/selesai_konfirmasi_walidata', [DataController::class, 'selesai_konfirmasi_walidata'])->name('selesai_konfirmasi_walidata');
     Route::get('/calculate-progress/{id}', [DataController::class, 'calculateProgress'])->name('calculate_progress');
@@ -269,7 +292,7 @@ Route::middleware(['role:walidata|pembina|walidatapendukung|administrator', 'aut
     });
     Route::post('/filter_publikasi', [Walidata\PublikasiController::class, 'filter_publikasi'])->name('filter_publikasi');
 
-    Route::post('/data_walidata/import', [DataController::class, 'importData'])->middleware(['role:walidata|walidatapendukung']);
+    Route::post('/data_walidata/import', [DataController::class, 'importData'])->middleware(['role:walidata|walidatapendukung|pembina']);
     Route::get('/data_walidata/notif', [DataController::class, 'notif'])->name('notif');
     Route::get('/draft', [DataController::class, 'draft'])->name('draft.wali');
 

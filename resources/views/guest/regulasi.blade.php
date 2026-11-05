@@ -1,5 +1,31 @@
 @extends('guest.layout')
 
+@push('style')
+<style>
+    .regulasi-area .nice-select {
+        display: none !important;
+    }
+    .regulasi-area select.form-select {
+        display: block !important;
+        border: 1.5px solid #adb5bd !important;
+        border-radius: 6px;
+        background-color: #fff;
+        height: 42px;
+    }
+    .regulasi-area .form-control {
+        border: 1.5px solid #adb5bd !important;
+        border-radius: 6px;
+        height: 42px;
+    }
+    .regulasi-area .btn {
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);">
     <div class="container">
@@ -13,17 +39,17 @@
 <section class="regulasi-area pt-50 pb-70 bg-light">
     <div class="container">
         <!-- Filter Card -->
-        <div class="card shadow-sm border-0 mb-4 rounded-3">
+        <div class="card shadow-sm border mb-4 rounded-3">
             <div class="card-body p-4">
                 <form action="{{ route('guest.regulasi') }}" method="GET">
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-5 col-md-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-search me-1"></i> Cari Regulasi</label>
-                            <input type="text" name="search" class="form-control" placeholder="Kata kunci judul, nomor, atau tentang peraturan..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control border" style="border-color: #ced4da !important;" placeholder="Kata kunci judul, nomor, atau tentang peraturan..." value="{{ request('search') }}">
                         </div>
                         <div class="col-lg-3 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-tags me-1"></i> Kategori</label>
-                            <select name="kategori" class="form-select">
+                            <select name="kategori" class="form-select border" style="border: 1.5px solid #b0bec5 !important; background-color: #fff; box-shadow: none;">
                                 <option value="">Semua Kategori</option>
                                 @foreach($kategoris as $kat)
                                     <option value="{{ $kat }}" {{ request('kategori') == $kat ? 'selected' : '' }}>{{ $kat }}</option>
@@ -32,7 +58,7 @@
                         </div>
                         <div class="col-lg-2 col-md-3 col-6">
                             <label class="form-label fw-semibold text-muted small"><i class="fas fa-calendar-alt me-1"></i> Tahun</label>
-                            <select name="tahun" class="form-select">
+                            <select name="tahun" class="form-select border" style="border: 1.5px solid #b0bec5 !important; background-color: #fff; box-shadow: none;">
                                 <option value="">Semua Tahun</option>
                                 @foreach($tahuns as $th)
                                     <option value="{{ $th }}" {{ request('tahun') == $th ? 'selected' : '' }}>{{ $th }}</option>
@@ -40,8 +66,10 @@
                             </select>
                         </div>
                         <div class="col-lg-2 col-md-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                            <a href="{{ route('guest.regulasi') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i> Cari</button>
+                            @if(request('search') || request('kategori') || request('tahun'))
+                                <a href="{{ route('guest.regulasi') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -49,16 +77,16 @@
         </div>
 
         <!-- Table Card -->
-        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card shadow-sm border rounded-3 overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
                         <tr>
                             <th style="width: 50px;" class="text-center">No</th>
                             <th>Judul Peraturan</th>
-                            <th class="text-center" style="width: 160px;">Nomor & Tahun</th>
-                            <th class="text-center" style="width: 150px;">Kategori</th>
-                            <th class="text-center" style="width: 100px;">Status</th>
+                            <th class="text-center" style="width: 170px;">Nomor & Tahun</th>
+                            <th class="text-center" style="width: 160px;">Kategori</th>
+                            <th class="text-center" style="width: 110px;">Status</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
@@ -82,11 +110,15 @@
                                 <span class="badge bg-info text-dark">{{ $item->kategori }}</span>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-success">{{ $item->status ?: 'Berlaku' }}</span>
+                                @if($item->status == 'Berlaku' || empty($item->status))
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Berlaku</span>
+                                @else
+                                    <span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i> Tidak Berlaku</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @if($item->file_dokumen)
-                                    <a href="{{ asset('storage/' . $item->file_dokumen) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Unduh PDF">
+                                    <a href="{{ Storage::url($item->file_dokumen) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Unduh PDF">
                                         <i class="fas fa-file-pdf me-1"></i> PDF
                                     </a>
                                 @else
@@ -100,15 +132,33 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title fw-bold">{{ $item->judul }}</h5>
+                                                <h5 class="modal-title fs-6 fw-bold">Detail Regulasi</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <p><strong>Nomor:</strong> {{ $item->nomor }}</p>
-                                                <p><strong>Kategori:</strong> {{ $item->kategori }}</p>
-                                                <p><strong>Tahun:</strong> {{ $item->tahun }}</p>
-                                                <p><strong>Tentang:</strong> {{ $item->tentang }}</p>
-                                                <p><strong>Status:</strong> <span class="badge bg-success">{{ $item->status }}</span></p>
+                                                <h6 class="fw-bold text-dark mb-2">{{ $item->judul }}</h6>
+                                                <table class="table table-sm table-borderless mb-0">
+                                                    <tr>
+                                                        <td class="text-muted" style="width: 100px;">Nomor</td>
+                                                        <td>: {{ $item->nomor ?: '-' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Tahun</td>
+                                                        <td>: {{ $item->tahun ?: '-' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Kategori</td>
+                                                        <td>: {{ $item->kategori }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Status</td>
+                                                        <td>: {{ $item->status ?: 'Berlaku' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted">Tentang</td>
+                                                        <td>: {{ $item->tentang ?: '-' }}</td>
+                                                    </tr>
+                                                </table>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
@@ -122,15 +172,16 @@
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
                                 <i class="fas fa-gavel fa-3x mb-3 text-muted"></i>
-                                <p class="mb-0">Tidak ada regulasi yang ditemukan.</p>
+                                <p class="mb-0">Tidak ada dokumen regulasi yang ditemukan.</p>
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            @if($regulasi->hasPages())
-                <div class="card-footer bg-white p-3 d-flex justify-content-center">
+
+            @if(method_exists($regulasi, 'hasPages') && $regulasi->hasPages())
+                <div class="d-flex justify-content-center p-3 border-top">
                     {{ $regulasi->withQueryString()->links() }}
                 </div>
             @endif

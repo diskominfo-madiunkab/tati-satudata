@@ -35,15 +35,80 @@ dd($data);
         <div class="tab-content pt-2" id="myTabContent">
             <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                 <div class="col-lg-12">
-                    @if (auth()->user()->hasAnyRole('produsen') && ($data->status_id == 10 || $data->status_id == 7))
-                        <div class="card">
+                    <!-- Direct Portal Interactive Data Grid (Halaman 30 & 31) -->
+                    <div class="card mb-4 border shadow-sm">
+                        <div class="card-body pt-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-3">
+                                <div>
+                                    <h5 class="card-title mb-1 text-primary"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Pengisian Data Langsung Melalui Portal</h5>
+                                    <p class="text-muted small mb-0">Input data statistik secara interaktif langsung dari portal tanpa file Excel, terstandarisasi dengan kode referensi wilayah & periode.</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" id="btnSimpanGridDraft">
+                                        <i class="bi bi-save me-1"></i> Simpan Sementara (Draft)
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="btnAjukanVerifikasi">
+                                        <i class="bi bi-send-check me-1"></i> Ajukan Verifikasi Walidata
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="row g-2 p-3 bg-light rounded border mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Level Data Wilayah</label>
+                                    <select id="gridLevelData" class="form-select form-select-sm">
+                                        <option value="Kabupaten" {{ ($data->level_data ?? '') == 'Kabupaten' ? 'selected' : '' }}>Kabupaten (Kode 35.19 - Kab. Madiun)</option>
+                                        <option value="Kecamatan" {{ ($data->level_data ?? '') == 'Kecamatan' || empty($data->level_data) ? 'selected' : '' }}>Kecamatan (15 Kecamatan + Kode Referensi)</option>
+                                        <option value="Desa/Kelurahan" {{ ($data->level_data ?? '') == 'Desa/Kelurahan' ? 'selected' : '' }}>Desa / Kelurahan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small">Periode / Frekuensi Data</label>
+                                    <select id="gridPeriodeData" class="form-select form-select-sm">
+                                        <option value="Tahunan" {{ ($data->periode_data ?? '') == 'Tahunan' || empty($data->periode_data) ? 'selected' : '' }}>Tahunan (Per Tahun)</option>
+                                        <option value="Bulanan" {{ ($data->periode_data ?? '') == 'Bulanan' ? 'selected' : '' }}>Bulanan (Januari - Desember)</option>
+                                        <option value="Triwulan" {{ ($data->periode_data ?? '') == 'Triwulan' ? 'selected' : '' }}>Triwulanan (TW 1 - TW 4)</option>
+                                        <option value="Semester" {{ ($data->periode_data ?? '') == 'Semester' ? 'selected' : '' }}>Semesteran (Semester 1 & 2)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnApplyStructure">
+                                        <i class="bi bi-arrow-repeat me-1"></i> Terapkan Struktur
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnAddColumn">
+                                        <i class="bi bi-plus-lg me-1"></i> Tambah Kolom
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnAddRow">
+                                        <i class="bi bi-plus-lg me-1"></i> Tambah Baris
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Grid Table -->
+                            <div class="table-responsive border rounded mb-3" style="max-height: 480px; overflow-y: auto;">
+                                <table class="table table-bordered table-hover align-middle mb-0" id="portalDataGrid">
+                                    <thead class="table-primary sticky-top" id="gridThead">
+                                    </thead>
+                                    <tbody id="gridTbody">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="gridSaveAlert" class="alert alert-success d-none py-2 mb-0" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i> <span id="gridSaveAlertMsg">Data berhasil disimpan sementara!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (auth()->user()->hasAnyRole('produsen') && ($data->status_id == 10 || $data->status_id == 7 || $data->status_id == 1 || $data->status_id == 4))
+                        <div class="card collapsed-card">
                             <div class="row">
                                 <div class="card-body">
-                                    <div class="card-title">Berkas Data
-                                        <h6>Sebelum mengunggah berkas harap unduh template untuk
-                                            mengunggah berkas <a href="" class="btn btn-md btn-info"
-                                                data-bs-toggle="modal" data-bs-target="#basicModal">disini!</a>
-                                        </h6>
+                                    <div class="card-title d-flex justify-content-between align-items-center">
+                                        <span>Unggah Berkas Pendukung (Opsional)</span>
+                                        <span class="badge bg-secondary">Lampiran</span>
+                                    </div>
                                         <div class="modal fade" id="basicModal" tabindex="-1">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -772,6 +837,233 @@ dd($data);
                 // Tambahkan kode untuk mengatur tab grafik sebagai aktif di sini
             }
         });
+    </script>
+
+    <script>
+    $(function() {
+        const districtsList = @json($districts ?? []);
+        const defaultMadiunDistricts = (districtsList && districtsList.length > 0) ? districtsList : [
+            {code: '351901', name: 'Kebonsari'},
+            {code: '351902', name: 'Geger'},
+            {code: '351903', name: 'Dagangan'},
+            {code: '351904', name: 'Kare'},
+            {code: '351905', name: 'Gemarang'},
+            {code: '351906', name: 'Wungu'},
+            {code: '351907', name: 'Madiun'},
+            {code: '351908', name: 'Jiwan'},
+            {code: '351909', name: 'Balerejo'},
+            {code: '351910', name: 'Sawahan'},
+            {code: '351911', name: 'Mejayan'},
+            {code: '351912', name: 'Saradan'},
+            {code: '351913', name: 'Pilangkenceng'},
+            {code: '351914', name: 'Wonoasri'}
+        ];
+
+        let existingGridData = null;
+        @if(!empty($data->data_grid_json))
+            try {
+                existingGridData = JSON.parse(@json($data->data_grid_json));
+            } catch(e){}
+        @elseif(!empty($tables) && count($tables) > 0)
+            @php
+                $firstTable = $tables[0];
+                $tHeaders = $firstTable['headers']->sortBy('urutan_menyamping')->pluck('header')->toArray();
+                $tRows = [];
+                foreach ($firstTable['rows']->values() as $r) {
+                    $rowVals = [];
+                    foreach ($firstTable['headers']->sortBy('urutan_menyamping')->values() as $h) {
+                        $cell = $r->firstWhere('id_header', $h->id);
+                        $rowVals[] = $cell ? $cell->isi : '';
+                    }
+                    $tRows[] = $rowVals;
+                }
+            @endphp
+            existingGridData = {
+                headers: @json($tHeaders),
+                rows: @json($tRows)
+            };
+        @endif
+
+        function renderGridFromData(headers, rows) {
+            let theadHtml = '<tr>';
+            headers.forEach((h, idx) => {
+                theadHtml += '<th><input type="text" class="form-control form-control-sm fw-bold border-0 bg-transparent text-white grid-header-input" value="' + h + '"></th>';
+            });
+            theadHtml += '<th style="width: 50px;">Aksi</th></tr>';
+            $('#gridThead').html(theadHtml);
+
+            let tbodyHtml = '';
+            rows.forEach((r, rIdx) => {
+                tbodyHtml += '<tr>';
+                r.forEach((c, cIdx) => {
+                    let isCodeCol = (cIdx === 0);
+                    tbodyHtml += '<td><input type="text" class="form-control form-control-sm grid-cell-input ' + (isCodeCol ? 'bg-light font-monospace' : '') + '" value="' + (c || '') + '"></td>';
+                });
+                tbodyHtml += '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 btn-del-row"><i class="bi bi-x"></i></button></td></tr>';
+            });
+            $('#gridTbody').html(tbodyHtml);
+        }
+
+        function buildDefaultStructure() {
+            let level = $('#gridLevelData').val();
+            let periode = $('#gridPeriodeData').val();
+            let headers = ['Kode Referensi', 'Wilayah / Kategori'];
+            let currentYear = {{ $data->tahun ?? date('Y') }};
+
+            if (periode === 'Bulanan') {
+                headers.push('Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des');
+            } else if (periode === 'Triwulan') {
+                headers.push('Triwulan I', 'Triwulan II', 'Triwulan III', 'Triwulan IV');
+            } else if (periode === 'Semester') {
+                headers.push('Semester I', 'Semester II');
+            } else {
+                headers.push(String(currentYear - 2), String(currentYear - 1), String(currentYear));
+            }
+
+            let rows = [];
+            if (level === 'Kabupaten') {
+                let row = ['35.19', 'Kabupaten Madiun'];
+                for (let i = 2; i < headers.length; i++) row.push('');
+                rows.push(row);
+            } else if (level === 'Kecamatan') {
+                defaultMadiunDistricts.forEach(d => {
+                    let row = [d.code, d.name];
+                    for (let i = 2; i < headers.length; i++) row.push('');
+                    rows.push(row);
+                });
+            } else {
+                let row = ['-', 'Desa / Wilayah'];
+                for (let i = 2; i < headers.length; i++) row.push('');
+                rows.push(row);
+            }
+
+            renderGridFromData(headers, rows);
+        }
+
+        if (existingGridData && existingGridData.headers && existingGridData.headers.length > 0) {
+            renderGridFromData(existingGridData.headers, existingGridData.rows);
+        } else {
+            buildDefaultStructure();
+        }
+
+        $('#btnApplyStructure').on('click', function() {
+            if (confirm('Terapkan struktur baru? Data sel yang belum tersimpan mungkin akan diatur ulang.')) {
+                buildDefaultStructure();
+            }
+        });
+
+        $('#btnAddColumn').on('click', function() {
+            let colName = prompt('Masukkan nama kolom baru:', 'Kolom Baru');
+            if (colName) {
+                $('#gridThead tr').find('th:last').before('<th><input type="text" class="form-control form-control-sm fw-bold border-0 bg-transparent text-white grid-header-input" value="' + colName + '"></th>');
+                $('#gridTbody tr').each(function() {
+                    $(this).find('td:last').before('<td><input type="text" class="form-control form-control-sm grid-cell-input" value=""></td>');
+                });
+            }
+        });
+
+        $('#btnAddRow').on('click', function() {
+            let colCount = $('#gridThead tr th').length - 1;
+            let rowHtml = '<tr>';
+            for (let i = 0; i < colCount; i++) {
+                rowHtml += '<td><input type="text" class="form-control form-control-sm grid-cell-input" value=""></td>';
+            }
+            rowHtml += '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 btn-del-row"><i class="bi bi-x"></i></button></td></tr>';
+            $('#gridTbody').append(rowHtml);
+        });
+
+        $(document).on('click', '.btn-del-row', function() {
+            $(this).closest('tr').remove();
+        });
+
+        function collectGridPayload() {
+            let headers = [];
+            $('#gridThead tr th').each(function(idx) {
+                let input = $(this).find('input.grid-header-input');
+                if (input.length > 0) {
+                    headers.push(input.val() || 'Kolom ' + (idx + 1));
+                }
+            });
+
+            let rows = [];
+            $('#gridTbody tr').each(function() {
+                let rowVals = [];
+                $(this).find('input.grid-cell-input').each(function() {
+                    rowVals.push($(this).val());
+                });
+                if (rowVals.length > 0) {
+                    rows.push(rowVals);
+                }
+            });
+
+            return {
+                headers: headers,
+                rows: rows,
+                level_data: $('#gridLevelData').val(),
+                periode_data: $('#gridPeriodeData').val(),
+                nama_tabel: '{{ addslashes($data->nama_data) }}'
+            };
+        }
+
+        function saveGridData(callback) {
+            let payload = collectGridPayload();
+            payload._token = '{{ csrf_token() }}';
+
+            $.ajax({
+                url: '{{ route("pengumpulan.simpan-grid", $data->id) }}',
+                type: 'POST',
+                data: payload,
+                success: function(resp) {
+                    $('#gridSaveAlert').removeClass('d-none alert-danger').addClass('alert-success');
+                    $('#gridSaveAlertMsg').text('Data berhasil disimpan sementara sebagai draft!');
+                    setTimeout(function() { $('#gridSaveAlert').addClass('d-none'); }, 4000);
+                    if (typeof callback === 'function') callback();
+                },
+                error: function(err) {
+                    $('#gridSaveAlert').removeClass('d-none alert-success').addClass('alert-danger');
+                    $('#gridSaveAlertMsg').text('Gagal menyimpan data grid.');
+                }
+            });
+        }
+
+        $('#btnSimpanGridDraft').on('click', function() {
+            saveGridData();
+        });
+
+        $('#btnAjukanVerifikasi').on('click', function() {
+            Swal.fire({
+                title: 'Ajukan ke Verifikasi Walidata?',
+                text: 'Pastikan data telah diisi dengan benar dan lengkap sesuai standar data & metadata.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Ajukan Verifikasi',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#198754'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveGridData(function() {
+                        $.ajax({
+                            url: '{{ route("siap-verifikasi", $data->id) }}',
+                            type: 'PATCH',
+                            data: { _token: '{{ csrf_token() }}' },
+                            success: function(res) {
+                                if (res.ok) {
+                                    Swal.fire('Berhasil!', res.message, 'success').then(() => {
+                                        window.location.href = '{{ route("pengumpulan.produsen") }}';
+                                    });
+                                } else {
+                                    Swal.fire('Perhatian', res.message, 'warning');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', 'Gagal mengajukan verifikasi', 'error');
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    });
     </script>
 @endpush
 

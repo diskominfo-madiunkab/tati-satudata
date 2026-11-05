@@ -36,6 +36,8 @@ class Data extends Model implements HasMedia
     protected $table = 'data';
     protected $fillable = [
         'id',
+        'kode_ddd',
+        'kode_ddp',
         'nama_data',
         'opd_id',
         'jenis_data',
@@ -48,6 +50,14 @@ class Data extends Model implements HasMedia
         'jadwal_rilis',
         'jadwal_pemutakhiran',
         'data_prioritas',
+        'klasifikasi_data',
+        'kode_standar_data',
+        'konsep',
+        'definisi',
+        'ukuran',
+        'satuan',
+        'klasifikasi_penyajian',
+        'kategori_rad',
         'kodeindikator',
         'value_sipd',
         'is_from_walidata',
@@ -55,6 +65,10 @@ class Data extends Model implements HasMedia
         'level_data',
         'periode_data',
         'data_grid_json',
+        'kode_referensi_wilayah',
+        'kode_referensi_bps',
+        'views_count',
+        'downloads_count',
     ];
 
     protected $guarded = [];

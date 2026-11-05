@@ -66,7 +66,9 @@
                             @csrf
                             @if ($existingData > 0)
                                 <div class="row mb-3">
-                                    <label for="nama" class="col-sm-2 col-form-label">Nama Indikator</label>
+                                    <label for="nama" class="col-sm-2 col-form-label">
+                                        Nama Indikator <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Nama resmi indikator statistik"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="nama" name="nama" type="text"
                                             class="form-control {{ isset($nama) ? ($nama->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -79,7 +81,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="konsep" class="col-sm-2 col-form-label">Konsep</label>
+                                    <label for="konsep" class="col-sm-2 col-form-label">
+                                        Konsep <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Ide atau gambaran umum mengenai fenomena yang diukur"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="konsep" name="konsep" type="text" readonly
                                             class="form-control {{ isset($konsep) ? ($konsep->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -92,7 +96,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="Definisi" class="col-sm-2 col-form-label">Definisi</label>
+                                    <label for="Definisi" class="col-sm-2 col-form-label">
+                                        Definisi <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Batasan operasional dan teknis mengenai indikator"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <textarea name="definisi" readonly
                                             class="form-control {{ isset($definisi) ? ($definisi->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -104,7 +110,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="interpretasi" class="col-sm-2 col-form-label">Interpretasi</label>
+                                    <label for="interpretasi" class="col-sm-2 col-form-label">
+                                        Interpretasi <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Cara memaknai atau menafsirkan angka hasil indikator"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <textarea id="interpretasi" name="interpretasi" type="text"
                                             class="form-control {{ isset($interpretasi) ? ($interpretasi->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -147,7 +155,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="ukuran" class="col-sm-2 col-form-label">Ukuran</label>
+                                    <label for="ukuran" class="col-sm-2 col-form-label">
+                                        Ukuran <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Bentuk besaran statistik (Jumlah, Persentase, Rasio, Indeks)"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="ukuran" name="ukuran" type="text" readonly
                                             class="form-control {{ isset($ukuran) ? ($ukuran->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -160,7 +170,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="satuan" class="col-sm-2 col-form-label">Satuan</label>
+                                    <label for="satuan" class="col-sm-2 col-form-label">
+                                        Satuan <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Satuan pengukuran (Orang, Unit, Ton, %, dll)"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="satuan" name="satuan" type="text" readonly
                                             class="form-control {{ isset($satuan) ? ($satuan->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -173,8 +185,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="klasifikasi_penyajian" class="col-sm-2 col-form-label">Klasifikasi
-                                        Penyajian</label>
+                                    <label for="klasifikasi_penyajian" class="col-sm-2 col-form-label">
+                                        Klasifikasi Penyajian <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Pengelompokan rincian penyajian data"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <textarea name="klasifikasi_penyajian"
                                             class="form-control {{ isset($klasifikasi_penyajian) ? ($klasifikasi_penyajian->accepted ? 'is-valid' : 'is-invalid') : '' }}"

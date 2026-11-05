@@ -5,7 +5,7 @@
     <div class="container">
         <div class="page-banner-content text-center text-white">
             <h1 class="text-white fw-bold mb-2">Buku Publikasi & Rencana Terbit</h1>
-            <p class="text-white-50 mb-0">Koleksi dokumen resmi, buku statistik daerah, serta jadwal rencana terbit publikasi Satu Data Kabupaten Madiun.</p>
+            <p class="text-white-50 mb-0">Menampilkan Koleksi Buku Publikasi Kegiatan Statistik serta Jadwal Rencana Terbit Publikasi Kegiatan Statistik</p>
         </div>
     </div>
 </div>
@@ -13,7 +13,7 @@
 <section class="publikasi-area pt-50 pb-70 bg-light">
     <div class="container">
         <!-- Tabs Navigasi: Publikasi & Jadwal Rencana Terbit -->
-        <ul class="nav nav-pills nav-fill mb-4 bg-white p-2 rounded-3 shadow-sm" role="tablist">
+        <ul class="nav nav-pills nav-fill mb-4 bg-white p-2 rounded-3 shadow-sm border" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active fw-bold" id="buku-tab" data-bs-toggle="pill" data-bs-target="#tab-buku" type="button" role="tab">
                     <i class="fas fa-book-open me-2"></i> Daftar Buku Publikasi
@@ -30,7 +30,7 @@
             <!-- TAB 1: Daftar Buku Publikasi -->
             <div class="tab-pane fade show active" id="tab-buku" role="tabpanel">
                 <!-- Filter Search -->
-                <div class="card shadow-sm border-0 mb-4 rounded-3">
+                <div class="card shadow-sm border mb-4 rounded-3">
                     <div class="card-body p-4">
                         <form action="{{ route('guest.publikasi') }}" method="GET">
                             <div class="row g-3 align-items-end">
@@ -39,7 +39,7 @@
                                     <input type="text" name="search" class="form-control" placeholder="Kata kunci judul buku publikasi..." value="{{ request('search') }}">
                                 </div>
                                 <div class="col-lg-2 col-md-3 d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Cari</button>
+                                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i> Cari</button>
                                     @if(request('search'))
                                         <a href="{{ route('guest.publikasi') }}" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
                                     @endif
@@ -53,35 +53,39 @@
                 <div class="row g-4">
                     @forelse($publikasi as $pub)
                     <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden bg-white hover-shadow transition">
+                        <div class="card h-100 border shadow-sm rounded-3 overflow-hidden bg-white hover-shadow transition d-flex flex-column">
                             <div class="position-relative overflow-hidden bg-light" style="height: 280px;">
                                 @if($pub->image)
-                                    <img src="{{ asset('storage/public/blogs/' . $pub->image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $pub->title }}">
+                                    <img src="{{ Storage::url('public/blogs/' . $pub->image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $pub->title }}">
                                 @elseif($pub->gambar)
-                                    <img src="{{ asset('storage/public/blogs/' . $pub->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $pub->title ?? $pub->nama_publikasi }}">
+                                    <img src="{{ Storage::url('public/blogs/' . $pub->gambar) }}" class="w-100 h-100 object-fit-cover" alt="{{ $pub->title ?? $pub->nama_publikasi }}">
                                 @else
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-muted">
                                         <i class="fas fa-book fa-3x"></i>
                                     </div>
                                 @endif
                                 <span class="badge bg-primary position-absolute top-0 end-0 m-2">
-                                    {{ $pub->created_at ? $pub->created_at->format('Y') : date('Y') }}
+                                    {{ $pub->tahun ?: ($pub->created_at ? $pub->created_at->format('Y') : date('Y')) }}
                                 </span>
                             </div>
-                            <div class="card-body p-3 d-flex flex-column">
+                            <div class="card-body p-3 d-flex flex-column flex-grow-1">
                                 <h6 class="card-title fw-bold text-dark mb-2 line-clamp-2" title="{{ $pub->title ?? $pub->nama_publikasi }}">
                                     {{ $pub->title ?? $pub->nama_publikasi }}
                                 </h6>
-                                <div class="text-muted small mb-3 flex-grow-1">
-                                    <i class="fas fa-calendar-day me-1"></i> {{ $pub->created_at ? $pub->created_at->translatedFormat('d M Y') : '-' }}
+
+                                <!-- Perangkat Daerah & Jadwal Terbit -->
+                                <div class="small text-muted mb-1">
+                                    <i class="fas fa-building text-primary me-1"></i>
+                                    <span>{{ $pub->opd->nama_opd ?? $pub->instansi ?? 'Pemerintah Kab. Madiun' }}</span>
                                 </div>
-                                <div class="d-grid gap-2">
+                                <div class="small text-muted mb-3">
+                                    <i class="fas fa-calendar-check text-success me-1"></i>
+                                    <span>Jadwal Terbit: <strong>{{ $pub->jadwal_terbit ?: ($pub->created_at ? $pub->created_at->translatedFormat('d M Y') : '-') }}</strong></span>
+                                </div>
+
+                                <div class="mt-auto d-grid gap-2">
                                     @if($pub->pdf_path)
-                                        <a href="{{ asset('storage/public/blogs/' . $pub->pdf_path) }}" target="_blank" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-file-pdf me-1"></i> Unduh Dokumen (PDF)
-                                        </a>
-                                    @elseif($pub->berkas)
-                                        <a href="{{ asset('storage/public/blogs/' . $pub->berkas) }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                        <a href="{{ Storage::url($pub->pdf_path) }}" target="_blank" class="btn btn-sm btn-outline-danger">
                                             <i class="fas fa-file-pdf me-1"></i> Unduh Dokumen (PDF)
                                         </a>
                                     @else
@@ -110,8 +114,8 @@
 
             <!-- TAB 2: Jadwal Rencana Terbit (Buku Publikasi) -->
             <div class="tab-pane fade" id="tab-jadwal" role="tabpanel">
-                <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-                    <div class="card-header bg-white py-3 border-0">
+                <div class="card shadow-sm border rounded-3 overflow-hidden">
+                    <div class="card-header bg-white py-3 border-bottom">
                         <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i>Jadwal Rencana Terbit Buku Publikasi Statistik Sektoral</h5>
                     </div>
                     <div class="table-responsive">
@@ -128,9 +132,34 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($jadwalTerbit as $index => $jadwal)
+                                @php $rowNumber = 1; @endphp
+
+                                {{-- PublikasiGuest status Belum Terbit --}}
+                                @foreach($rencanaPublikasi as $item)
                                 <tr>
-                                    <td class="text-center text-muted">{{ $index + 1 }}</td>
+                                    <td class="text-center text-muted">{{ $rowNumber++ }}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ $item->title }}</div>
+                                        @if($item->content)
+                                            <div class="small text-muted">{{ Str::limit(strip_tags($item->content), 90) }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="small fw-semibold text-muted">{{ $item->opd->nama_opd ?? $item->instansi ?? 'Pemerintah Kab. Madiun' }}</td>
+                                    <td class="text-center"><span class="badge bg-secondary">{{ $item->tahun ?: date('Y') }}</span></td>
+                                    <td class="text-center small">
+                                        <strong>{{ $item->jadwal_rencana_terbit ?: ($item->jadwal_terbit ?: '-') }}</strong>
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-light text-dark border">{{ $item->frekuensi ?: 'Tahunan' }}</span></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Belum Terbit</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+
+                                {{-- JadwalTerbit records --}}
+                                @foreach($jadwalTerbit as $jadwal)
+                                <tr>
+                                    <td class="text-center text-muted">{{ $rowNumber++ }}</td>
                                     <td>
                                         <div class="fw-bold text-dark">{{ $jadwal->judul_buku }}</div>
                                         @if($jadwal->deskripsi)
@@ -153,11 +182,13 @@
                                         @endif
                                     </td>
                                 </tr>
-                                @empty
+                                @endforeach
+
+                                @if($rencanaPublikasi->isEmpty() && $jadwalTerbit->isEmpty())
                                 <tr>
                                     <td colspan="7" class="text-center py-4 text-muted">Belum ada jadwal terbit publikasi yang terdaftar.</td>
                                 </tr>
-                                @endforelse
+                                @endif
                             </tbody>
                         </table>
                     </div>

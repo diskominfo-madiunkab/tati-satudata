@@ -132,8 +132,11 @@ class DataController extends Controller
                     ->make(true);
             }
             $document = Document::where('type', 'DATA')->get();
+            $countDraft = Data::where('status_id', Data::STATUS_DRAFT)->count();
+            $countSetuju = Data::whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])->count();
+            $countTolak = Data::where('status_id', Data::STATUS_TOLAK)->count();
 
-            return view('pages.contents.walidata.indexdata', compact('data', 'file', 'tahun', 'opd', 'status', 'document'));
+            return view('pages.contents.walidata.indexdata', compact('data', 'file', 'tahun', 'opd', 'status', 'document', 'countDraft', 'countSetuju', 'countTolak'));
         } elseif (Auth::user()->role_id == '3') {
             $data = Data::data_produsen();
             $draft = Data::get_draft()->count();
@@ -143,6 +146,11 @@ class DataController extends Controller
                 ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
             $opd = $opdsQuery->get();
             $status = '3';
+            $countDraft = Data::where('opd_id', auth()->user()->opd_id)->where('status_id', Data::STATUS_DRAFT)->count();
+            $countSetuju = Data::where('opd_id', auth()->user()->opd_id)->whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])->count();
+            $countTolak = Data::where('opd_id', auth()->user()->opd_id)->where('status_id', Data::STATUS_TOLAK)->count();
+
+            return view('pages.contents.produsen.indexdata', compact('data', 'draft', 'tahun', 'opd', 'status', 'countDraft', 'countSetuju', 'countTolak'));
             if ($request->ajax()) {
                 $query =
                     DB::table('data')
@@ -437,26 +445,46 @@ class DataController extends Controller
         // dd($data_tahun);
         $sumber = SumberData::where('is_active', 1)->get();
         $tahun = MasterTahun::where('is_active', 1)->get();
-        // $nama_data = Data::selesai_konfirmasi_walidata()->where('tahun', 2022);
-        // dd($data_tahun);
+        $standarDataList = \App\Models\StandarData::select('id', 'kode', 'konsep', 'definisi', 'ukuran', 'satuan', 'klasifikasi')
+            ->whereNotNull('konsep')
+            ->take(300)
+            ->get();
 
         // get e-walidata
         try {
-            $response = Http::timeout(120)->withToken(env('SIPD_API_KEY'))
+            $response = Http::timeout(5)->withToken(env('SIPD_API_KEY'))
                 ->get('https://sipd.go.id/ewalidata/serv/get_ref_dssd', [
                     'kodepemda' => '3519',
                 ]);
             $sipd = $response->json();
-            // dd($sipd, $response);
-            if (! $response->ok()) {
+            if (! $response->ok() || empty($sipd)) {
                 $sipd = [];
             }
         } catch (\Throwable $th) {
-            Alert::error('Gagal', 'Gagal Mengambil Data SIPD karena terlalu lama merespon. Silakan coba lagi nanti.');
             $sipd = [];
         }
 
-        return view('pages.contents.walidata.createdata', compact('data_tahun', 'opd', 'data', 'sumber', 'tahun', 'sipd'));
+        // Database Referensi Indikator Pembangunan (Bappenas / Satu Data Indonesia & Permendagri)
+        if (empty($sipd) || !is_array($sipd)) {
+            $sipd = [
+                ['kodeindikator' => '1.01.000001', 'uraian_indikator' => 'Asrama sekolah', 'satuan' => 'Unit', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000002', 'uraian_indikator' => 'Asrama sekolah yang perlu direhabilitasi', 'satuan' => 'Unit', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000003', 'uraian_indikator' => 'Asrama sekolah yang layak', 'satuan' => 'Unit', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000004', 'uraian_indikator' => 'Asrama sekolah yang rusak sedang/berat', 'satuan' => 'Unit', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000005', 'uraian_indikator' => 'Bahan Ajar Bahasa Daerah Kewenangan Kabupaten/Kota yang tersusun', 'satuan' => 'Dokumen', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000006', 'uraian_indikator' => 'Bahasa dan Sastra daerah Kewenangan Kabupaten/Kota', 'satuan' => 'Bahasa', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000007', 'uraian_indikator' => 'Bangunan Ruang Perpustakaan SD/MI', 'satuan' => 'Unit', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.01.000008', 'uraian_indikator' => 'Buku Koleksi Perpustakaan SD/MI', 'satuan' => 'Eksemplar', 'bidangurusan' => '1.01 - URUSAN PEMERINTAHAN BIDANG PENDIDIKAN'],
+                ['kodeindikator' => '1.02.000001', 'uraian_indikator' => 'Persentase Rumah Sakit Terakreditasi', 'satuan' => '%', 'bidangurusan' => '1.02 - URUSAN PEMERINTAHAN BIDANG KESEHATAN'],
+                ['kodeindikator' => '1.02.000002', 'uraian_indikator' => 'Persentase Puskesmas Terakreditasi', 'satuan' => '%', 'bidangurusan' => '1.02 - URUSAN PEMERINTAHAN BIDANG KESEHATAN'],
+                ['kodeindikator' => '1.02.000003', 'uraian_indikator' => 'Angka Kematian Ibu (AKI)', 'satuan' => 'per 100.000 KH', 'bidangurusan' => '1.02 - URUSAN PEMERINTAHAN BIDANG KESEHATAN'],
+                ['kodeindikator' => '1.02.000004', 'uraian_indikator' => 'Angka Kematian Bayi (AKB)', 'satuan' => 'per 1.000 KH', 'bidangurusan' => '1.02 - URUSAN PEMERINTAHAN BIDANG KESEHATAN'],
+                ['kodeindikator' => '1.03.000001', 'uraian_indikator' => 'Persentase Panjang Jalan Kabupaten dalam Kondisi Mantap', 'satuan' => '%', 'bidangurusan' => '1.03 - PEKERJAAN UMUM DAN PENATAAN RUANG'],
+                ['kodeindikator' => '1.03.000002', 'uraian_indikator' => 'Rasio Jaringan Irigasi Kondisi Baik', 'satuan' => '%', 'bidangurusan' => '1.03 - PEKERJAAN UMUM DAN PENATAAN RUANG'],
+            ];
+        }
+
+        return view('pages.contents.walidata.createdata', compact('data_tahun', 'opd', 'data', 'sumber', 'tahun', 'sipd', 'standarDataList'));
     }
 
     public function fetch_data_sipd(Request $request)
@@ -512,27 +540,50 @@ class DataController extends Controller
     {
         // dd($request->all());
         $user_id = Auth::user()->id;
-        // dd(Auth::user());
-        // $existingData = Data::where('opd_id', auth()->user()->opd_id)->where('nama_data', trim($request->nama_data))->count();
         $existingData = Data::where('nama_data', trim($request->nama_data))->where('opd_id', $request->opd_id)->where('tahun', $request->tahun)->whereNotIn('status_id', [Data::STATUS_SIAP_PUBLIKASI, Data::STATUS_TERPUBLIKASI])->count();
-        // dd($existingData);
         if ($existingData > 0) {
             Alert::error('Gagal', 'Data sudah terdaftar pada sistem');
 
             return back();
         }
-        // dd($request);
+
+        // Sanitasi nama data agar tidak merusak kodingan / XSS / SQL
+        $rawNamaData = strip_tags($request->nama_data);
+        $cleanNamaData = preg_replace('/[^\p{L}\p{N}\s\-.,_()%\/\'\"\[\]:]/u', '', $rawNamaData);
+
+        // Sumber referensi (dapat lebih dari 1)
+        $sumberRef = $request->input('sumber_referensi', $request->sumber_data);
+        if (is_array($sumberRef)) {
+            $sumberRef = implode(', ', $sumberRef);
+        }
+
+        $klasifikasiData = $request->input('klasifikasi_data', ($request->data_prioritas == 1 ? 'Prioritas' : 'Non-Prioritas'));
+        $dataPrioritas = ($klasifikasiData === 'Prioritas' || $request->data_prioritas == 1) ? 1 : 0;
+
         $create = Data::create([
-            'nama_data' => $request->nama_data,
+            'kode_ddd' => $request->kode_ddd,
+            'kode_ddp' => $request->kode_ddp,
+            'nama_data' => $cleanNamaData,
             'opd_id' => $request->opd_id,
             'jenis_data' => $request->jenis_data,
-            'sumber_data' => $request->sumber_data,
+            'sumber_data' => $sumberRef,
+            'sumber_referensi' => $sumberRef,
+            'klasifikasi_data' => $klasifikasiData,
+            'data_prioritas' => $dataPrioritas,
+            'kode_standar_data' => $request->kode_standar_data,
+            'konsep' => $request->konsep,
+            'definisi' => $request->definisi,
+            'ukuran' => $request->ukuran,
+            'satuan' => $request->satuan,
+            'klasifikasi_penyajian' => $request->klasifikasi_penyajian,
+            'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
+            'periode_data' => $request->periode_data ?: $request->jadwal_pemutakhiran,
+            'kategori_rad' => $request->kategori_rad,
+            'level_data' => $request->level_data ?: 'Kabupaten',
             'status_id' => Data::STATUS_DRAFT,
             'user_id' => $user_id,
             'tahun' => $request->tahun,
             'jadwal_rilis' => $request->jadwal_rilis,
-            'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
-            'data_prioritas' => $request->data_prioritas,
             'kodeindikator' => $request->kodeindikator,
             'is_from_walidata' => $request->is_from_walidata == '1' ? true : false,
         ]);
@@ -765,8 +816,12 @@ class DataController extends Controller
         $opd = $opdsQuery->get();
         $sumber = SumberData::where('is_active', 1)->get();
         $tahun = MasterTahun::where('is_active', 1)->get();
+        $standarDataList = \App\Models\StandarData::select('id', 'kode', 'konsep', 'definisi', 'ukuran', 'satuan', 'klasifikasi')
+            ->whereNotNull('konsep')
+            ->take(300)
+            ->get();
 
-        return view('pages.contents.walidata.editdata', compact('tahun', 'data', 'sumber', 'opd'));
+        return view('pages.contents.walidata.editdata', compact('tahun', 'data', 'sumber', 'opd', 'standarDataList'));
     }
 
     public function update(Request $request, $id)
@@ -774,34 +829,46 @@ class DataController extends Controller
         $data = Data::findOrFail($id);
         $get_statusdata = $data->status_id;
 
-        if (Auth::user()->role_id == '3' || (auth()->user() && auth()->user()->hasRole('produsen'))) {
-            $data->update([
-                'jadwal_rilis' => $request->jadwal_rilis,
-                'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
-                'sumber_referensi' => $request->input('sumber_referensi', $data->sumber_referensi),
-                'level_data' => $request->input('level_data', $data->level_data),
-                'periode_data' => $request->input('periode_data', $data->periode_data),
-            ]);
+        $rawNamaData = strip_tags($request->nama_data ?: $data->nama_data);
+        $cleanNamaData = preg_replace('/[^\p{L}\p{N}\s\-.,_()%\/\'\"\[\]:]/u', '', $rawNamaData);
 
-            activity()->performedOn($data)->log('Memperbarui Jadwal Rilis/Pemutakhiran Data: ' . $data->nama_data);
-            Alert::info('Berhasil', 'Berhasil memperbarui Jadwal Rilis dan Pemutakhiran Data!');
-
-            return redirect('/data_produsen/draft');
+        $sumberRef = $request->input('sumber_referensi', $request->sumber_data);
+        if (is_array($sumberRef)) {
+            $sumberRef = implode(', ', $sumberRef);
         }
 
-        $data->update([
-            'nama_data' => $request->nama_data,
-            'opd_id' => $request->opd_id,
-            'jenis_data' => $request->jenis_data,
-            'sumber_data' => $request->sumber_data,
-            'sumber_referensi' => $request->sumber_referensi ?: $request->sumber_data,
-            'level_data' => $request->level_data,
-            'periode_data' => $request->periode_data,
-            'jadwal_rilis' => $request->jadwal_rilis,
-            'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran,
+        $klasifikasiData = $request->input('klasifikasi_data', ($request->data_prioritas == 1 ? 'Prioritas' : 'Non-Prioritas'));
+        $dataPrioritas = ($klasifikasiData === 'Prioritas' || $request->data_prioritas == 1) ? 1 : 0;
+
+        $updatePayload = [
+            'nama_data' => $cleanNamaData,
+            'opd_id' => $request->opd_id ?: $data->opd_id,
+            'jenis_data' => $request->jenis_data ?: $data->jenis_data,
+            'sumber_data' => $sumberRef ?: $data->sumber_data,
+            'sumber_referensi' => $sumberRef ?: $data->sumber_referensi,
+            'level_data' => $request->level_data ?: $data->level_data,
+            'periode_data' => $request->periode_data ?: $data->periode_data,
+            'jadwal_rilis' => $request->jadwal_rilis ?: $data->jadwal_rilis,
+            'jadwal_pemutakhiran' => $request->jadwal_pemutakhiran ?: $data->jadwal_pemutakhiran,
             'status_id' => $get_statusdata,
-            'tahun' => $request->tahun,
-        ]);
+            'tahun' => $request->tahun ?: $data->tahun,
+        ];
+
+        if ($request->filled('kode_ddd')) $updatePayload['kode_ddd'] = $request->kode_ddd;
+        if ($request->filled('kode_ddp')) $updatePayload['kode_ddp'] = $request->kode_ddp;
+        if ($request->filled('klasifikasi_data') || $request->filled('data_prioritas')) {
+            $updatePayload['klasifikasi_data'] = $klasifikasiData;
+            $updatePayload['data_prioritas'] = $dataPrioritas;
+        }
+        if ($request->filled('kode_standar_data')) $updatePayload['kode_standar_data'] = $request->kode_standar_data;
+        if ($request->filled('konsep')) $updatePayload['konsep'] = $request->konsep;
+        if ($request->filled('definisi')) $updatePayload['definisi'] = $request->definisi;
+        if ($request->filled('ukuran')) $updatePayload['ukuran'] = $request->ukuran;
+        if ($request->filled('satuan')) $updatePayload['satuan'] = $request->satuan;
+        if ($request->filled('klasifikasi_penyajian')) $updatePayload['klasifikasi_penyajian'] = $request->klasifikasi_penyajian;
+        if ($request->filled('kategori_rad')) $updatePayload['kategori_rad'] = $request->kategori_rad;
+
+        $data->update($updatePayload);
 
         if ($data) {
             if (Auth::user()->role_id == '1') {
@@ -937,7 +1004,11 @@ class DataController extends Controller
                 ->make(true);
         }
 
-        return view('pages.contents.walidata.indexdata_setuju', compact('data', 'status', 'tahun', 'opd'));
+        $countDraft = Data::where('status_id', Data::STATUS_DRAFT)->count();
+        $countSetuju = Data::whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])->count();
+        $countTolak = Data::where('status_id', Data::STATUS_TOLAK)->count();
+
+        return view('pages.contents.walidata.indexdata_setuju', compact('data', 'status', 'tahun', 'opd', 'countDraft', 'countSetuju', 'countTolak'));
     }
 
     public function tolak_konfirmasi_walidata(Request $request)
@@ -949,6 +1020,9 @@ class DataController extends Controller
         $opd = $opdsQuery->get();
         $status = '2';
         $tahun = MasterTahun::where('is_active', 1)->get();
+        $countDraft = Data::where('status_id', Data::STATUS_DRAFT)->count();
+        $countSetuju = Data::whereNotIn('status_id', [Data::STATUS_DRAFT, Data::STATUS_TOLAK])->count();
+        $countTolak = Data::where('status_id', Data::STATUS_TOLAK)->count();
         if ($request->ajax()) {
             $year = date('Y');
             // $year = '2022';
@@ -1007,7 +1081,7 @@ class DataController extends Controller
                 ->make(true);
         }
 
-        return view('pages.contents.walidata.indexdata_tolak', compact('data', 'status', 'tahun', 'opd'));
+        return view('pages.contents.walidata.indexdata_tolak', compact('data', 'status', 'tahun', 'opd', 'countDraft', 'countSetuju', 'countTolak'));
     }
 
     public function get_all_opd()

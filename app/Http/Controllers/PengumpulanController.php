@@ -496,6 +496,8 @@ class PengumpulanController extends Controller
         $axis_y = json_encode($axis_y);
         $axis_x = json_encode($axis_x);
         $document = Document::where('type', 'TEMPLATE BERKAS DATA')->get();
+        $districts = DB::table('indonesia_districts')->where('city_code', '3519')->orderBy('code')->get();
+
         if ($data->status_id == 7) {
             Alert::info('Perhatian!', 'Jika ingin revisi berkas, harap hapus terlebih dahulu berkas yang akan di revisi!');
         }
@@ -516,7 +518,8 @@ class PengumpulanController extends Controller
             'axis_y',
             'kategori',
             'seriesData',
-            'seriesDataLine'
+            'seriesDataLine',
+            'districts'
         ));
     }
 
@@ -717,31 +720,38 @@ class PengumpulanController extends Controller
 
     public function simpanIndikator($id, Request $request)
     {
-        // dd($request->all());
-
         $data = Data::with(['indikator'])
             ->when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->findOrFail($id);
-        // dd($data->id);
 
         $request->validate([
+            'nama' => 'required',
+            'konsep' => 'required',
+            'definisi' => 'required',
+            'interpretasi' => 'required',
+            'ukuran' => 'required',
+            'satuan' => 'required',
             'metode_image' => 'nullable|image'
+        ], [
+            'nama.required' => 'Nama Indikator wajib diisi.',
+            'konsep.required' => 'Konsep wajib diisi.',
+            'definisi.required' => 'Definisi wajib diisi.',
+            'interpretasi.required' => 'Interpretasi wajib diisi.',
+            'ukuran.required' => 'Ukuran wajib diisi.',
+            'satuan.required' => 'Satuan wajib diisi.',
         ]);
 
         $formData = $request->all();
         if ($request->hasFile('metode_image')) {
             $formData['metode'] = $request->file('metode_image')->storeAs('public/exports/' . Str::slug($data->nama_data), $request->file('metode_image')->getClientOriginalName());
         }
-        // dd($formData);
-        $aa = $data->indikator()->updateOrCreate(
+
+        $data->indikator()->updateOrCreate(
             ['data_id' => $data->id],
             array_merge($formData, ['data_id' => $data->id])
         );
-        // dd($aa);
-
 
         $updateStandarData = [];
-        // Tidak termasuk klasifikasi_penyajian karena tidak boleh mengubah klasifikasi di standar_data
         $standarDataFields = ['konsep', 'definisi', 'satuan', 'ukuran'];
         foreach ($standarDataFields as $field) {
             if ($request->filled($field)) {
@@ -749,13 +759,12 @@ class PengumpulanController extends Controller
             }
         }
 
-        // dd($updateStandarData);
         $data->standar()->updateOrCreate(
             ['data_id' => $data->id],
             $updateStandarData
         );
 
-        Alert::success('Berhasil', 'Metadata berhasil disimpan');
+        Alert::success('Berhasil', 'Metadata Indikator berhasil disimpan');
 
         return redirect()->to(url()->previous(back()));
     }
@@ -826,6 +835,24 @@ class PengumpulanController extends Controller
         $data = Data::when(auth()->user()->hasAnyRole('produsen'), fn($q) => $q->where('opd_id', auth()->user()->opd_id))
             ->findOrFail($id);
 
+        $request->validate([
+            'nama' => 'required',
+            'alias' => 'required',
+            'konsep' => 'required',
+            'definisi' => 'required',
+            'tipe_data' => 'required',
+            'ukuran' => 'required',
+            'satuan' => 'required',
+        ], [
+            'nama.required' => 'Nama Variabel wajib diisi.',
+            'alias.required' => 'Alias wajib diisi.',
+            'konsep.required' => 'Konsep wajib diisi.',
+            'definisi.required' => 'Definisi wajib diisi.',
+            'tipe_data.required' => 'Tipe Data wajib diisi.',
+            'ukuran.required' => 'Ukuran wajib diisi.',
+            'satuan.required' => 'Satuan wajib diisi.',
+        ]);
+
         $data->variabel()->updateOrCreate(
             ['data_id' => $data->id],
             array_merge($request->all(), ['data_id' => $data->id])
@@ -844,7 +871,7 @@ class PengumpulanController extends Controller
             ['data_id' => $data->id],
             $updateStandarData
         );
-        Alert::success('Berhasil', 'Metadata berhasil disimpan');
+        Alert::success('Berhasil', 'Metadata Variabel berhasil disimpan');
         return redirect()->back();
     }
 
@@ -996,34 +1023,50 @@ class PengumpulanController extends Controller
             ->findOrFail($id);
 
         if (!$data->standar || empty($data->standar->konsep) || empty($data->standar->definisi) || empty($data->standar->satuan)) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Mohon lengkapi seluruh Standar Data (Konsep, Definisi, Satuan, Ukuran, Klasifikasi) terlebih dahulu!'
-            ]);
+            $msg = 'Mohon lengkapi seluruh Standar Data (Konsep, Definisi, Satuan, Ukuran, Klasifikasi) terlebih dahulu!';
+            if (!request()->ajax() && !request()->wantsJson()) {
+                Alert::error('Gagal', $msg);
+                return redirect()->back();
+            }
+            return response()->json(['ok' => false, 'message' => $msg]);
         }
 
         $jenisData = strtolower($data->jenis_data);
         if ($jenisData == 'variabel' && !$data->variabel) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Mohon lengkapi isian Metadata Variabel terlebih dahulu!'
-            ]);
+            $msg = 'Mohon lengkapi isian Metadata Variabel terlebih dahulu!';
+            if (!request()->ajax() && !request()->wantsJson()) {
+                Alert::error('Gagal', $msg);
+                return redirect()->back();
+            }
+            return response()->json(['ok' => false, 'message' => $msg]);
         }
 
         if ($jenisData == 'indikator' && !$data->indikator) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Mohon lengkapi isian Metadata Indikator terlebih dahulu!'
-            ]);
+            $msg = 'Mohon lengkapi isian Metadata Indikator terlebih dahulu!';
+            if (!request()->ajax() && !request()->wantsJson()) {
+                Alert::error('Gagal', $msg);
+                return redirect()->back();
+            }
+            return response()->json(['ok' => false, 'message' => $msg]);
         }
 
         if ($data->status_id == Data::STATUS_PROSES_VERIFIKASI) {
-            return response()->json(['ok' => false, 'message' => 'Data ini sedang dalam proses verifikasi']);
+            $msg = 'Data ini sedang dalam proses verifikasi Walidata.';
+            if (!request()->ajax() && !request()->wantsJson()) {
+                Alert::info('Informasi', $msg);
+                return redirect()->back();
+            }
+            return response()->json(['ok' => false, 'message' => $msg]);
         }
 
         $data->update(['progress' => 100, 'status_id' => Data::STATUS_PROSES_VERIFIKASI]);
 
         activity()->causedBy(auth()->id())->performedOn($data)->log('Data diajukan ke tahap verifikasi');
+
+        if (!request()->ajax() && !request()->wantsJson()) {
+            Alert::success('Berhasil', 'Sukses! Data telah diajukan ke tahap verifikasi Walidata.');
+            return redirect()->back();
+        }
 
         return response()->json(['ok' => true, 'message' => 'Sukses! Data dalam tahap verifikasi']);
     }

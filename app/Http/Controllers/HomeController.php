@@ -134,117 +134,115 @@ class HomeController extends Controller
 
     public function dashboardProdusen(Request $request)
     {
-        //
-        $tahun = MasterTahun::where('is_active', 1)->get();
+        $tahun = MasterTahun::where('is_active', 1)->orderByDesc('tahun')->get();
         $selectedTahun = $request->input('tahun', '');
         $opdId = auth()->user()->opd_id;
-        $daftardata = Data::where('opd_id', $opdId)->count();
-        $dataRevisi = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_REVISI])->count();
 
-        $data = Data::where('data_prioritas', 1)->where('opd_id', $opdId)->count();
-        $dataStandarData = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->count();
-        // dd($dataStandarData);
-        $dataPengumpulan = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->count();
-        $dataTelahLengkap = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->count();
-        $dataTidakLengkap = Data::where('opd_id', $opdId)->where('status_id', '>=', Data::STATUS_PROSES_PENGUMPULAN)->count();
-        $dataSiapPublish = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->count();
-        $dataTerpublikasi = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_TERPUBLIKASI)->count();
-        $dataTerbaru = Data::where('opd_id', $opdId)->with('opd', 'status')->latest()->take(10)->get();
+        $query = Data::where('opd_id', $opdId);
         if (!empty($selectedTahun)) {
-            $opdId = auth()->user()->opd_id;
-            $dataRevisi = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_REVISI])->where('tahun', $selectedTahun)->count();
-
-            $daftardata = Data::where('opd_id', $opdId)->where('tahun', $selectedTahun)->count();
-            $data = Data::where('data_prioritas', 1)->where('opd_id', $opdId)->where('tahun', $selectedTahun)->count();
-            $dataStandarData = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PENGAJUAN_STANDART_DATA, Data::STATUS_SETUJU, Data::STATUS_REVISI_STANDART_DATA])->where('tahun', $selectedTahun)->count();
-            $dataPengumpulan = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_SETUJU_STANDART_DATA])->where('tahun', $selectedTahun)->count();
-            $dataTelahLengkap = Data::where('opd_id', $opdId)->whereIn('status_id', [Data::STATUS_PROSES_VERIFIKASI])->where('tahun', $selectedTahun)->count();
-            $dataTidakLengkap = Data::where('opd_id', $opdId)->where('status_id', '>=', Data::STATUS_PROSES_PENGUMPULAN)->where('tahun', $selectedTahun)->count();
-            $dataSiapPublish = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_SIAP_PUBLIKASI)->where('tahun', $selectedTahun)->count();
-            $dataTerpublikasi = Data::where('opd_id', $opdId)->where('status_id', '=', Data::STATUS_TERPUBLIKASI)->where('tahun', $selectedTahun)->count();
-            $dataTerbaru = Data::where('opd_id', $opdId)->with('opd', 'status')->where('tahun', $selectedTahun)->latest()->take(10)->get();
+            $query->where('tahun', $selectedTahun);
         }
 
-        return view('pages.contents.produsen.dashboard', compact('dataStandarData', 'dataRevisi', 'dataPengumpulan', 'daftardata', 'tahun', 'selectedTahun',  'data', 'dataTelahLengkap', 'dataTidakLengkap', 'dataSiapPublish', 'dataTerpublikasi', 'dataTerbaru'));
+        $allData = $query->get();
+        $daftardata = $allData->count();
+        $dataPrioritas = $allData->where('data_prioritas', 1)->count();
+        $dataRevisi = $allData->where('status_id', Data::STATUS_REVISI)->count();
+        $dataTolak = $allData->where('status_id', Data::STATUS_TOLAK)->count();
+        $dataDraft = $allData->where('status_id', Data::STATUS_DRAFT)->count();
+        $dataPengumpulan = $allData->where('status_id', Data::STATUS_PROSES_PENGUMPULAN)->count();
+        $dataPemeriksaan = $allData->where('status_id', Data::STATUS_PROSES_VERIFIKASI)->count();
+        $dataSiapPublish = $allData->where('status_id', Data::STATUS_SIAP_PUBLIKASI)->count();
+        $dataTerpublikasi = $allData->where('status_id', Data::STATUS_TERPUBLIKASI)->count();
+
+        // 3 Indikator Persentase SDI (Sesuai Halaman 19-20 & Halaman 28)
+        $basisData = max(0, $daftardata - $dataTolak);
+        $pctKeterisian = $basisData > 0 ? round((($dataPemeriksaan + $dataRevisi + $dataSiapPublish + $dataTerpublikasi) / $basisData) * 100, 1) : 0;
+        $pctValid = $basisData > 0 ? round((($dataSiapPublish + $dataTerpublikasi) / $basisData) * 100, 1) : 0;
+        $pctTerpublikasi = $basisData > 0 ? round(($dataTerpublikasi / $basisData) * 100, 1) : 0;
+
+        $dataTerbaru = (clone $query)->with(['opd', 'status'])->latest()->take(10)->get();
+
+        return view('pages.contents.produsen.dashboard', compact(
+            'daftardata', 'dataPrioritas', 'dataRevisi', 'dataTolak', 'dataDraft',
+            'dataPengumpulan', 'dataPemeriksaan', 'dataSiapPublish', 'dataTerpublikasi',
+            'pctKeterisian', 'pctValid', 'pctTerpublikasi', 'basisData',
+            'tahun', 'selectedTahun', 'dataTerbaru'
+        ));
     }
 
 
     public function dashboardRekapOPD(Request $request)
     {
-        // $years = Data::selectRaw('DISTINCT tahun as years')->orderByDesc('years')->pluck('years');
         $years = MasterTahun::where('is_active', 1)->orderByDesc('tahun')->get();
-        // dd($years);
+        $opdId = $request->get('opd_id');
+        $selectedYear = $request->filled('y') ? $request->get('y') : ($request->filled('tahun') ? $request->get('tahun') : null);
+
+        $allOpds = Opd::select('id', 'nama_opd')
+            ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI'])
+            ->orderBy('nama_opd', 'asc')
+            ->get();
+
         $opdsQuery = Opd::select('id', 'nama_opd')
             ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
-        // $opds = $opdsQuery->get();
-        if (!empty($request->filled('opd_id'))) {
-            $opdsQuery->when($request->filled('opd_id'), fn($q) => $q->where('id', $request->get('opd_id')));
+
+        if (!empty($opdId) && $opdId != '-1') {
+            $opdsQuery->where('id', $opdId);
         }
 
-        $opds = $opdsQuery->get();
+        $opds = $opdsQuery->orderBy('nama_opd', 'asc')->get();
 
-        $opdData = Data::query()->selectRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun, count(data.id) as total')
+        $opdDataQuery = Data::query()->selectRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun, count(data.id) as total')
             ->join('opds', 'opds.id', '=', 'data.opd_id')
-            ->join('status', 'status.id', '=', 'data.status_id')
-            ->when($request->filled('y') && $request->get('y') !== '', fn($q) => $q->where('data.tahun', $request->get('y')), fn($q) => $q)
-            // ->when($request->filled('y'), fn ($q) => $q->whereRaw(' data.tahun = ?', $request->get('y')), fn ($q) => $q->whereRaw(' data.tahun = ?', date('Y')))
-            ->when($request->filled('opd_id'), fn($q) => $q->where('data.opd_id', $request->get('opd_id')))
-            ->groupByRaw('opds.nama_opd, status.status, data.opd_id, data.status_id , data.tahun')
+            ->join('status', 'status.id', '=', 'data.status_id');
+
+        if (!empty($selectedYear)) {
+            $opdDataQuery->where('data.tahun', $selectedYear);
+        }
+
+        if (!empty($opdId) && $opdId != '-1') {
+            $opdDataQuery->where('data.opd_id', $opdId);
+        }
+
+        $opdData = $opdDataQuery->groupByRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun')
             ->orderByRaw('opds.nama_opd asc, status.status asc')
             ->get();
-        // dd($opdData);
-        // $dataQuery = Data::query()
-        //     ->selectRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, data.tahun, count(data.id) as total')
-        //     ->join('opds', 'opds.id', '=', 'data.opd_id')
-        //     ->join('status', 'status.id', '=', 'data.status_id')
-        //     ->groupByRaw('opds.nama_opd, status.status, data.opd _id, data.status_id , data.tahun')
-        //     ->orderByRaw('opds.nama_opd asc, status.status asc');
 
-        // if (!empty($request->filled('y'))) {
-        //     $dataQuery->when($request->filled('y'), fn ($q) => $q->whereRaw('data.tahun = ?', $request->get('y')), fn ($q) => $q->whereRaw('data.tahun = ?', date('Y')));
-        // }
-
-        // if (!empty($request->filled('opd_id'))) {
-        //     $dataQuery->when($request->filled('opd_id'), fn ($q) => $q->where('data.opd_id', $request->get('opd_id')));
-        // }
-
-        // $opdData = $dataQuery->get();
-
-        return view('pages.contents.walidata.rekap-opd', ['opdData' => $opdData, 'opds' => $opds, 'years' => $years]);
+        return view('pages.contents.walidata.rekap-opd', ['opdData' => $opdData, 'opds' => $opds, 'allOpds' => $allOpds, 'years' => $years]);
     }
 
     public function dashboardRekapOPDExcel(Request $request)
     {
-        // dd($request->all());
-        $year = $request->filled('y') ? $request->get('y') : date('Y');
+        $opdId = $request->get('opd_id');
+        $year = $request->filled('y') ? $request->get('y') : ($request->filled('tahun') ? $request->get('tahun') : null);
 
-        $opds = Opd::select('id', 'nama_opd')
-            ->when($request->filled('opd_id'), fn($q) => $q->where('id', $request->get('opd_id')))
-            ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI'])
-            ->get();
+        $opdsQuery = Opd::select('id', 'nama_opd')
+            ->whereNotIn('nama_opd', ['Adminstrator', 'Administrator', 'TATI']);
+
+        if (!empty($opdId) && $opdId != '-1') {
+            $opdsQuery->where('id', $opdId);
+        }
+
+        $opds = $opdsQuery->orderBy('nama_opd', 'asc')->get();
 
         $dataQuery = Data::query()
             ->selectRaw('opds.nama_opd, status.status, data.opd_id, data.status_id, count(data.id) as total')
             ->join('opds', 'opds.id', '=', 'data.opd_id')
-            ->join('status', 'status.id', '=', 'data.status_id')
-            // ->when($request->filled('y'), fn ($q) => $q->whereRaw(' data.tahun = ?', $request->get('y')), fn ($q) => $q->whereRaw(' data.tahun = ?', date('Y')))
-            ->when($request->filled('y'), fn($q) => $q->where('data.tahun', $year))
-            ->when($request->filled('opd_id'), fn($q) => $q->where('data.opd_id', $request->get('opd_id')))
-            ->groupByRaw('opds.nama_opd, status.status, data.opd_id, data.status_id')
-            ->orderByRaw('opds.nama_opd asc, status.status asc');
+            ->join('status', 'status.id', '=', 'data.status_id');
 
-        // if (!empty($request->filled('y'))) {
-        //     $dataQuery->when($request->filled('y'), fn ($q) => $q->whereRaw('YEAR(data.created_at) = ?', $request->get('y')), fn ($q) => $q->whereRaw('YEAR(data.created_at) = ?', date('Y')));
-        // }
+        if (!empty($year)) {
+            $dataQuery->where('data.tahun', $year);
+        }
 
-        // if (!empty($request->filled('opd_id'))) {
-        //     $dataQuery->when($request->filled('opd_id'), fn ($q) => $q->where('data.opd_id', $request->get('opd_id')));
-        // }
+        if (!empty($opdId) && $opdId != '-1') {
+            $dataQuery->where('data.opd_id', $opdId);
+        }
 
-        $opdData = $dataQuery->get();
-        // dd($opdData);
+        $opdData = $dataQuery->groupByRaw('opds.nama_opd, status.status, data.opd_id, data.status_id')
+            ->orderByRaw('opds.nama_opd asc, status.status asc')
+            ->get();
 
-        return Excel::download(new RekapOPDExport($opdData, $opds), 'Rekap-OPD-' . $year . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+        $fileYear = !empty($year) ? $year : 'Semua-Tahun';
+        return Excel::download(new RekapOPDExport($opdData, $opds), 'Rekap-OPD-' . $fileYear . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 
     public function account()

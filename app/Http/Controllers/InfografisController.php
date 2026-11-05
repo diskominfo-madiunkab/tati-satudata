@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Infografis;
+use App\Models\InfografisImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -16,7 +17,7 @@ class InfografisController extends Controller
      */
     public function index()
     {
-        $blogs = Infografis::orderBy('created_at', 'desc')->get();
+        $blogs = Infografis::with('images')->orderBy('created_at', 'desc')->get();
         return view('pages.contents.administrator.indexinfografis', compact('blogs'));
     }
 
@@ -39,53 +40,56 @@ class InfografisController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'image'     => 'required|image|mimes:png,jpg,jpeg',
-            'title'     => 'required',
+            'title'     => 'required|string|max:500',
             'content'   => 'required',
-            'tableau' => 'nullable|string',
+            'tableau'   => 'nullable|string',
+            'image'     => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
+            'images.*'  => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
         ]);
 
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/blogs', $image->hashName());
+        $coverImageName = '';
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $image->storeAs('public/blogs', $image->hashName());
+            $coverImageName = $image->hashName();
+        } elseif ($request->hasFile('images') && count($request->file('images')) > 0) {
+            $firstImage = $request->file('images')[0];
+            $coverImageName = $firstImage->hashName();
+        }
 
         $blog = Infografis::create([
-            'image'     => $image->hashName(),
+            'image'     => $coverImageName,
             'title'     => $request->title,
-            'tableau' => $request->tableau,
+            'tableau'   => $request->tableau,
             'content'   => $request->content
         ]);
 
-        if ($blog) {
-            //redirect dengan pesan sukses
-            Alert::success('Berhasil', 'Data Berhasil Ditambah!');
-            return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Disimpan!']);
-        } else {
-            //redirect dengan pesan error
-            return redirect()->route('infografis.index')->with(['error' => 'Data Gagal Disimpan!']);
+        // Upload multiple images for carousel slider (Instagram concept)
+        if ($request->hasFile('images')) {
+            $order = 1;
+            foreach ($request->file('images') as $file) {
+                $file->storeAs('public/blogs', $file->hashName());
+                InfografisImage::create([
+                    'infografis_id' => $blog->id,
+                    'image'         => 'public/blogs/' . $file->hashName(),
+                    'urutan'        => $order++,
+                ]);
+            }
         }
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Infografis  $infografis
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Infografis $infografis)
-    {
-        //
+        Alert::success('Berhasil', 'Data Infografis Berhasil Ditambahkan!');
+        return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Infografis  $infografis
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $infografis = Infografis::findOrFail($id);
+        $infografis = Infografis::with('images')->findOrFail($id);
         return view('pages.contents.administrator.editinfografis', compact('infografis'));
     }
 
@@ -93,74 +97,85 @@ class InfografisController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Infografis  $infografis
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,  $id)
+    public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'title'     => 'required',
-            'tableau' => 'nullable|string',
+            'title'     => 'required|string|max:500',
+            'tableau'   => 'nullable|string',
             'content'   => 'required',
-            'image'     => 'image|mimes:png,jpg,jpeg'
+            'image'     => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
+            'images.*'  => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
         ]);
 
-        //get data Blog by ID
         $blog = Infografis::findOrFail($id);
 
-        if ($request->file('image') == "") {
-
-            $blog->update([
-                'title'     => $request->title,
-                'tableau' => $request->tableau,
-                'content'   => $request->content
-            ]);
-        } else {
-
-            //hapus old image
-            Storage::disk('local')->delete('public/blogs/' . $blog->image);
-
-            //upload new image
+        if ($request->hasFile('image')) {
+            if ($blog->image) {
+                Storage::disk('local')->delete('public/blogs/' . $blog->image);
+            }
             $image = $request->file('image');
             $image->storeAs('public/blogs', $image->hashName());
-
-            $blog->update([
-                'image'     => $image->hashName(),
-                'title'     => $request->title,
-                'tableau' => $request->tableau,
-                'content'   => $request->content
-            ]);
+            $blog->image = $image->hashName();
         }
 
-        if ($blog) {
-            //redirect dengan pesan sukses
-            Alert::success('Berhasil', 'Data Berhasil Diubah!');
-            return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Diupdate!']);
-        } else {
-            //redirect dengan pesan error
-            return redirect()->route('infografis.index')->with(['error' => 'Data Gagal Diupdate!']);
+        $blog->title = $request->title;
+        $blog->tableau = $request->tableau;
+        $blog->content = $request->content;
+        $blog->save();
+
+        // Additional multi images upload
+        if ($request->hasFile('images')) {
+            $currentOrder = InfografisImage::where('infografis_id', $blog->id)->max('urutan') ?: 0;
+            foreach ($request->file('images') as $file) {
+                $currentOrder++;
+                $file->storeAs('public/blogs', $file->hashName());
+                InfografisImage::create([
+                    'infografis_id' => $blog->id,
+                    'image'         => 'public/blogs/' . $file->hashName(),
+                    'urutan'        => $currentOrder,
+                ]);
+            }
         }
+
+        Alert::success('Berhasil', 'Data Infografis Berhasil Diperbarui!');
+        return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Diupdate!']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Infografis  $infografis
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $blog = Infografis::findOrFail($id);
-        Storage::disk('local')->delete('public/blogs/' . $blog->image);
+        $blog = Infografis::with('images')->findOrFail($id);
+
+        if ($blog->image) {
+            Storage::disk('local')->delete('public/blogs/' . $blog->image);
+        }
+
+        foreach ($blog->images as $subImg) {
+            Storage::disk('local')->delete($subImg->image);
+            $subImg->delete();
+        }
+
         $blog->delete();
 
-        if ($blog) {
-            //redirect dengan pesan sukses
-            Alert::success('Berhasil', 'Data Berhasil Dihapus!');
-            return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Dihapus!']);
-        } else {
-            //redirect dengan pesan error
-            return redirect()->route('infografis.index')->with(['error' => 'Data Gagal Dihapus!']);
-        }
+        Alert::success('Berhasil', 'Data Berhasil Dihapus!');
+        return redirect()->route('infografis.index')->with(['success' => 'Data Berhasil Dihapus!']);
+    }
+
+    public function destroyImage($id)
+    {
+        $image = InfografisImage::findOrFail($id);
+        Storage::disk('local')->delete($image->image);
+        $image->delete();
+
+        Alert::success('Berhasil', 'Gambar Slide Berhasil Dihapus!');
+        return redirect()->back();
     }
 }

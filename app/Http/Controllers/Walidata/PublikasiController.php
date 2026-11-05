@@ -353,7 +353,27 @@ class PublikasiController extends Controller
         $orgs = $orgs['result'] ?? [];
         $group = CkanApi::group()->all(['limit' => 100]);
 
-        return view('pages.contents.walidata.publikasi.review', compact('data', 'orgs', 'group'));
+        $namaTabels = \App\Models\VisualTable::where('id_data', $id)->get();
+        $tables = [];
+        if ($namaTabels->isNotEmpty()) {
+            foreach ($namaTabels as $table) {
+                $headers = \App\Models\VisualHeader::where('id_namatabel', $table->id)
+                    ->orderBy('urutan_menyamping')
+                    ->get();
+                $rows = \App\Models\VisualIsi::where('id_namatabel', $table->id)
+                    ->orderBy('urutan_kebawah')
+                    ->get()
+                    ->groupBy('urutan_kebawah');
+
+                $tables[] = [
+                    'table' => $table,
+                    'headers' => $headers,
+                    'rows' => $rows,
+                ];
+            }
+        }
+
+        return view('pages.contents.walidata.publikasi.review', compact('data', 'orgs', 'group', 'tables'));
     }
 
     //  "tags" => array:2 [▼

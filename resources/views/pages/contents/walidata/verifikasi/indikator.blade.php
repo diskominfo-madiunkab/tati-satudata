@@ -50,8 +50,66 @@
                         <h5 class="card-title">Metadata Indikator</h5>
 
                         @php
-                            // dd($data);
+                            $isReadOnly = ($data->status_id == 7 || $data->status_id == \App\Models\Data::STATUS_REVISI);
                         @endphp
+
+                        @if(($revisiNotes && $revisiNotes->isNotEmpty()) || ($comments && $comments->isNotEmpty()) || !empty($data->alasan))
+                            <div class="alert alert-warning border d-flex flex-column gap-2 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-chat-left-text-fill fs-5 me-2 text-warning"></i>
+                                    <strong class="text-dark">Catatan Revisi & Riwayat Pemeriksaan:</strong>
+                                </div>
+                                @if(!empty($data->alasan))
+                                    <div class="small ps-4"><strong>Catatan Utama:</strong> {{ $data->alasan }}</div>
+                                @endif
+                                @if($revisiNotes && $revisiNotes->isNotEmpty())
+                                    <div class="small ps-4">
+                                        <strong>Riwayat Catatan:</strong>
+                                        <ul class="mb-0 mt-1">
+                                            @foreach($revisiNotes as $note)
+                                                <li><em>{{ \Carbon\Carbon::parse($note->created_at)->format('d/m/Y H:i') }}:</em> {{ $note->catatan }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                                @if($comments && $comments->isNotEmpty())
+                                    <div class="small ps-4">
+                                        <strong>Catatan Per Atribut:</strong>
+                                        <ul class="mb-0 mt-1">
+                                            @foreach($comments as $cm)
+                                                <li><strong>{{ ucfirst(str_replace('_', ' ', $cm->field)) }}:</strong> {{ $cm->comment }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if($isReadOnly)
+                            <div class="alert alert-info border d-flex align-items-center mb-4">
+                                <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                                <div>
+                                    <strong>Status Data: Dalam Tahap Revisi oleh Produsen Data</strong>
+                                    <p class="mb-0 small">Perangkat Daerah sedang memperbaiki isian metadata sesuai catatan revisi. Verifikasi dinonaktifkan (mode hanya-baca) hingga produsen mengajukan kembali.</p>
+                                </div>
+                            </div>
+                            <style>
+                            .btn-actions, #acceptChoicesBtn, input[name="accept_choices[]"] {
+                                display: none !important;
+                            }
+                            </style>
+                        @else
+                            <!-- Select All Metadata -->
+                            <div class="d-flex align-items-center justify-content-between p-3 mb-3 bg-light border rounded">
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllAttributes">
+                                    <label class="form-check-label fw-bold text-dark" for="selectAllAttributes">
+                                        <i class="bi bi-check2-all me-1"></i> Pilih Semua (Select All Metadata)
+                                    </label>
+                                </div>
+                                <span class="text-muted small">Centang untuk menandai semua atribut sekaligus, lalu klik tombol "Setujui Pilihan" di bawah.</span>
+                            </div>
+                        @endif
 
                         <form action="{{ route('simpan-indikator', $data->id) }}" method="POST">
                             @csrf
@@ -578,14 +636,16 @@
                         </form>
                         @if ($data->status_id == 7)
                             <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi/revisi') : url('/data_walidata/verifikasi/revisi') }}"
-                                {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
                                 Kembali</a>
                         @else
                             <a href="{{ auth()->user()->hasAnyRole('produsen') ? url('/data_produsen/verifikasi') : url('/data_walidata/verifikasi') }}"
-                                {{-- href="{{ url()->previous() }}"  --}} class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
+                                class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>
                                 Kembali</a>
                         @endif
-                        <button class="btn btn-success" id="acceptChoicesBtn">Setujui Pilihan</button>
+                        @if(!$isReadOnly)
+                            <button class="btn btn-success" id="acceptChoicesBtn"><i class="bi bi-check2-circle me-1"></i> Setujui Pilihan</button>
+                        @endif
                     </div>
                 </div>
 
@@ -598,6 +658,10 @@
 @push('js')
     <script>
         $(function() {
+            $('#selectAllAttributes').on('change', function() {
+                let checked = $(this).is(':checked');
+                $('input[name="accept_choices[]"]').prop('checked', checked);
+            });
             $('button.btn-actions').on('click', function(e) {
                 e.preventDefault();
                 let isAccept = $(this).hasClass('btn-accept');

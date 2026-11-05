@@ -41,6 +41,18 @@
             method="POST">
             @csrf
             <div class="row mb-3">
+              <label for="kode_ddd" class="col-sm-2 col-form-label">Kode DDD</label>
+              <div class="col-sm-10">
+                <input id="kode_ddd" name="kode_ddd" type="text" class="form-control" value="{{ old('kode_ddd', $data->kode_ddd) }}" placeholder="Contoh: 3519.01.001" {{ $isProdusen ? 'readonly' : '' }}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="kode_ddp" class="col-sm-2 col-form-label">Kode DDP</label>
+              <div class="col-sm-10">
+                <input id="kode_ddp" name="kode_ddp" type="text" class="form-control" value="{{ old('kode_ddp', $data->kode_ddp) }}" placeholder="Contoh: 06.01.001" {{ $isProdusen ? 'readonly' : '' }}>
+              </div>
+            </div>
+            <div class="row mb-3">
               <label for="inputText" class="col-sm-2 col-form-label">Nama Data</label>
               <div class="col-sm-10">
                 <input id="nama_data" name="nama_data" type="text" class="form-control" value="{{$data->nama_data}}" {{ $isProdusen ? 'readonly' : '' }}>
@@ -113,6 +125,31 @@
               <label for="jadwal_rilis" class="col-sm-2 col-form-label">Jadwal Rilis</label>
               <div class="col-sm-10">
                 <input id="jadwal_rilis" name="jadwal_rilis" type="date" class="form-control" required value="{{$data->jadwal_rilis}}">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-2 col-form-label">Level Data</label>
+              <div class="col-sm-10">
+                <select id="level_data" name="level_data" class="form-select">
+                  <option value="Kabupaten" {{ $data->level_data == 'Kabupaten' ? 'selected' : '' }}>Kabupaten</option>
+                  <option value="Kecamatan" {{ $data->level_data == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
+                  <option value="Desa/Kelurahan" {{ $data->level_data == 'Desa/Kelurahan' ? 'selected' : '' }}>Desa / Kelurahan</option>
+                  <option value="Puskesmas / Faskes" {{ $data->level_data == 'Puskesmas / Faskes' ? 'selected' : '' }}>Puskesmas / Faskes</option>
+                  <option value="Individu" {{ $data->level_data == 'Individu' ? 'selected' : '' }}>Individu</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-2 col-form-label">Periode Data</label>
+              <div class="col-sm-10">
+                <select id="periode_data" name="periode_data" class="form-select">
+                  <option value="Tahunan" {{ $data->periode_data == 'Tahunan' ? 'selected' : '' }}>Tahunan</option>
+                  <option value="Semesteran" {{ $data->periode_data == 'Semesteran' ? 'selected' : '' }}>Semesteran</option>
+                  <option value="Triwulanan" {{ $data->periode_data == 'Triwulanan' ? 'selected' : '' }}>Triwulanan</option>
+                  <option value="Bulanan" {{ $data->periode_data == 'Bulanan' ? 'selected' : '' }}>Bulanan</option>
+                  <option value="Mingguan" {{ $data->periode_data == 'Mingguan' ? 'selected' : '' }}>Mingguan</option>
+                  <option value="Harian" {{ $data->periode_data == 'Harian' ? 'selected' : '' }}>Harian</option>
+                </select>
               </div>
             </div>
             <div class="row mb-3">

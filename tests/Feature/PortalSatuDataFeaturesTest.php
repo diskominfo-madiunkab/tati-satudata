@@ -58,6 +58,32 @@ class PortalSatuDataFeaturesTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Buku Publikasi');
         $response->assertSee('Jadwal Rencana Terbit');
+        $response->assertSee('Menampilkan Koleksi Buku Publikasi Kegiatan Statistik serta Jadwal Rencana Terbit Publikasi Kegiatan Statistik');
+    }
+
+    public function test_visualisasi_guest_page_returns_successful_response(): void
+    {
+        $response = $this->get('/visualisasi-guest');
+        $response->assertStatus(200);
+        $response->assertSee('Visualisasi Interaktif Tableau');
+    }
+
+    public function test_geoportal_page_has_all_26_puskesmas_and_correct_title(): void
+    {
+        $response = $this->get('/geoportal');
+        $response->assertStatus(200);
+        $response->assertSee('Geoportal Kabupaten Madiun');
+        $response->assertSee('Fasilitas Kesehatan / Puskesmas (26)');
+        $response->assertSee('35190200026'); // Puskesmas Jiwan
+        $response->assertSee('35190200001'); // Puskesmas Gantrung
+    }
+
+    public function test_regulasi_guest_page_has_cari_button(): void
+    {
+        $response = $this->get('/regulasi');
+        $response->assertStatus(200);
+        $response->assertSee('Regulasi Satu Data');
+        $response->assertSee('Cari');
     }
 
     public function test_infografis_page_returns_successful_response(): void

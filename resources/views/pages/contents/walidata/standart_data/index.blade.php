@@ -1,808 +1,355 @@
 @extends('pages.main.layout')
 
 @section('content')
-@php
-$role = auth()->user()->hasAnyRole('produsen') ? 'produsen' : 'walidata';
-@endphp
-
 <div class="pagetitle">
-    <h1>Daftar Standar Data</h1>
+    <h1>Master Standar Data</h1>
     <nav>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-            <li class="breadcrumb-item">Standar Data</li>
+            <li class="breadcrumb-item"><a href="/d_walidata">Dashboard</a></li>
+            <li class="breadcrumb-item active">Master Standar Data</li>
         </ol>
     </nav>
 </div><!-- End Page Title -->
 
 <section class="section">
-    <div class="row">
-        <div class="col-lg-12">
-            {{-- <div class="card">
+    <!-- KPI Summary Row -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card info-card sales-card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Filter Data</h5>
-
-                </div>
-            </div> --}}
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Daftar Standar Data</h5>
-
-                    <ul class="nav nav-tabs nav-tabs-bordered d-flex text-center" role="tablist">
-                        <li class="nav-item flex-fill" role="presentation">
-                            <a href="/data_{{$role}}/standar-data"
-                                class="nav-link w-100 {{$status == 'proses' ? 'active' : ''}}" id="proses-tab"><i
-                                    class="bi bi-pencil-square"></i> Proses Verifikasi</a>
-                        </li>
-
-                        <li class="nav-item flex-fill" role="presentation">
-                            <a href="/data_{{$role}}/standar-data/revisi"
-                                class="nav-link w-100 {{$status == 'revisi' ? 'active' : ''}}" id="revisi-tab"><i
-                                    class="bi bi-x-circle"></i> Revisi</a>
-                        </li>
-
-                        <li class="nav-item flex-fill" role="presentation">
-                            <a href="/data_{{$role}}/standar-data/setuju"
-                                class="nav-link w-100 {{isset($status) && $status == 'setuju' ? 'active' : ''}}"
-                                id="setuju-tab"><i class="bi bi-check-all"></i> Telah Disetujui</a>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content p-2">
-                        <div class="tab-pane active" id="proses-tab">
-                            {{-- @if(!isset($status))
-                            <p>Halaman ini berisi daftar data yang telah disetujui dan tahap proses pengumpulan.</p>
-                            @else
-                            <p>Halaman ini berisi daftar data yang siap untuk diverifikasi.</p>
-                            @endif --}}
-                            <div class="card">
-
-                                <div class="card-body">
-                                    <h5 class="card-title">Filter Data</h5>
-
-                                    <div class="row mb-3">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <select id="tahun" name="tahun" class="form-select select2"
-                                                    aria-label="Default select example">
-                                                    @php
-                                                    $year = date('Y');
-                                                    @endphp
-                                                    </option>
-                                                    <option value="">Semua Tahun</option>
-                                                    @foreach( $tahun as $th)
-                                                    {{-- <option value="{{ $th->tahun }}" {{ $th->tahun == $year ?
-                                                        'selected'
-                                                        : ''}}>{{ $th->tahun }}</option> --}}
-                                                    <option value="{{ $th->tahun }}">{{ $th->tahun }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            @if (Auth::user()->role_id == '2' || Auth::user()->role_id == '4' ||
-                                            Auth::user()->role_id == '5')
-                                            <div class="col-md-6">
-                                                <select id="opd" name="opd" class="form-select select2"
-                                                    aria-label="Default select example">
-                                                    {{-- <option value="" disabled selected hidden>Pilih OPD</option>
-                                                    --}}
-                                                    <option value="">Semua OPD</option>
-                                                    @foreach( $opd as $op)
-                                                    <option value="{{ $op->id }}">{{ $op->nama_opd }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            @endif
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- <div id='data-kosong'>
-                                @if ($data->count() == 0)
-                                @php
-                                $year = date('Y');
-                                @endphp
-                                <p class="alert alert-danger text-center">Data Tahun {{$year}} Kosong
-                                </p>
-                                @endif
-                            </div> --}}
-                            <div id='data-kosong' style="display:none;">
-                                <p class="alert alert-danger text-center"></p>
-                            </div>
-                            <div id="div-table" class="table-responsive">
-                                <table id="id-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">Nama Data</th>
-                                            <th scope="col">Jenis</th>
-                                            <th scope="col">Tahun</th>
-                                            <th scope="col">Produsen Data</th>
-                                            <th scope="col">Sumber Referensi</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col"> </th>
-                                            <th scope="col">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="isiTable" style="text-align: left;
-                                                                                    vertical-align: top;">
-
-                                    </tbody>
-                                </table>
-                            </div>
-
+                    <h5 class="card-title">Total Standar Data</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary text-white">
+                            <i class="bi bi-database"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6>{{ number_format($totalStandar) }}</h6>
+                            <span class="text-muted small pt-2">Database Master Daerah</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card info-card revenue-card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Standar Berkodifikasi</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success text-white">
+                            <i class="bi bi-upc-scan"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6>{{ number_format($totalDenganKode) }}</h6>
+                            <span class="text-success small pt-1 fw-bold">Memiliki Kode Standar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card info-card customers-card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Referensi SDSN BPS</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info text-white">
+                            <i class="bi bi-globe"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6>Aktif</h6>
+                            <span class="text-muted small pt-2">Terintegrasi DNA BPS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body pt-3">
+                    <!-- Default Tabs -->
+                    <ul class="nav nav-tabs nav-tabs-bordered" id="standarTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="daerah-tab" data-bs-toggle="tab" data-bs-target="#tab-daerah" type="button" role="tab">
+                                <i class="bi bi-hdd-stack me-1"></i> Database Standar Data Daerah
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="sdsn-tab" data-bs-toggle="tab" data-bs-target="#tab-sdsn" type="button" role="tab">
+                                <i class="bi bi-cloud-arrow-down me-1"></i> Referensi SDSN BPS (DNA)
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content pt-3">
+                        <!-- Tab 1: Database Standar Data Daerah -->
+                        <div class="tab-pane fade show active" id="tab-daerah" role="tabpanel">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                                <form action="{{ route('walidata.standar-data.index') }}" method="GET" class="d-flex gap-2 flex-grow-1" style="max-width: 500px;">
+                                    <div class="input-group">
+                                        <input type="text" name="search" class="form-control" placeholder="Cari konsep, definisi, kode, ukuran..." value="{{ request('search') }}">
+                                        <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Cari</button>
+                                        @if(request('search'))
+                                            <a href="{{ route('walidata.standar-data.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x"></i> Reset</a>
+                                        @endif
+                                    </div>
+                                </form>
+
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahStandar">
+                                    <i class="bi bi-plus-circle me-1"></i> Tambah Standar Data
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 50px;">No</th>
+                                            <th style="width: 140px;">Kode Standar</th>
+                                            <th style="width: 220px;">Konsep</th>
+                                            <th>Definisi</th>
+                                            <th style="width: 120px;">Ukuran</th>
+                                            <th style="width: 100px;">Satuan</th>
+                                            <th style="width: 130px;">Klasifikasi</th>
+                                            <th style="width: 110px;" class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($standarData as $idx => $item)
+                                            <tr>
+                                                <td>{{ $standarData->firstItem() + $idx }}</td>
+                                                <td>
+                                                    @if($item->kode)
+                                                        <span class="badge bg-secondary font-monospace">{{ $item->kode }}</span>
+                                                    @else
+                                                        <span class="text-muted fst-italic">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="fw-bold">{{ $item->konsep }}</td>
+                                                <td><small class="text-secondary">{{ Str::limit($item->definisi ?? '-', 160) }}</small></td>
+                                                <td><span class="badge bg-light text-dark border">{{ $item->ukuran ?? '-' }}</span></td>
+                                                <td>{{ $item->satuan ?? '-' }}</td>
+                                                <td><small>{{ $item->klasifikasi ?? '-' }}</small></td>
+                                                <td class="text-center">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button type="button" class="btn btn-outline-primary" 
+                                                            onclick="editStandar({{ json_encode($item) }})" 
+                                                            title="Edit Standar Data">
+                                                            <i class="bi bi-pencil-fill"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-danger" 
+                                                            onclick="confirmDelete({{ $item->id }}, '{{ addslashes($item->konsep) }}')" 
+                                                            title="Hapus Standar Data">
+                                                            <i class="bi bi-trash-fill"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4 text-muted">
+                                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                                    Tidak ada data standar ditemukan.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted small">
+                                    Menampilkan {{ $standarData->firstItem() ?? 0 }} s.d. {{ $standarData->lastItem() ?? 0 }} dari {{ $standarData->total() }} Standar Data
+                                </div>
+                                <div>
+                                    {{ $standarData->links() }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Referensi SDSN BPS -->
+                        <div class="tab-pane fade" id="tab-sdsn" role="tabpanel">
+                            <div class="alert alert-info d-flex align-items-center mb-4">
+                                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                <div>
+                                    <strong>Standar Data Statistik Nasional (SDSN) - BPS RI</strong>
+                                    <p class="mb-0 small">Modul ini terhubung secara konseptual dengan repositori SDSN BPS melalui DNA BPS. Standar data yang terdaftar di BPS dapat dijadikan acuan dalam penyusunan Daftar Data pada tahap Perencanaan Data.</p>
+                                </div>
+                            </div>
+
+                            <div class="card border p-3 mb-4 bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="fw-bold mb-1"><i class="bi bi-link-45deg"></i> Dokumentasi API SDSN BPS</h6>
+                                        <p class="small text-muted mb-0">Akses langsung OpenAPI & endpoint SDSN untuk sinkronisasi metadata dan standar data statistik.</p>
+                                    </div>
+                                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                        <a href="https://dna.web.bps.go.id/api/documentation/" target="_blank" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i> Buka Portal DNA BPS
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="fw-bold"><i class="bi bi-lightbulb text-warning me-1"></i> Panduan Penggunaan Standar Data dalam Perencanaan:</h6>
+                                    <ol class="small text-secondary ps-3">
+                                        <li>Standar Data merupakan pedoman atribut yang mencakup <strong>Konsep, Definisi, Ukuran, Satuan, dan Klasifikasi Penyajian</strong>.</li>
+                                        <li>Walidata dapat memperbarui database Standar Data kapan saja tanpa terikat siklus tahapan verifikasi.</li>
+                                        <li>Saat Walidata atau Produsen Data menyusun <strong>Perencanaan Data (17 Field)</strong>, memilih kode standar data akan mengisi atribut secara otomatis.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- End Tab Content -->
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-{{-- @push('js')
+<!-- Modal Tambah Standar Data -->
+<div class="modal fade" id="modalTambahStandar" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('walidata.standar-data.store') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-1"></i> Tambah Master Standar Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Kode Standar Data</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="kode" class="form-control" placeholder="Contoh: STD-001 / Kode SDSN BPS">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Konsep <span class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" name="konsep" class="form-control" required placeholder="Nama / Konsep Data">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Definisi</label>
+                        <div class="col-sm-9">
+                            <textarea name="definisi" class="form-control" rows="4" placeholder="Uraian definisi operasional standar data"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Ukuran</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="ukuran" class="form-control" placeholder="Contoh: Jumlah, Rasio, Persentase, Nilai">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Satuan</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="satuan" class="form-control" placeholder="Contoh: Jiwa, Orang, Unit, Ton, Km, %">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Klasifikasi Penyajian</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="klasifikasi" class="form-control" placeholder="Contoh: Kelompok Umur, Jenis Kelamin, Wilayah">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Simpan Standar Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Standar Data -->
+<div class="modal fade" id="modalEditStandar" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formEditStandar" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-1"></i> Edit Master Standar Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Kode Standar Data</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="kode" id="edit_kode" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Konsep <span class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" name="konsep" id="edit_konsep" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Definisi</label>
+                        <div class="col-sm-9">
+                            <textarea name="definisi" id="edit_definisi" class="form-control" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Ukuran</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="ukuran" id="edit_ukuran" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Satuan</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="satuan" id="edit_satuan" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Klasifikasi Penyajian</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="klasifikasi" id="edit_klasifikasi" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Perbarui Standar Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Form Delete Standar Data (Hidden) -->
+<form id="formDeleteStandar" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
 <script>
-    $(document).ready(function(){
-        $(".filter").on('change', function(){
-            let tahun = $("#tahun").val()
-            let opd = $("#opd").val()
-        console.log([tahun,opd])
-        })
-    })
-</script>
-@endpush --}}
-
-@push('js')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script>
-    $(document).ready(function () {
-        $('.select2').select2();
-    });
-</script>
-<script>
-    var role = "{{ $role }}";
-    var status = '{{ $status }}'; // Mengambil status dari suatu sumber
-    function getStatusUrl() {
-    var role = "{{ $role }}";
-    // console.log(role);
-    var status = '{{ $status }}'; // Mengambil status dari suatu sumber
-    var url;
-    // Cek status dan sesuaikan URL
-    if (status === 'proses') {
-        if(role === 'produsen'){
-            url = "{{ route('produsen.standar-data.index') }}";
-        }else{
-            url = "{{ route('walidata.standar-data.index') }}";
-        }
-    } else if (status === 'revisi'){
-        if(role === 'produsen'){
-        url = "{{ route('produsen.standar-data.revisi') }}";
-        }else{
-        url = "{{ route('walidata.standar-data.revisi') }}";
-        }
-     } else if (status === 'setuju'){
-        if(role === 'produsen'){
-        url = "{{ route('produsen.standar-data.setuju') }}";
-        }else{
-        url = "{{ route('walidata.standar-data.setuju') }}";
-        }
-    } else {
-        if(role === 'produsen'){
-        url = "{{ route('pengumpulan.produsen') }}";
-        }else{
-        url = "{{ route('pengumpulan.wali') }}";
-        }
-        
-    }
-    return url;
-    }
-
-// console.log(getStatusUrl());
-    // Function to set filters from local storage
-    function setFiltersFromLocalStorage() {
-        if (localStorage.getItem('tahun')) {
-            $('#tahun').val(localStorage.getItem('tahun')).trigger('change');
-        }
-        if (localStorage.getItem('opd')) {
-            $('#opd').val(localStorage.getItem('opd')).trigger('change');
-        }
-    }
-
-    // Save filter values to local storage when changed
-    $('#tahun').on('change', function() {
-        localStorage.setItem('tahun', $(this).val());
-    });
-
-    $('#opd').on('change', function() {
-        localStorage.setItem('opd', $(this).val());
-    });
-
-    // Apply filters from local storage on page load
-    setFiltersFromLocalStorage();
-    $(document).ready(function() {
-    var table = $('#id-table').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-            "url": getStatusUrl(),
-            "type": "GET",
-            "data": function(d) {
-                d.opd = $('#opd').val();
-                d.tahun = $('#tahun').val();
-            },
-           "dataSrc": function(response) {
-        var tahun = $('#tahun').val();
-        if (response.data.length === 0) {
-        $('#data-kosong .alert').text('Data Tahun ' + tahun + ' Kosong');
-        $('#data-kosong').show();
-        } else {
-        $('#data-kosong').hide();
-        }
-        return response.data;
-        }
-        },
-        "columns": [
-            { "data": "no" },
-            { "data": "nama_data" },
-            { "data": "jenis_data" },
-            { "data": "tahun" },
-            { "data": "opd.nama_opd" }, // Assuming 'opd' is a nested property of your data
-            { "data": "sumber_data" },
-            {
-            "data": "status",
-            "orderable": false,
-            "searchable": false,
-            "render": function(progress, type, full, meta) {
-            var buttonsHtml = '<div class="d-flex flex-column gap-2">';
-              if (full.status_id == 13) {
-                buttonsHtml += '<span class="badge rounded-pill bg-secondary">Proses Verifikasi</span>';
-                } else if (full.status_id == 10){
-                buttonsHtml += '<span class="badge rounded-pill bg-success">Setuju</span>';
-                }else if (full.status_id == 12){
-                buttonsHtml += '<span class="badge rounded-pill bg-danger">Revisi</span>';
-                }
-                else if (full.status_id == 1 || full.status_id == 13){
-                    buttonsHtml += '<span class="badge rounded-pill bg-info">Proses Pembuatan</span>';
-                }else {
-                    buttonsHtml += '<span class="badge rounded-pill bg-success">Setuju</span>';
-
-                }
-                buttonsHtml += '</div>';
-            
-            return buttonsHtml;
-            }
-            },
-            {
-            "data": "prioritas",
-            "orderable": false,
-            "searchable": false,
-            "render": function(progress, type, full, meta) {
-            var buttonsHtml = '<div class="d-flex flex-column gap-2">';
-                // buttonsHtml += full.status_id;
-                if (full.data_prioritas == null | full.data_prioritas == 0) {
-                buttonsHtml += '<i class="bi bi-star"></i>';
-                } else{
-                buttonsHtml += '<i style="color:orange" class="bi bi-star-fill"></i>';
-                }
-                buttonsHtml += '</div>';
-            
-            return buttonsHtml;
-            }
-            },
-            {
-            "data": "progress",
-            "orderable": false,
-            "searchable": false,
-            "render": function(progress, type, full, meta) {
-            var buttonsHtml = '<div class="d-flex flex-row gap-2">';    
-                        // buttonsHtml += '<p>'+full.status_id+'</p>';
-               
-                // console.log(full.data_prioritas);
-                if(role == 'walidata'){
-                    if(full.status_id == 13){
-                        buttonsHtml += '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/standar-data/' + full.id + '/standar">';
-                        buttonsHtml +='<i class="bi bi-check2-circle"></i>Verifikasi</a>' ;
-                        var refFields = [
-                        "kode",
-                        "konsep",
-                        "definisi",
-                        "klasifikasi",
-                        "ukuran",
-                        "satuan"
-                        // "berkas"
-                        ];
-                       var verifikasiFields = full.verifikasi.map(function(item) {
-                    return item.field;
-                    });
-                    
-                    // Memeriksa apakah semua refFields ada di verifikasiFields dan memfilter field yang relevan
-                    var allFieldsVerified = refFields.every(function(field) {
-                    return verifikasiFields.includes(field);
-                    });
-                    
-                    if (allFieldsVerified) {
-                        buttonsHtml += '<a style="width: 100px" class="btn btn-outline-primary btn-sm btn-action" href="#" data-status-url="/data_walidata/standar-data/verifikasi/' + full.id + '/status" data-complete-url="/data_walidata/standar-data/verifikasi/' + full.id + '/complete">Selesaikan?</a>'
-                        }
-                    } else if(full.status_id == 12){
-                        buttonsHtml += '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/standar-data/' + full.id + '/standar">';
-                        buttonsHtml += '<i class="bi bi-sim-fill"></i>Standar Data</a>';
-                    } else if(full.status_id == 10){
-                        buttonsHtml += '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/detail-data/' + full.id + '">';
-                        buttonsHtml +='<i class="bi bi-eye"></i> Detail Data</a>' ;
-                    } else {
-                        buttonsHtml += '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/detail-data-standar/' + full.id + '">';
-                            buttonsHtml +='<i class="bi bi-eye"></i> Detail Data</a>' ;
-                    }
-                }
-            
-      
-            
-                buttonsHtml += '</div>';
-            
-            return buttonsHtml;
-            }
-            }
-        ]
-    });
-
-    // Event untuk filter ketika nilai opd atau tahun berubah
-    $('#opd, #tahun').change(function() {
-        table.draw();
-    });
-
-    $(document).ready(function() {
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: 'btn btn-success',
-            cancelButton: 'btn btn-danger'
-        },
-        buttonsStyling: false
-    });
-
-    // Menambahkan event listener pada tombol verifikasi di luar tabel
-    $(document).on('click', 'a.btn-verify', function (e) {
-        e.preventDefault();
-        let url = $(this).attr('href');
-
-        swalWithBootstrapButtons.fire({
-            title: 'Apakah Anda yakin?',
-            text: 'Pastikan semua metadata sudah terisi lengkap sebelum memasuki proses verifikasi!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ajukan Verifikasi!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{csrf_token()}}'
-                    },
-                    success: function(response) {
-                        Swal.fire(response.ok ? 'Sukses' : 'Gagal', response.message, response.ok ? 'success' : 'error')
-                        .then(() => {
-                            // Refresh halaman setelah berhasil
-                            if (response.ok) {
-                                window.location.reload();
-                            }
-                        });
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'Terjadi galat saat memproses permintaan', 'error');
-                    }
-                });
-            }
-        });
-    });
-});
-
-});
-
+function editStandar(item) {
+    document.getElementById('formEditStandar').action = '/data_walidata/standar-data/' + item.id + '/update';
+    document.getElementById('edit_kode').value = item.kode || '';
+    document.getElementById('edit_konsep').value = item.konsep || '';
+    document.getElementById('edit_definisi').value = item.definisi || '';
+    document.getElementById('edit_ukuran').value = item.ukuran || '';
+    document.getElementById('edit_satuan').value = item.satuan || '';
+    document.getElementById('edit_klasifikasi').value = item.klasifikasi || '';
     
+    var modal = new bootstrap.Modal(document.getElementById('modalEditStandar'));
+    modal.show();
+}
 
+function confirmDelete(id, nama) {
+    if (confirm('Apakah Anda yakin ingin menghapus Standar Data "' + nama + '"?')) {
+        var form = document.getElementById('formDeleteStandar');
+        form.action = '/data_walidata/standar-data/' + id + '/destroy';
+        form.submit();
+    }
+}
 </script>
-
-<script>
-    $(function() {
-            $('#id-table').on('click', 'a.btn-action', function (e) {
-                e.preventDefault();
-                Swal.showLoading();
-                let completeUrl = $(this).data('completeUrl');
-                console.log(completeUrl);
-                $.get($(this).data('statusUrl'))
-                    .then(function(r) {
-                        if (Swal.isLoading()) Swal.hideLoading();
-
-                        if (r.ok === false) {
-                            Toast.fire({icon: 'error', title: r.message});
-                            return;
-                        }
-
-                        Swal.fire({
-                            icon: r.code === 1 ? 'info' : 'warning',
-                            title: 'Konfirmasi Selesai Proses Verifikasi',
-                            text: r.message,
-                            showCancelButton: true,
-                            cancelButtonText: 'Batal',
-                            confirmButtonText: 'Ya, Selesai',
-                            showLoaderOnConfirm: true,
-                            preConfirm: (comment) => {
-                                return $.ajax({url: completeUrl, method: 'PATCH'})
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error(response.message)
-                                        }
-                                        return response;
-                                    })
-                                    .catch(error => {
-                                        Swal.showValidationMessage(
-                                            `Request gagal: ${error}`
-                                        )
-                                    })
-                            },
-                            allowOutsideClick: () => !Swal.isLoading()
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Toast.fire({icon: result.value.ok ? 'success' : 'error', title: result.value.message});
-                                setTimeout(() => window.location.reload(), 2000);
-                            }
-                        });
-                    });
-            })
-        });
-</script>
-@endpush
-
-@push('js')
-<script>
-    $(document).ready( function () {
-        $('#btnFilter').click(function(){
-            var status = '{{ $status }}';
-            var role = '{{ $role }}';
-            var STATUS_SETUJU = '{{\App\Models\Data::STATUS_SETUJU}}';
-            var STATUS_PROSES_PENGUMPULAN = '{{\App\Models\Data::STATUS_PROSES_PENGUMPULAN}}';
-            var STATUS_REVISI = '{{\App\Models\Data::STATUS_REVISI}}';
-            
-            var formData = {
-                tahun : $('#tahun').val(),
-                status : status,
-                role : role,
-                opd : $('#opd').val(),
-            }
-            if (role == 'produsen') {
-                url = '{{route("filter_pengumpulan")}}'
-            } else if (role == 'walidata'){
-                url = '{{route("filter_pengumpulan_walidata")}}'
-            }
-            console.log(status);
-            console.log(role);
-            console.log(STATUS_PROSES_PENGUMPULAN);
-            console.log(STATUS_REVISI);
-            console.log(STATUS_SETUJU);
-            console.log(formData);
-            var divviewdata = document.getElementById('div-table');
-            var divdatakosong = document.getElementById('data-kosong');
-            divviewdata.style.display = 'block';
-            divdatakosong.style.display = 'none';
-            $('#isiTable').empty();
-            $.ajaxSetup({
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-            });
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                success: function success(result) {
-                    console.log(result);
-                    $('#isiTable').empty();
-                    
-                    var no = 1;
-                    var first = true;
-                    result.data.forEach(function(datas, i) {
-                        if(datas.standar == null){
-                        var standar = 0;
-                        }else{
-                        var standar = 0;
-                        for(var key in datas.standar){
-                        standar++;
-                        }
-                        }
-
-                        if(datas.indikator == null){
-                            var indikator = 0
-                        }else{
-                           var indikator = 0;
-                           for(var key in datas.indikator){
-                                indikator++;
-                           }
-                        }
-                        if(datas.variabel == null){
-                        var variabel = 0;
-                        }else{
-                        var variabel = 0;
-                        for(var key in datas.variabel){
-                        variabel++;
-                        }
-                        }
-
-                        if(datas.berkas == null){
-                        var berkas = 0;
-                        }else{
-                        var berkas = 0;
-                        for(var key in datas.berkas){
-                        berkas++;
-                        }
-                        } 
-                        var progress = datas.progress;
-                        var progress_bar = 0;
-
-                        progress = progress != 0 ? progress : 0;
-                        
-                        if (progress >= 100) {
-                         progress_bar = Math.min(100, progress);
-                        }
-                        
-                        if (standar != 0) {
-                        progress += 15;
-                        }
-                        
-                        if (indikator !=0  && variabel == 0) {
-                        progress += 25;
-                        }
-                        
-                        if (indikator == 0 && variabel != 0) {
-                        progress += 25;
-                        }
-                        
-                        if (berkas != 0) {
-                        progress += 50;
-                        }
-                        
-                         progress_bar = Math.min(100, progress);
-                         console.log([progress_bar]);
-
-                        // var statusId = '';
-                        // if (datas.status_id == STATUS_SETUJU) {
-                        //     statusId = 'Proses Pengumpulan';
-                        // } else {
-                        //     statusId = 'Telah Lengkap';
-                        // }
-
-
-                        var classProgress = '<div class="progress"> <div class="progress-bar progress-bar-striped bg-primary progress-bar-animated" role="progressbar" style="width:'+progress_bar+'%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" title="Total:'+progress_bar+'%"></div> </div>';
-
-                        var tableRow = '<tr>' +
-                            '<td>' + (i + 1) + '</td>' +
-                            '<td>' + datas.nama_data + '</td>' +
-                            '<td>' + datas.jenis_data + '</td>' +
-                            '<td>' + datas.tahun + '</td>' +
-                            '<td>' + datas.opd.nama_opd + '</td>' +
-                            '<td>' + datas.sumber_data + '</td>' +
-                            '<td>' + classProgress +'</td>';
-                        tableRow += '<td>';
-                        if (datas.status_id == STATUS_SETUJU || datas.status_id == STATUS_PROSES_PENGUMPULAN){
-                            tableRow += '<div class="d-flex flex-column gap-2">' +
-                            '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/data"><i class="bi bi-cloud-upload"></i>';
-                                if(role == 'produsen' || datas.status_id != STATUS_SETUJU || datas.status_id != STATUS_PROSES_PENGUMPULAN || datas.status_id != STATUS_REVISI){
-                                    tableRow += 'Input Data';
-                                }else{
-                                    tableRow += 'Detail Data';
-                                }
-                               tableRow += '</a>' +
-                            '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/standar"><i class="bi bi-sim-fill"></i> Standar Data</a>' +
-                            '<a class="btn btn-outline-success btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/' + datas.jenis_data.toLowerCase() + '"><i class="bi bi-bar-chart"></i> Metadata ' + datas.jenis_data + '</a>';
-                              if (typeof status !== 'undefined' && role == 'produsen' && progress_bar >= 60 && (datas.status_id ==
-                            STATUS_PROSES_PENGUMPULAN || datas.status_id == STATUS_SETUJU || datas.status_id == STATUS_REVISI)){
-                            tableRow += '<a class="btn btn-verify btn-outline-success" href="/data_produsen/pengumpulan/' + datas.id + '/verifikasi">Siap Verifikasi<i class="bi bi-check"></i></a>';
-                            }
-                            tableRow += '</div>';
-                        }else{
-                            tableRow += '<div class="d-flex flex-column gap-2">' + 
-                                '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/data"><i class="bi bi-cloud-upload"></i> Upload Berkas</a>' +
-                            '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/detail-data/' + datas.id + '"><i class="bi bi-eye"></i> Detail</a>';
-                        }
-                        tableRow += 
-                            '</td>' +
-                            '</tr>';
-                               
-
-                        $('#isiTable').append(tableRow);
-                    });
-                }
-            })
-        }
-        );
-        
-        $('#searchInput').keyup(function() {
-        var searchValue = $(this).val().toLowerCase();
-        filterTable(searchValue);
-        });
-        
-        function filterTable(value) {
-        $('#isiTable tr').filter(function() {
-        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-        });
-        }
-        
-        
-        $('#searchInput').keyup(function() {
-        var searchValue = $(this).val().toLowerCase();
-        filterTable(searchValue);
-        // Also, add the following lines to send the search query to the server
-        var status = '{{ $status }}';
-        var role = '{{ $role }}';
-        var STATUS_SETUJU = '{{\App\Models\Data::STATUS_SETUJU}}';
-        var STATUS_PROSES_PENGUMPULAN = '{{\App\Models\Data::STATUS_PROSES_PENGUMPULAN}}';
-        var STATUS_REVISI = '{{\App\Models\Data::STATUS_REVISI}}';
-        
-        var formData = {
-        tahun : $('#tahun').val(),
-        status : status,
-        role : role,
-        opd : $('#opd').val(),
-        searchQuery: searchValue
-        }
-        if (role == 'produsen') {
-        url = '{{ route("search_data_produsen") }}'
-        } else if (role == 'walidata'){
-        url = '{{ route("search_data") }}'
-        }
-        console.log(status);
-        console.log(role);
-        console.log(STATUS_PROSES_PENGUMPULAN);
-        console.log(STATUS_REVISI);
-        console.log(STATUS_SETUJU);
-        console.log(formData);
-        var divviewdata = document.getElementById('div-table');
-        var divdatakosong = document.getElementById('data-kosong');
-        divviewdata.style.display = 'block';
-        divdatakosong.style.display = 'none';
-        $('#isiTable').empty();
-        $.ajaxSetup({
-        headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-        });
-        $.ajax({
-        url: url,
-        type: 'POST',
-        data: formData,
-        success: function success(result) {
-        $('#isiTable').empty();
-        console.log(result);
-        
-        
-        var no = 1;
-        var first = true;
-        result.data.forEach(function(datas, i) {
-        if(datas.standar == null){
-        var standar = 0;
-        }else{
-        var standar = 0;
-        for(var key in datas.standar){
-        standar++;
-        }
-        }
-        
-        if(datas.indikator == null){
-        var indikator = 0
-        }else{
-        var indikator = 0;
-        for(var key in datas.indikator){
-        indikator++;
-        }
-        }
-        if(datas.variabel == null){
-        var variabel = 0;
-        }else{
-        var variabel = 0;
-        for(var key in datas.variabel){
-        variabel++;
-        }
-        }
-        
-        if(datas.berkas == null){
-        var berkas = 0;
-        }else{
-        var berkas = 0;
-        for(var key in datas.berkas){
-        berkas++;
-        }
-        }
-        var progress = datas.progress;
-        var progress_bar = 0;
-        
-        progress = progress != 0 ? progress : 0;
-        
-        if (progress >= 100) {
-        progress_bar = Math.min(100, progress);
-        }
-        
-        if (standar != 0) {
-        progress += 15;
-        }
-        
-        if (indikator !=0 && variabel == 0) {
-        progress += 25;
-        }
-        
-        if (indikator == 0 && variabel != 0) {
-        progress += 25;
-        }
-        
-        if (berkas != 0) {
-        progress += 50;
-        }
-        
-        progress_bar = Math.min(100, progress);
-        console.log([progress_bar]);
-        
-        // var statusId = '';
-        // if (datas.status_id == STATUS_SETUJU) {
-        // statusId = 'Proses Pengumpulan';
-        // } else {
-        // statusId = 'Telah Lengkap';
-        // }
-        
-        
-        var classProgress = '<div class="progress"> <div class="progress-bar progress-bar-striped bg-primary progress-bar-animated" role="progressbar" style="width:'+progress_bar+'%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" title="Total:'+progress_bar+'%"></div></div>';
-        
-        var tableRow = '<tr>' +
-            '<td>' + (i + 1) + '</td>' +
-            '<td>' + datas.nama_data + '</td>' +
-            '<td>' + datas.jenis_data + '</td>' +
-            '<td>' + datas.tahun + '</td>' +
-            '<td>' + datas.opd.nama_opd + '</td>' +
-            '<td>' + datas.sumber_data + '</td>' +
-            '<td>' + classProgress +'</td>';
-            tableRow += '<td>';
-                if (datas.status_id == STATUS_SETUJU || datas.status_id == STATUS_PROSES_PENGUMPULAN){
-                tableRow += '<div class="d-flex flex-column gap-2">' +
-                    '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/data"><i class="bi bi-cloud-upload"></i>';
-                        if(role == 'produsen' || datas.status_id != STATUS_SETUJU || datas.status_id !=
-                        STATUS_PROSES_PENGUMPULAN || datas.status_id != STATUS_REVISI){
-                        tableRow += 'Input Data';
-                        }else{
-                        tableRow += 'Detail Data';
-                        }
-                        tableRow += '</a>' +
-                    '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/standar"><i class="bi bi-sim-fill"></i> Standar Data</a>' +
-                    '<a class="btn btn-outline-success btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/' + datas.jenis_data.toLowerCase() + '"><i class="bi bi-bar-chart"></i> Metadata ' + datas.jenis_data + '</a>';
-                    if (typeof status !== 'undefined' && role == 'produsen' && progress_bar >= 60 && (datas.status_id ==
-                    STATUS_PROSES_PENGUMPULAN || datas.status_id == STATUS_SETUJU || datas.status_id == STATUS_REVISI)){
-                    tableRow += '<a class="btn btn-verify btn-outline-success" href="/data_produsen/pengumpulan/' + datas.id + '/verifikasi">Siap Verifikasi<i class="bi bi-check"></i></a>';
-                    }
-                    tableRow += '</div>';
-                }else{
-                tableRow += '<div class="d-flex flex-column gap-2">' +
-                    '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/pengumpulan/' + datas.id + '/data"><i class="bi bi-cloud-upload"></i> Upload Berkas</a>' +
-                    '<a class="btn btn-outline-primary btn-sm" href="/data_' + role + '/detail-data/' + datas.id + '"><i class="bi bi-eye"></i> Detail</a>';
-                    }
-                    tableRow +=
-                    '</td>' +
-            '</tr>';
-        
-        
-        $('#isiTable').append(tableRow);
-        });
-        }
-        })
-        
-        });
-    });
-</script>
-@endpush
 @endsection
-
-
-@push('js')
-
-@endpush

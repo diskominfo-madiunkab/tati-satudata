@@ -49,9 +49,33 @@
                 </td>
                 @endif
                 <td>
-                  <form action="{{ url('/sumberdata/edit/'.$dt->id) }}">
-                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pencil-fill"></i></button>
-                  </form>
+                  <div class="d-flex gap-1">
+                    <a href="{{ url('/sumberdata/edit/'.$dt->id) }}" class="btn btn-sm btn-primary" title="Edit">
+                      <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteSumberModal{{ $dt->id }}" title="Hapus">
+                      <i class="bi bi-trash-fill"></i>
+                    </button>
+                  </div>
+
+                  <!-- Modal Delete -->
+                  <div class="modal fade" id="deleteSumberModal{{ $dt->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title fs-6 fw-bold">Konfirmasi Hapus</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-start">
+                          Apakah Anda yakin ingin menghapus sumber referensi <strong>"{{ $dt->sumber_data }}"</strong>? Tindakan ini tidak dapat dibatalkan.
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                          <a href="{{ route('sumberdata.delete', $dt->id) }}" class="btn btn-danger btn-sm">Hapus</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </td>
                 @if ($dt->is_active == '1')
                 <td>

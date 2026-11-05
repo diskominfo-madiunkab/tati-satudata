@@ -43,6 +43,14 @@
                         <div class="tab-content pt-2" id="myTabContent">
                             <div class="tab-pane fade show active" id="home" role="tabpanel"
                                 aria-labelledby="home-tab">
+                                @if(($data->status_id == 2 || $data->status_id == \App\Models\Data::STATUS_TOLAK) && !empty($data->alasan))
+                                    <div class="alert alert-danger d-flex align-items-center mt-2 mb-3" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2 fs-5"></i>
+                                        <div>
+                                            <strong>Catatan Penolakan / Revisi:</strong> {{ $data->alasan }}
+                                        </div>
+                                    </div>
+                                @endif
                                 <form
                                     @if (Auth::user()->role_id == '1') action="{{ url('data_administrator/update', $data->id) }}"
                                 @elseif(Auth::user()->role_id == '2')
@@ -52,6 +60,18 @@
                                     method="POST">
                                     @csrf
                                     <div class="row mb-3" style="padding-top:20px">
+                                        <label for="kode_ddd" class="col-sm-2 col-form-label">Kode DDD</label>
+                                        <div class="col-sm-10">
+                                            <input id="kode_ddd" name="kode_ddd" type="text" class="form-control" value="{{ $data->kode_ddd ?? '-' }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="kode_ddp" class="col-sm-2 col-form-label">Kode DDP</label>
+                                        <div class="col-sm-10">
+                                            <input id="kode_ddp" name="kode_ddp" type="text" class="form-control" value="{{ $data->kode_ddp ?? '-' }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
                                         <label for="inputText" class="col-sm-2 col-form-label">Nama Data</label>
                                         <div class="col-sm-10">
                                             <input id="nama_data" name="nama_data" type="text" class="form-control"
@@ -160,13 +180,43 @@
                                         </div>
                                     </div>
 
-                                    @if (!empty($data->alasan) && $data->status_id == \App\Models\Data::STATUS_TOLAK)
-                                        <div class="row mb-3">
-                                            <label for="inputText" class="col-sm-2 col-form-label">Alasan Ditolak</label>
-                                            <div class="col-sm-10">
-                                                <textarea id="nama_data" name="nama_data" type="text" class="form-control" disabled>{{ $data->alasan }}</textarea>
-                                            </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Level Data</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" value="{{ $data->level_data ?? 'Kabupaten' }}" disabled>
                                         </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Periode Data</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" value="{{ $data->periode_data ?? $data->jadwal_pemutakhiran ?? '-' }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Kategori RAD</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" value="{{ $data->kategori_rad ?? '-' }}" disabled>
+                                        </div>
+                                    </div>
+                                    @if($data->konsep || $data->definisi)
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Konsep</label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" rows="2" disabled>{{ $data->konsep ?? '-' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Definisi</label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" rows="3" disabled>{{ $data->definisi ?? '-' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Ukuran / Satuan</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" value="{{ ($data->ukuran ?? '-') . ' / ' . ($data->satuan ?? '-') }}" disabled>
+                                        </div>
+                                    </div>
                                     @endif
 
                                 </form>
@@ -188,28 +238,90 @@
                             </div>
                         </div><!-- End Default Tabs -->
                         @php
-                            function getDraftLink()
-                            {
-                                return url()->previous();
+                            $backUrl = url()->previous();
+                            if (!$backUrl || $backUrl == url()->current()) {
                                 if (auth()->user()->hasAnyRole('produsen')) {
-                                    return '/data_produsen/draft';
+                                    $backUrl = '/data_produsen/draft';
                                 } elseif (auth()->user()->hasAnyRole('walidata')) {
-                                    return '/data_walidata/draft';
+                                    $backUrl = '/data_walidata/draft';
                                 } else {
-                                    return '/data_walidata/draft'; // Ganti dengan default link jika tidak ada peran yang sesuai
+                                    $backUrl = '/data_walidata/draft';
                                 }
                             }
                         @endphp
-                        <a href="{{ getDraftLink() }}" class="btn btn-outline-secondary"><i
-                                class="bi bi-arrow-left"></i>
-                            Kembali</a>
+                        <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top">
+                            <a href="{{ $backUrl }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Kembali
+                            </a>
+
+                            @if(auth()->user()->hasAnyRole('produsen') && $data->status_id == \App\Models\Data::STATUS_DRAFT)
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalTolak">
+                                        <i class="bi bi-x-circle me-1"></i> Tolak / Minta Revisi
+                                    </button>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalSetuju">
+                                        <i class="bi bi-check-circle me-1"></i> Setujui Daftar Data
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                 </div>
 
             </div>
 
-
         </div>
     </section>
+
+    @if(auth()->user()->hasAnyRole('produsen') && $data->status_id == \App\Models\Data::STATUS_DRAFT)
+        <!-- Modal Setuju -->
+        <div class="modal fade" id="modalSetuju" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="{{ route('data_produsen.perencanaan.setuju') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id_sukses" value="{{ $data->id }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-success"><i class="bi bi-check-circle me-1"></i> Konfirmasi Persetujuan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Apakah Anda yakin ingin menyetujui Daftar Data <strong>"{{ $data->nama_data }}"</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i> Ya, Setujui</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Tolak -->
+        <div class="modal fade" id="modalTolak" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="{{ route('data_produsen.perencanaan.tolak') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id_alasan" value="{{ $data->id }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Penolakan / Permintaan Revisi</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="alasan" class="form-label">Tuliskan Alasan Penolakan / Catatan Revisi <span class="text-danger">*</span></label>
+                                <textarea name="alasan" id="alasan" class="form-control" rows="4" required placeholder="Jelaskan alasan penolakan atau perbaikan yang dibutuhkan..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle me-1"></i> Tolak Data</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

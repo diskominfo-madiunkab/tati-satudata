@@ -31,7 +31,7 @@
                     <li class="nav-item flex-fill" role="presentation">
                         <button class="nav-link w-100" id="sipd-tab" data-bs-toggle="tab"
                             data-bs-target="#bordered-justified-sipd" type="button" role="tab" aria-controls="sipd"
-                            aria-selected="true">E-Walidata</button>
+                            aria-selected="false">Tambah Data Dari Referensi Indikator Pembangunan</button>
                     </li>
 
                 </ul>
@@ -39,99 +39,161 @@
                     <div class="tab-pane fade" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Tambah Data</h5>
+                                <h5 class="card-title">Formulir Daftar Data Daerah (17 Atribut Sesuai Pedoman Penyelenggaraan SDI)</h5>
 
                                 <!-- General Form Elements -->
                                 <form
                                     @if (Auth::user()->role_id == '1') action="/data_administrator/store"
-                                @elseif(Auth::user()->role_id == '2')
+                                @elseif(Auth::user()->role_id == '2' || auth()->user()->hasRole('walidata') || auth()->user()->hasRole('walidatapendukung') || auth()->user()->hasRole('pembina'))
                                 action="/data_walidata/store"
                                 @elseif(Auth::user()->role_id == '3')
                                 action="/data_produsen/store" @endif
                                     method="POST">
                                     @csrf
+
+                                    <!-- Group 1: Kodifikasi & Identitas -->
+                                    <h6 class="fw-bold text-primary mt-2 mb-3 border-bottom pb-2"><i class="bi bi-tag-fill me-1"></i> I. Kodifikasi & Identitas Data</h6>
                                     <div class="row mb-3">
-                                        <label for="inputText" class="col-sm-2 col-form-label">Nama Data</label>
-                                        <div class="col-sm-10">
-                                            <input id="nama_data" name="nama_data" type="text" class="form-control"
-                                                required>
+                                        <label for="kode_ddd" class="col-sm-3 col-form-label">1. Kode Daftar Data Daerah (Kode DDD)</label>
+                                        <div class="col-sm-9">
+                                            <input id="kode_ddd" name="kode_ddd" type="text" class="form-control" placeholder="Contoh: 3519.01.001 (Primary Key Daerah)">
+                                            <small class="text-muted">Kode yang selama ini digunakan oleh Daerah dan/atau diatur oleh Kemendagri.</small>
                                         </div>
                                     </div>
+
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Jenis Data</label>
-                                        <div class="col-sm-10">
-                                            <select id="jenis_data" name="jenis_data" class="form-select"
-                                                aria-label="Default select example" required>
-                                                <option value="" disabled selected hidden>Pilih</option>
-                                                <option value="Indikator">Indikator</option>
-                                                <option value="Variabel">Variabel</option>
-                                            </select>
+                                        <label for="kode_ddp" class="col-sm-3 col-form-label">2. Kode Daftar Data Pusat (Kode DDP)</label>
+                                        <div class="col-sm-9">
+                                            <input id="kode_ddp" name="kode_ddp" type="text" class="form-control" placeholder="Contoh: 06.01.001 (06.01: Kode RAD Level 2, 001: No. Urut)">
                                         </div>
                                     </div>
+
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Produsen Data (PIC)</label>
-                                        <div class="col-sm-10">
-                                            <select id="opd_id" style="width: 100%" name="opd_id"
-                                                class="form-select select2" aria-label="Default select example" required>
-                                                <option value="" disabled selected hidden>Pilih</option>
+                                        <label for="nama_data" class="col-sm-3 col-form-label">4. Nama Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <input id="nama_data" name="nama_data" type="text" class="form-control" required placeholder="Nama Data (gunakan huruf, angka, spasi, tanda baca standar)">
+                                            <small class="text-muted">Karakter khusus yang berpotensi merusak sistem akan disanitasi secara otomatis.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-3 col-form-label">8. Produsen Data (PIC) <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="opd_id" style="width: 100%" name="opd_id" class="form-select select2" required>
+                                                <option value="" disabled selected hidden>Pilih Produsen Data / OPD</option>
                                                 @foreach ($opd as $dt)
                                                     <option value="{{ $dt->id }}">{{ $dt->nama_opd }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Sumber Referensi</label>
-                                        <div class="col-sm-10">
 
-                                            <select id="sumber_data" style="width: 100%" name="sumber_data"
-                                                class="form-select select2" aria-label="Default select example" required>
-                                                <option value="" disabled selected hidden>Pilih</option>
+                                    <!-- Group 2: Klasifikasi & Standar Data -->
+                                    <h6 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2"><i class="bi bi-diagram-3-fill me-1"></i> II. Klasifikasi & Standar Data</h6>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-3 col-form-label">5. Klasifikasi Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <div class="d-flex gap-4 align-items-center pt-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="klasifikasi_data" id="klasifikasi_prioritas" value="Prioritas">
+                                                    <label class="form-check-label fw-semibold" for="klasifikasi_prioritas">Prioritas</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="klasifikasi_data" id="klasifikasi_non_prioritas" value="Non-Prioritas" checked>
+                                                    <label class="form-check-label" for="klasifikasi_non_prioritas">Non-Prioritas</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-3 col-form-label">6. Jenis Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="jenis_data" name="jenis_data" class="form-select" required>
+                                                <option value="Indikator" selected>Indikator</option>
+                                                <option value="Variabel">Variabel</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-3 col-form-label">7. Kode Standar Data</label>
+                                        <div class="col-sm-9">
+                                            <select id="kode_standar_data" style="width: 100%" name="kode_standar_data" class="form-select select2">
+                                                <option value="">-- Pilih Standar Data (Mengisi otomatis Konsep, Definisi, Ukuran, Satuan) --</option>
+                                                @foreach ($standarDataList ?? [] as $std)
+                                                    <option value="{{ $std->kode ?: $std->id }}"
+                                                        data-konsep="{{ $std->konsep }}"
+                                                        data-definisi="{{ $std->definisi }}"
+                                                        data-ukuran="{{ $std->ukuran }}"
+                                                        data-satuan="{{ $std->satuan }}"
+                                                        data-klasifikasi="{{ $std->klasifikasi }}">
+                                                        {{ $std->kode ? '[' . $std->kode . '] ' : '' }}{{ Str::limit($std->konsep ?: $std->definisi, 70) }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">Terhubung dengan Database Master Standar Data & SDSN BPS.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="konsep" class="col-sm-3 col-form-label">9. Konsep</label>
+                                        <div class="col-sm-9">
+                                            <textarea id="konsep" name="konsep" class="form-control" rows="2" placeholder="Ide yang mendasari Data dan tujuan Data tersebut diproduksi"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="definisi" class="col-sm-3 col-form-label">10. Definisi</label>
+                                        <div class="col-sm-9">
+                                            <textarea id="definisi" name="definisi" class="form-control" rows="3" placeholder="Batasan dan pengertian mengenai Data agar memiliki pemahaman yang seragam"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="ukuran" class="col-sm-3 col-form-label">11. Ukuran</label>
+                                        <div class="col-sm-9">
+                                            <input id="ukuran" name="ukuran" type="text" class="form-control" placeholder="Contoh: Jumlah, Rasio, Persentase, Rata-rata">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="satuan" class="col-sm-3 col-form-label">12. Satuan</label>
+                                        <div class="col-sm-9">
+                                            <input id="satuan" name="satuan" type="text" class="form-control" placeholder="Contoh: Orang, Unit, Persen, Jiwa, Ha, Dokumen">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="klasifikasi_penyajian" class="col-sm-3 col-form-label">13. Klasifikasi Penyajian</label>
+                                        <div class="col-sm-9">
+                                            <input id="klasifikasi_penyajian" name="klasifikasi_penyajian" type="text" class="form-control" placeholder="Contoh: Menurut Kelompok Umur, Jenis Kelamin, Wilayah">
+                                        </div>
+                                    </div>
+
+                                    <!-- Group 3: Karakteristik Operasional & Penyelenggaraan -->
+                                    <h6 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2"><i class="bi bi-clock-history me-1"></i> III. Periode, Referensi & Wilayah</h6>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-3 col-form-label">3. Sumber Referensi <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="sumber_referensi" style="width: 100%" name="sumber_referensi[]" class="form-select select2" multiple required>
                                                 @foreach ($sumber as $sd)
                                                     <option value="{{ $sd->sumber_data }}">{{ $sd->sumber_data }}</option>
                                                 @endforeach
-
-                                                {{-- <option value="RPJMD">RPJMD</option>
-                                            <option value="SPM">SPM</option>
-                                            <option value="SDGs">SDGs</option>
-                                            <option value="Data Provinsi">Data Provinsi</option> --}}
+                                                <option value="RPJMD">RPJMD</option>
+                                                <option value="Renstra">Renstra</option>
+                                                <option value="SDGs">SDGs</option>
+                                                <option value="SPM">SPM</option>
+                                                <option value="Data Provinsi">Data Provinsi</option>
                                             </select>
+                                            <small class="text-muted">Dapat memilih lebih dari 1 sumber referensi (tahan Ctrl / Cmd untuk memilih banyak).</small>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Tahun</label>
-                                        <div class="col-sm-10">
 
-                                            <select id="tahun" style="width: 100%" name="tahun"
-                                                class="form-select select2" aria-label="Default select example" required>
-                                                <option value="" disabled selected hidden>Pilih</option>
-                                                @foreach ($tahun as $th)
-                                                    <option value="{{ $th->tahun }}">{{ $th->tahun }}</option>
-                                                @endforeach
-
-                                                {{-- <option value="RPJMD">RPJMD</option>
-                                            <option value="SPM">SPM</option>
-                                            <option value="SDGs">SDGs</option>
-                                            <option value="Data Provinsi">Data Provinsi</option> --}}
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Level Data</label>
-                                        <div class="col-sm-10">
-                                            <select id="level_data" style="width: 100%" name="level_data" class="form-select select2">
-                                                <option value="Kabupaten" selected>Kabupaten</option>
-                                                <option value="Kecamatan">Kecamatan</option>
-                                                <option value="Desa/Kelurahan">Desa / Kelurahan</option>
-                                                <option value="Puskesmas / Faskes">Puskesmas / Faskes</option>
-                                                <option value="Individu">Individu</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Periode Data</label>
-                                        <div class="col-sm-10">
-                                            <select id="periode_data" style="width: 100%" name="periode_data" class="form-select select2">
+                                        <label class="col-sm-3 col-form-label">14. Jadwal Pemutakhiran / Periode Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="jadwal_pemutakhiran" style="width: 100%" name="jadwal_pemutakhiran" class="form-select select2" required>
                                                 <option value="Tahunan" selected>Tahunan</option>
                                                 <option value="Semesteran">Semesteran</option>
                                                 <option value="Triwulanan">Triwulanan</option>
@@ -141,65 +203,59 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <label for="jadwal_rilis" class="col-sm-2 col-form-label">Jadwal Rilis</label>
-                                        <div class="col-sm-10">
-                                            <input id="jadwal_rilis" name="jadwal_rilis" type="date"
-                                                class="form-control" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Jadwal Pemutakhiran</label>
-                                        <div class="col-sm-10">
 
-                                            <select id="jadwal_pemutakhiran" style="width: 100%"
-                                                name="jadwal_pemutakhiran" class="form-select select2"
-                                                aria-label="Default select example" required>
-                                                <option value="" disabled selected hidden>Pilih</option>
-                                                <option value="Harian">Harian</option>
-                                                <option value="Mingguan">Mingguan</option>
-                                                <option value="Bulanan">Bulanan</option>
-                                                <option value="Tahunan">Tahunan</option>
-                                                <option value="Triwulanan">Triwulanan</option>
-                                                <option value="Semesteran">Semesteran</option>
-                                                <option value="Empat Tahunan">Empat Tahunan</option>
-                                                <option value=">Dua Tahunan">>Dua Tahunan</option>
+                                    <div class="row mb-3">
+                                        <label for="kategori_rad" class="col-sm-3 col-form-label">15. Kategori RAD</label>
+                                        <div class="col-sm-9">
+                                            <select id="kategori_rad" name="kategori_rad" class="form-select select2">
+                                                <option value="Pendidikan">Pendidikan</option>
+                                                <option value="Kesehatan">Kesehatan</option>
+                                                <option value="Infrastruktur & Pekerjaan Umum">Infrastruktur & Pekerjaan Umum</option>
+                                                <option value="Sosial & Penanggulangan Kemiskinan">Sosial & Penanggulangan Kemiskinan</option>
+                                                <option value="Perekonomian & Pertanian">Perekonomian & Pertanian</option>
+                                                <option value="Tata Kelola Pemerintahan">Tata Kelola Pemerintahan</option>
+                                                <option value="Lingkungan Hidup & Kebencanaan">Lingkungan Hidup & Kebencanaan</option>
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="data_prioritas" class="col-sm-2 col-form-label">Data Prioritas</label>
-                                        <div class="col-sm-10">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="data_prioritas"
-                                                    id="data_prioritas1" value="1">
-                                                <label class="form-check-label" for="data_prioritas">
-                                                    Ya
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="data_prioritas"
-                                                    id="data_prioritas0" value="0">
-                                                <label class="form-check-label" for="data_prioritas0">
-                                                    Tidak
-                                                </label>
-                                            </div>
+                                        <label class="col-sm-3 col-form-label">16. Level Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="level_data" style="width: 100%" name="level_data" class="form-select select2" required>
+                                                <option value="Kabupaten" selected>Kabupaten</option>
+                                                <option value="Kecamatan">Kecamatan</option>
+                                                <option value="Desa/Kelurahan">Desa / Kelurahan</option>
+                                                <option value="Puskesmas / Faskes">Puskesmas / Faskes</option>
+                                                <option value="Individu">Individu</option>
+                                            </select>
                                         </div>
                                     </div>
-
 
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label"></label>
-                                        <div class="col-sm-10">
-                                            <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i>
-                                                SIMPAN</button>
+                                        <label class="col-sm-3 col-form-label">17. Tahun Data <span class="text-danger">*</span></label>
+                                        <div class="col-sm-9">
+                                            <select id="tahun" style="width: 100%" name="tahun" class="form-select select2" required>
+                                                @foreach ($tahun as $th)
+                                                    <option value="{{ $th->tahun }}" {{ $th->tahun == date('Y') ? 'selected' : '' }}>{{ $th->tahun }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
 
-                                    <a href="{{ url()->previous('d_' . auth()->user()->role->name) }}"
-                                        class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                                    <div class="row mb-3">
+                                        <label for="jadwal_rilis" class="col-sm-3 col-form-label">Jadwal Rilis Data</label>
+                                        <div class="col-sm-9">
+                                            <input id="jadwal_rilis" name="jadwal_rilis" type="date" class="form-control" value="{{ date('Y-m-d') }}">
+                                        </div>
+                                    </div>
 
+                                    <div class="row mb-3 mt-4">
+                                        <div class="col-sm-9 offset-sm-3 d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save me-1"></i> SIMPAN PERENCANAAN DATA</button>
+                                            <a href="{{ url()->previous('d_' . auth()->user()->role->name) }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                                        </div>
+                                    </div>
 
                                 </form><!-- End General Form Elements -->
 
@@ -412,6 +468,21 @@
 
                 $('#tahun_aktif, #opd').on('change', function() {
                     table.ajax.reload();
+                });
+
+                $('#kode_standar_data').on('change', function() {
+                    var opt = $(this).find('option:selected');
+                    var k = opt.data('konsep');
+                    var d = opt.data('definisi');
+                    var u = opt.data('ukuran');
+                    var s = opt.data('satuan');
+                    var c = opt.data('klasifikasi');
+
+                    if (k) $('#konsep').val(k);
+                    if (d) $('#definisi').val(d);
+                    if (u) $('#ukuran').val(u);
+                    if (s) $('#satuan').val(s);
+                    if (c) $('#klasifikasi_penyajian').val(c);
                 });
 
                 $("#head-cb").on('click', function() {

@@ -65,19 +65,19 @@
                             <li class="nav-item flex-fill" role="presentation">
                                 <a href="/data_produsen/draft"
                                     class="nav-link w-100 {{ isset($status) && $status == '3' ? 'active' : '' }}"
-                                    id="draft-tab"><i class="bi bi-folder-check"></i> Draft</a>
+                                    id="draft-tab"><i class="bi bi-folder-check"></i> Draft <span class="badge bg-secondary ms-1">{{ $countDraft ?? 0 }}</span></a>
                             </li>
 
                             <li class="nav-item flex-fill" role="presentation">
                                 <a href="/data_produsen/selesai_konfirmasi"
                                     class="nav-link w-100 {{ isset($status) && $status == '1' ? 'active' : '' }}"
-                                    id="disetujui-tab"><i class="bi bi-check-square"></i> Disetujui</a>
+                                    id="disetujui-tab"><i class="bi bi-check-square"></i> Disetujui <span class="badge bg-primary ms-1">{{ $countSetuju ?? 0 }}</span></a>
                             </li>
 
                             <li class="nav-item flex-fill" role="presentation">
                                 <a href="/data_produsen/tolak_konfirmasi"
                                     class="nav-link w-100 {{ isset($status) && $status == '2' ? 'active' : '' }}"
-                                    id="ditolak-tab"><i class="bi bi-x-circle"></i> Ditolak</a>
+                                    id="ditolak-tab"><i class="bi bi-x-circle me-1"></i> Ditolak <span class="badge bg-danger ms-1">{{ $countTolak ?? 0 }}</span></a>
                             </li>
                         </ul>
 
@@ -501,20 +501,10 @@
                                 actionButtons += '</td>';
                                 if (full.status_id == '3') {
                                     actionButtons += '<td>';
-                                    actionButtons +=
-                                        '<a href="javascript:void(0)" class="btn btn-sm btn-success float-right" onclick="$(\'#menyetujui-data\').modal(\'show\');$(\'#id_sukses\').val(\'' +
-                                        full.id + '\');"><i class="bi bi-check-circle"></i></a>';
-                                    actionButtons += '</td>';
-                                    actionButtons += '<td>';
-                                    actionButtons +=
-                                        '<a href="javascript:void(0)" class="btn btn-sm btn-danger float-right" onclick="$(\'#verticalycentered-tolak\').modal(\'show\');$(\'#id_verticalycentered\').val(\'' +
-                                        full.id + '\');"><i class="bi bi-x-circle"></i></a>';
-                                    actionButtons += '</td>';
-                                    actionButtons += '<td>';
                                     actionButtons += '<form action="/data_produsen/edit/' + full.id +
                                         '">';
                                     actionButtons +=
-                                        '<button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pencil-fill"></i></button>';
+                                        '<button type="submit" class="btn btn-sm btn-primary" title="Edit Jadwal"><i class="bi bi-pencil-fill"></i></button>';
                                     actionButtons += '</form>';
                                     actionButtons += '</td>';
                                 }
@@ -629,19 +619,9 @@
                                         '</td>';
                                     if (status == 3) {
                                         tableRow += '<td>' +
-                                            '<a href="javascript:void(0)" class="btn btn-sm btn-success float-right" onclick="$(\'#menyetujui-data\').modal(\'show\');$(\'#id_sukses\').val(\'' +
-                                            datas.id +
-                                            '\')"><i class="bi bi-check-circle"></i></a>' +
-                                            '</td>' +
-                                            '<td>' +
-                                            '<a href="javascript:void(0)" class="btn btn-sm btn-danger float-right" onclick="$(\'#verticalycentered-tolak\').modal(\'show\');$(\'#id_verticalycentered\').val(\'' +
-                                            datas.id +
-                                            '\')"><i class="bi bi-x-circle"></i></a>' +
-                                            '</td>' +
-                                            '<td>' +
                                             '<form action="{{ url('/data_produsen/edit/') }}/' +
                                             datas.id + '">' +
-                                            '<button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pencil-fill"></i></button>' +
+                                            '<button type="submit" class="btn btn-sm btn-primary" title="Edit Jadwal"><i class="bi bi-pencil-fill"></i></button>' +
                                             '</form>' +
                                             '</td>';
                                         if (datas.data_prioritas == null | datas
@@ -748,19 +728,9 @@
                                         '</td>';
                                     if (status == 3) {
                                         tableRow += '<td>' +
-                                            '<a href="javascript:void(0)" class="btn btn-sm btn-success float-right" onclick="$(\'#menyetujui-data\').modal(\'show\');$(\'#id_sukses\').val(\'' +
-                                            datas.id +
-                                            '\')"><i class="bi bi-check-circle"></i></a>' +
-                                            '</td>' +
-                                            '<td>' +
-                                            '<a href="javascript:void(0)" class="btn btn-sm btn-danger float-right" onclick="$(\'#verticalycentered-tolak\').modal(\'show\');$(\'#id_verticalycentered\').val(\'' +
-                                            datas.id +
-                                            '\')"><i class="bi bi-x-circle"></i></a>' +
-                                            '</td>' +
-                                            '<td>' +
                                             '<form action="{{ url('/data_produsen/edit/') }}/' +
                                             datas.id + '">' +
-                                            '<button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pencil-fill"></i></button>' +
+                                            '<button type="submit" class="btn btn-sm btn-primary" title="Edit Jadwal"><i class="bi bi-pencil-fill"></i></button>' +
                                             '</form>' +
                                             '</td>';
                                     }

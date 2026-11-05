@@ -96,9 +96,13 @@ class SumberDataController extends Controller
      * @param  \App\Models\SumberData  $sumberData
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SumberData $sumberData)
+    public function destroy($id)
     {
-        //
+        $sumberData = SumberData::findOrFail($id);
+        $sumberData->delete();
+        activity()->log('Menghapus Sumber Referensi');
+        Alert::success('Berhasil', 'Sumber Referensi Berhasil Dihapus!');
+        return redirect('/sumberdata');
     }
 
     public function aktifkan($id)

@@ -55,7 +55,9 @@
                             @csrf
                             @if ($existingData > 0)
                                 <div class="row mb-3">
-                                    <label for="nama" class="col-sm-2 col-form-label">Nama Variabel</label>
+                                    <label for="nama" class="col-sm-2 col-form-label">
+                                        Nama Variabel <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Nama resmi variabel statistik"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="nama" name="nama" type="text"
                                             class="form-control {{ isset($nama) ? ($nama->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -68,7 +70,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="alias" class="col-sm-2 col-form-label">Alias</label>
+                                    <label for="alias" class="col-sm-2 col-form-label">
+                                        Alias <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Nama alias atau singkatan variabel"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <input id="alias" name="alias" type="text"
                                             class="form-control {{ isset($alias) ? ($alias->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -81,7 +85,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="konsep" class="col-sm-2 col-form-label">Konsep</label>
+                                    <label for="konsep" class="col-sm-2 col-form-label">
+                                        Konsep <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Ide atau konsep umum yang mendasari variabel"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <textarea name="konsep" readonly
                                             class="form-control {{ isset($konsep) ? ($konsep->accepted ? 'is-valid' : 'is-invalid') : '' }}"
@@ -93,7 +99,9 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <label for="definisi" class="col-sm-2 col-form-label">Definisi</label>
+                                    <label for="definisi" class="col-sm-2 col-form-label">
+                                        Definisi <i class="bi bi-info-circle text-primary ms-1" data-bs-toggle="tooltip" title="Uraian batasan operasional dan teknis variabel"></i>
+                                    </label>
                                     <div class="col-sm-10">
                                         <textarea id="definisi" name="definisi" type="text" readonly
                                             class="form-control {{ isset($definisi) ? ($definisi->accepted ? 'is-valid' : 'is-invalid') : '' }}"

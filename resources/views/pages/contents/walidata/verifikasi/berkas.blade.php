@@ -28,6 +28,27 @@
             @endphp --}}
                 <div class="card">
                     <div class="card-body">
+                        @if(($revisiNotes && $revisiNotes->isNotEmpty()) || ($comments && $comments->isNotEmpty()) || !empty($data->alasan))
+                            <div class="alert alert-warning border d-flex flex-column gap-2 my-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-chat-left-text-fill fs-5 me-2 text-warning"></i>
+                                    <strong class="text-dark">Catatan Revisi & Riwayat Pemeriksaan:</strong>
+                                </div>
+                                @if(!empty($data->alasan))
+                                    <div class="small ps-4"><strong>Catatan Utama:</strong> {{ $data->alasan }}</div>
+                                @endif
+                                @if($revisiNotes && $revisiNotes->isNotEmpty())
+                                    <div class="small ps-4">
+                                        <strong>Riwayat Catatan:</strong>
+                                        <ul class="mb-0 mt-1">
+                                            @foreach($revisiNotes as $note)
+                                                <li><em>{{ \Carbon\Carbon::parse($note->created_at)->format('d/m/Y H:i') }}:</em> {{ $note->catatan }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                         @if ($data->is_from_walidata)
                             <div class="my-3">
                                 <label for="">Value Tahunan E-Walidata</label>
@@ -139,8 +160,55 @@
                                                     <div class="tab-content pt-2" id="myTabContent">
                                                         <div class="tab-pane fade show active" id="home{{ $berkas['id'] }}"
                                                             role="tabpanel" aria-labelledby="home-tab">
-                                                            <iframe src="{{ $berkas['officeLive'] }}" frameborder="0"
-                                                                style="width:100%;min-height:640px;"></iframe>
+                                                            <div class="table-responsive p-3 bg-white border rounded">
+                                                                @if(!empty($tables) && count($tables) > 0)
+                                                                    @foreach($tables as $tableData)
+                                                                        @php
+                                                                            $table = $tableData['table'];
+                                                                            $headers = $tableData['headers'];
+                                                                            $rows = $tableData['rows'];
+                                                                        @endphp
+                                                                        <h6 class="fw-bold text-primary mb-3"><i class="bi bi-table me-2"></i>{{ $table->namatabel ?? 'Pratinjau Tabel Data' }}</h6>
+                                                                        @if ($headers->isNotEmpty() && $rows->isNotEmpty())
+                                                                            <table class="table table-bordered table-striped table-hover mb-4">
+                                                                                <thead class="table-light">
+                                                                                    <tr>
+                                                                                        @foreach ($headers->sortBy('urutan_menyamping') as $header)
+                                                                                            <th class="text-nowrap">{{ $header->header }}</th>
+                                                                                        @endforeach
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    @foreach ($rows->values() as $rowIndex => $row)
+                                                                                        <tr>
+                                                                                            @foreach ($headers->sortBy('urutan_menyamping')->values() as $header)
+                                                                                                @php
+                                                                                                    $cell = $row->firstWhere('id_header', $header->id);
+                                                                                                    $cellValue = $cell ? $cell->isi : '-';
+                                                                                                @endphp
+                                                                                                <td>{{ $cellValue }}</td>
+                                                                                            @endforeach
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                </tbody>
+                                                                            </table>
+                                                                        @else
+                                                                            <p class="text-muted fst-italic">Tabel belum memiliki baris data.</p>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div class="text-center py-5">
+                                                                        <i class="bi bi-file-earmark-spreadsheet fs-1 text-primary mb-2 d-block"></i>
+                                                                        <h6 class="fw-bold mb-1">{{ $berkas['name'] ?? 'Berkas Data' }}</h6>
+                                                                        <p class="text-muted small mb-3">Tabel data langsung terintegrasi dari input pengumpulan data portal SDI Madiun.</p>
+                                                                        @if(isset($berkas['path']))
+                                                                            <a href="{{ Storage::url($berkas['path']) }}" class="btn btn-outline-primary btn-sm" download>
+                                                                                <i class="bi bi-download me-1"></i> Unduh Berkas
+                                                                            </a>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                         <div class="tab-pane fade" id="profile{{ $berkas['id'] }}"
                                                             role="tabpanel" aria-labelledby="profile-tab">

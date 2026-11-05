@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Opd;
 use App\Models\PublikasiGuest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class PublikasiGuestController extends Controller
      */
     public function index()
     {
-        $publikasi = PublikasiGuest::orderBy('created_at', 'desc')->get();
+        $publikasi = PublikasiGuest::with('opd')->orderBy('created_at', 'desc')->get();
         return view('pages.contents.administrator.indexpublikasi', compact('publikasi'));
     }
 
@@ -27,7 +28,8 @@ class PublikasiGuestController extends Controller
      */
     public function create()
     {
-        return view('pages.contents.administrator.createpublikasi');
+        $opds = Opd::orderBy('nama_opd', 'asc')->get();
+        return view('pages.contents.administrator.createpublikasi', compact('opds'));
     }
 
     /**
@@ -38,152 +40,191 @@ class PublikasiGuestController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'image'     => 'required|image|mimes:png,jpg,jpeg',
-            'title'     => 'required',
-            'content'   => 'required',
-            'pdf' => 'required|mimes:pdf|max:13177512',
-        ]);
+        $isTerbit = $request->input('status') === 'Terbit';
 
-        $pdf = $request->file('pdf');
-        $pdfSize = $pdf->getSize();
-        $maxSize = 13177512;
-        // dd($pdfSize);
-        if ($pdfSize > $maxSize) {
-            // File terlalu besar, berikan pesan kesalahan
-            // Alert::error('Gagal', 'Ukuran file PDF tidak boleh melebihi 10MB.!');
-            return redirect()->back()->withErrors(['pdf' => 'Ukuran file PDF tidak boleh melebihi 10MB.']);
+        $rules = [
+            'title'                 => 'required|string|max:500',
+            'status'                => 'required|in:Terbit,Belum Terbit',
+            'opd_id'                => 'nullable|exists:opds,id',
+            'instansi'              => 'nullable|string|max:255',
+            'tahun'                 => 'nullable|string|max:20',
+            'jadwal_rencana_terbit' => 'nullable|string|max:255',
+            'jadwal_terbit'         => 'nullable|string|max:255',
+            'frekuensi'             => 'nullable|string|max:50',
+            'content'               => 'nullable|string',
+        ];
+
+        if ($isTerbit) {
+            $rules['image'] = 'required|image|mimes:png,jpg,jpeg|max:5120';
+            $rules['pdf']   = 'required|mimes:pdf|max:13177512';
+        } else {
+            $rules['image'] = 'nullable|image|mimes:png,jpg,jpeg|max:5120';
+            $rules['pdf']   = 'nullable|mimes:pdf|max:13177512';
         }
-        $nama_file = date('Ymd') . '-' . $pdf->getClientOriginalName();
-        $path = $pdf->storeAs('public/publications', $nama_file);
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/blogs', $image->hashName());
 
-        $publication = PublikasiGuest::create([
-            'image'     => $image->hashName(),
-            'title'     => $request->title,
-            'content'   => $request->content,
-            'pdf_path' => $path,
+        $request->validate($rules);
+
+        $imageName = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $image->storeAs('public/blogs', $image->hashName());
+            $imageName = $image->hashName();
+        }
+
+        $pdfPath = null;
+        if ($request->hasFile('pdf')) {
+            $pdf = $request->file('pdf');
+            $nama_file = date('Ymd') . '-' . $pdf->getClientOriginalName();
+            $pdfPath = $pdf->storeAs('public/publications', $nama_file);
+        }
+
+        $instansiName = $request->instansi;
+        if ($request->filled('opd_id')) {
+            $opd = Opd::find($request->opd_id);
+            if ($opd) {
+                $instansiName = $opd->nama_opd;
+            }
+        }
+
+        PublikasiGuest::create([
+            'title'                 => $request->title,
+            'status'                => $request->status,
+            'opd_id'                => $request->opd_id,
+            'instansi'              => $instansiName,
+            'tahun'                 => $request->tahun,
+            'jadwal_rencana_terbit' => $request->jadwal_rencana_terbit,
+            'jadwal_terbit'         => $request->jadwal_terbit,
+            'frekuensi'             => $request->frekuensi ?: 'Tahunan',
+            'content'               => $request->content ?: '',
+            'image'                 => $imageName ?: '',
+            'pdf_path'              => $pdfPath ?: '',
         ]);
 
-        Alert::success('Berhasil', 'Data Berhasil Ditambah!');
+        Alert::success('Berhasil', 'Data Buku Publikasi Berhasil Ditambahkan!');
         return redirect()->route('publikasi-guest.index')->with(['success' => 'Data Berhasil Disimpan!']);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\PublikasiGuest  $publikasiGuest
-     * @return \Illuminate\Http\Response
-     */
-    public function show(PublikasiGuest $publikasiGuest)
-    {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\PublikasiGuest  $publikasiGuest
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         $publikasi = PublikasiGuest::findOrFail($id);
-        return view('pages.contents.administrator.editpublikasi', compact('publikasi'));
+        $opds = Opd::orderBy('nama_opd', 'asc')->get();
+        return view('pages.contents.administrator.editpublikasi', compact('publikasi', 'opds'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\PublikasiGuest  $publikasiGuest
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'image'     => 'image|mimes:png,jpg,jpeg',
-            'title'     => 'required',
-            'content'   => 'required',
-            'pdf' => 'mimes:pdf|max:13177512',
-        ]);
-
-        //get data Blog by ID
         $publikasi = PublikasiGuest::findOrFail($id);
+        $isTerbit = $request->input('status') === 'Terbit';
 
-        if ($request->hasFile('image') || $request->hasFile('pdf')) {
-            // Validation rules for image and PDF
-            $validationRules = [
-                'image' => 'image|mimes:png,jpg,jpeg',
-                'pdf'   => 'mimes:pdf|max:13177512',
-            ];
+        $rules = [
+            'title'                 => 'required|string|max:500',
+            'status'                => 'required|in:Terbit,Belum Terbit',
+            'opd_id'                => 'nullable|exists:opds,id',
+            'instansi'              => 'nullable|string|max:255',
+            'tahun'                 => 'nullable|string|max:20',
+            'jadwal_rencana_terbit' => 'nullable|string|max:255',
+            'jadwal_terbit'         => 'nullable|string|max:255',
+            'frekuensi'             => 'nullable|string|max:50',
+            'content'               => 'nullable|string',
+        ];
 
-            $request->validate($validationRules);
+        if ($isTerbit && empty($publikasi->image)) {
+            $rules['image'] = 'required|image|mimes:png,jpg,jpeg|max:5120';
+        } else {
+            $rules['image'] = 'nullable|image|mimes:png,jpg,jpeg|max:5120';
+        }
 
-            if ($request->hasFile('image')) {
-                // Delete old image
+        if ($isTerbit && empty($publikasi->pdf_path)) {
+            $rules['pdf'] = 'required|mimes:pdf|max:13177512';
+        } else {
+            $rules['pdf'] = 'nullable|mimes:pdf|max:13177512';
+        }
+
+        $request->validate($rules);
+
+        if ($request->hasFile('image')) {
+            if ($publikasi->image) {
                 Storage::disk('local')->delete('public/blogs/' . $publikasi->image);
-
-                // Upload new image
-                $image = $request->file('image');
-                $image->storeAs('public/blogs', $image->hashName());
-
-                $publikasi->image = $image->hashName();
             }
+            $image = $request->file('image');
+            $image->storeAs('public/blogs', $image->hashName());
+            $publikasi->image = $image->hashName();
+        }
 
-            if ($request->hasFile('pdf')) {
-                // Delete old PDF
-                Storage::disk('local')->delete('public/publications/' . $publikasi->pdf_path);
+        if ($request->hasFile('pdf')) {
+            if ($publikasi->pdf_path) {
+                Storage::disk('local')->delete($publikasi->pdf_path);
+            }
+            $pdf = $request->file('pdf');
+            $nama_file = date('Ymd') . '-' . $pdf->getClientOriginalName();
+            $path = $pdf->storeAs('public/publications', $nama_file);
+            $publikasi->pdf_path = $path;
+        }
 
-                // Validate PDF size
-                $pdfSize = $request->file('pdf')->getSize();
-                $maxPdfSize = 13177512;
-
-                if ($pdfSize > $maxPdfSize) {
-                    return redirect()->route('publikasi-guest.index')->withErrors(['pdf' => 'Ukuran file PDF tidak boleh melebihi 10MB.']);
-                }
-
-                // Upload new PDF
-                $pdf = $request->file('pdf');
-                $nama_file = date('Ymd') . '-' . $pdf->getClientOriginalName();
-                $path = $pdf->storeAs('public/publications', $nama_file);
-
-                $publikasi->pdf_path = $path;
+        $instansiName = $request->instansi;
+        if ($request->filled('opd_id')) {
+            $opd = Opd::find($request->opd_id);
+            if ($opd) {
+                $instansiName = $opd->nama_opd;
             }
         }
 
-        // Update title and content
         $publikasi->title = $request->title;
-        $publikasi->content = $request->content;
+        $publikasi->status = $request->status;
+        $publikasi->opd_id = $request->opd_id;
+        $publikasi->instansi = $instansiName;
+        $publikasi->tahun = $request->tahun;
+        $publikasi->jadwal_rencana_terbit = $request->jadwal_rencana_terbit;
+        $publikasi->jadwal_terbit = $request->jadwal_terbit;
+        $publikasi->frekuensi = $request->frekuensi ?: ($publikasi->frekuensi ?: 'Tahunan');
+        $publikasi->content = $request->content ?: '';
         $publikasi->save();
-        Alert::success('Berhasil', 'Data Berhasil Diperbarui!');
+
+        Alert::success('Berhasil', 'Data Buku Publikasi Berhasil Diperbarui!');
         return redirect()->route('publikasi-guest.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\PublikasiGuest  $publikasiGuest
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        PublikasiGuest::findOrFail($id)->delete();
+        $publikasi = PublikasiGuest::findOrFail($id);
+        if ($publikasi->image) {
+            Storage::disk('local')->delete('public/blogs/' . $publikasi->image);
+        }
+        if ($publikasi->pdf_path) {
+            Storage::disk('local')->delete($publikasi->pdf_path);
+        }
+        $publikasi->delete();
+
         Alert::success('Berhasil', 'Data Berhasil Dihapus!');
         return redirect()->route('publikasi-guest.index');
     }
 
     public function download($id)
     {
-        // dd('sss');
         $publication = PublikasiGuest::findOrFail($id);
-        // dd($publication->pdf_path);
-        if (Storage::exists($publication->pdf_path)) {
+        if ($publication->pdf_path && Storage::exists($publication->pdf_path)) {
             return Storage::download($publication->pdf_path);
         }
 
-        abort(404, 'File tidak tersedia pada server');
+        abort(404, 'File PDF tidak tersedia pada server');
     }
 }

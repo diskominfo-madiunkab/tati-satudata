@@ -294,35 +294,28 @@ class VerifikasiController extends Controller
         $kategori = json_encode($kategori);
         $axis_y = json_encode($axis_y);
         $axis_x = json_encode($axis_x);
+        $revisiNotes = \App\Models\RevisiNote::where('data_id', $id)->latest()->get();
+        $comments = Verifikasi::where('data_id', $id)->where('category', 'berkas')->whereNotNull('comment')->where('comment', '!=', '')->get();
 
-        return view('pages.contents.walidata.verifikasi.berkas', compact('data', 'existingBerkas', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'seriesDataLine', 'tables'));
+        return view('pages.contents.walidata.verifikasi.berkas', compact('data', 'existingBerkas', 'existingData', 'axis_x', 'axis_y', 'kategori', 'seriesData', 'seriesDataLine', 'tables', 'revisiNotes', 'comments'));
     }
 
     public function variabel($id)
     {
         $data = Data::with(['variabel', 'standar', 'verifikasi' => fn($q) => $q->category('variabel')])->findOrFail($id);
+        $revisiNotes = \App\Models\RevisiNote::where('data_id', $id)->latest()->get();
+        $comments = Verifikasi::where('data_id', $id)->where('category', 'variabel')->whereNotNull('comment')->where('comment', '!=', '')->get();
 
-        // if ($data->status_id != Data::STATUS_PROSES_VERIFIKASI) {
-        //     return redirect()->back()->with([
-        //         Alert::error('Gagal', 'Data tidak dapat verifikasi, karena status data bukan dalam proses verifikasi')
-        //     ]);
-        // }
-
-        return view('pages.contents.walidata.verifikasi.variabel', compact('data'));
+        return view('pages.contents.walidata.verifikasi.variabel', compact('data', 'revisiNotes', 'comments'));
     }
 
     public function indikator($id)
     {
         $data = Data::with(['indikator', 'standar', 'verifikasi' => fn($q) => $q->category('indikator')])->findOrFail($id);
+        $revisiNotes = \App\Models\RevisiNote::where('data_id', $id)->latest()->get();
+        $comments = Verifikasi::where('data_id', $id)->where('category', 'indikator')->whereNotNull('comment')->where('comment', '!=', '')->get();
 
-        // if ($data->status_id != Data::STATUS_PROSES_VERIFIKASI) {
-        //     return redirect()->back()->with([
-        //         Alert::error('Gagal', 'Data tidak dapat verifikasi, karena status data bukan dalam proses verifikasi')
-        //     ]);
-        // }
-        // dd($data);
-
-        return view('pages.contents.walidata.verifikasi.indikator', compact('data'));
+        return view('pages.contents.walidata.verifikasi.indikator', compact('data', 'revisiNotes', 'comments'));
     }
 
     public function getKomentar($id, Request $request)

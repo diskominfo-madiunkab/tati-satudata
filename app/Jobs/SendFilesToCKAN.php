@@ -33,39 +33,9 @@ class SendFilesToCKAN implements ShouldQueue
     {
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 0);
-        Storage::makeDirectory('public/exports/' . Str::slug($this->data->nama_data));
 
-        $jenisData = strtolower($this->data->jenis_data);
-        $relativePath = 'public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun;
-        $metadataPath = Storage::path($relativePath . '/Metadata.xlsx');
-
-        Storage::makeDirectory($relativePath);
-
-        if ($jenisData === 'indikator') {
-            $metadata = new IndikatorExport($this->data->indikator, $this->data->opd);
-        } else if ($jenisData === 'variabel') {
-            $metadata = new VariabelExport($this->data->variabel, $this->data->opd);
-            $metadata->standarData($this->data->standar);
-        }
-
-        try {
-            if ($metadata->export($metadataPath)) {
-                $sendToCKAN = CkanApi::resource()->create([
-                    'package_id' => $this->datasetId,
-                    'url' => asset(Storage::url('public/exports/' . Str::slug($this->data->nama_data) . '/' . $this->data->tahun . '/Metadata.xlsx')),
-                    'name' => 'Metadata.xlsx',
-                    'format' => 'XLSX',
-                    'mimetype' => MimeType::fromExtension('xlsx')
-                ]);
-                if (!$sendToCKAN) {
-                    throw new Exception('Gagal mengirim metadata ke CKAN: ' . json_encode($sendToCKAN));
-                }
-            } else {
-                throw new Exception('Gagal export file metadata');
-            }
-        } catch (Exception $exception) {
-            Log::error(sprintf('[SendFilesToCKAN] Failed to upload metadata (ID: %s) to ckan: %s', $this->datasetId, $exception->getMessage()), [$this->datasetId, $jenisData, $metadataPath]);
-        }
+        // Catatan Rencana Pengembangan 2026: File Metadata.xlsx tidak perlu ikut di-export ke CKAN.
+        // CKAN hanya menerima resource berkas data utama.
 
         foreach ($this->data->berkas as $berkas) {
             if (!Storage::exists($berkas->path)) {

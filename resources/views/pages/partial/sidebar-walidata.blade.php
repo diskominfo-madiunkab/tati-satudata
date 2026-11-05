@@ -5,38 +5,35 @@
         <li class="nav-heading">Dashboard</li>
 
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('d_walidata') ? 'collapse' : 'collapsed' }}" href="/d_walidata">
-                <i class="bi bi-grid"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('rekap_walidata') ? 'collapse' : 'collapsed' }}"
+            <a class="nav-link {{ request()->routeIs('rekap_walidata') || request()->routeIs('d_walidata') ? '' : 'collapsed' }}"
                 href="{{ route('rekap_walidata') }}">
-                <i class="bi bi-list-task"></i>
-                <span>Rekapitulasi</span>
+                <i class="bi bi-grid"></i>
+                <span>Dashboard & Rekapitulasi</span>
             </a>
         </li><!-- End Dashboard Nav -->
         <li class="nav-item">
-            <a class="nav-link {{ Str::contains(request()->url(), '/usulan-data') ? 'collapse' : 'collapsed' }}"
+            <a class="nav-link {{ Str::contains(request()->url(), '/usulan-data') ? '' : 'collapsed' }}"
                 href="/usulan-data">
                 <i class="bi bi-list-columns"></i>
                 <span>Usulan Data</span>
             </a>
         </li><!-- End Blank Page Nav -->
 
-        <li class="nav-heading">Perencanaan Data</li>
-
+        <li class="nav-heading">Standar Data</li>
 
         <li class="nav-item">
-            <a class="nav-link {{ in_array(request()->path(), ['data_walidata/draft', 'data_walidata/selesai_konfirmasi_walidata', 'data_walidata/tolak_konfirmasi_walidata']) ? 'collapse' : 'collapsed' }}"
-                href="/data_walidata/draft">
-                <i class="bi bi-check-square"></i><span>Perencanaan Data</span>
+            <a class="nav-link {{ Str::contains(request()->url(), 'data_walidata/standar-data') ? '' : 'collapsed' }}"
+                href="/data_walidata/standar-data">
+                <i class="bi bi-database"></i><span>Master Standar Data</span>
             </a>
         </li>
 
+        <li class="nav-heading">Perencanaan Data</li>
+
         <li class="nav-item">
-            <a class="nav-link {{ Str::contains(request()->url(), 'data_walidata/standar-data') ? 'collapse' : 'collapsed' }}"
-                href="/data_walidata/standar-data">
-                <i class="bi bi-card-list"></i><span>Standar Data</span>
+            <a class="nav-link {{ in_array(request()->path(), ['data_walidata/draft', 'data_walidata/selesai_konfirmasi_walidata', 'data_walidata/tolak_konfirmasi_walidata']) ? '' : 'collapsed' }}"
+                href="/data_walidata/draft">
+                <i class="bi bi-check-square"></i><span>Perencanaan Data</span>
             </a>
         </li>
 
@@ -82,6 +79,14 @@
                 </a>
             </li>
         @endif
+
+        <li class="nav-heading">Bantuan & Dokumen</li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="/panduan/buku-panduan-portal-satu-data.pdf" target="_blank" download>
+                <i class="bi bi-book"></i>
+                <span>Buku Panduan Portal</span>
+            </a>
+        </li>
     </ul>
 
 </aside>

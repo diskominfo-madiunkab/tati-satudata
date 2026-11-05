@@ -220,6 +220,56 @@
                                         </div>
                                     </div>
 
+                                    <div class="row mb-4">
+                                        <div class="col-sm-2 fw-bold">Preview Tabel Data</div>
+                                        <div class="col-sm-10">
+                                            @if(!empty($tables) && count($tables) > 0)
+                                                <div class="p-3 bg-light border rounded mb-3">
+                                                    @foreach($tables as $tableData)
+                                                        @php
+                                                            $table = $tableData['table'];
+                                                            $headers = $tableData['headers'];
+                                                            $rows = $tableData['rows'];
+                                                        @endphp
+                                                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-table me-2"></i>{{ $table->namatabel ?? 'Tabel Data' }}</h6>
+                                                        @if ($headers->isNotEmpty() && $rows->isNotEmpty())
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered table-striped table-hover bg-white mb-3">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            @foreach ($headers->sortBy('urutan_menyamping') as $header)
+                                                                                <th class="text-nowrap">{{ $header->header }}</th>
+                                                                            @endforeach
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($rows->values() as $rowIndex => $row)
+                                                                            <tr>
+                                                                                @foreach ($headers->sortBy('urutan_menyamping')->values() as $header)
+                                                                                    @php
+                                                                                        $cell = $row->firstWhere('id_header', $header->id);
+                                                                                        $cellValue = $cell ? $cell->isi : '-';
+                                                                                    @endphp
+                                                                                    <td>{{ $cellValue }}</td>
+                                                                                @endforeach
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        @else
+                                                            <p class="text-muted small fst-italic">Tabel belum memiliki baris data.</p>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="p-3 bg-light border rounded text-muted small">
+                                                    <i class="bi bi-info-circle me-1"></i> Data tabel akan bersumber dari berkas lampiran yang diunggah atau grid data portal.
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
                                     @if ($data->status_id == \App\Models\Data::STATUS_SIAP_PUBLIKASI)
                                         <div class="row mb-3">
                                             <div class="col-sm-2"></div>
