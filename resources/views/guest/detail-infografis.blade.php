@@ -43,17 +43,17 @@
 @endpush
 
 @section('content')
-<div class="page-banner pt-30 pb-30" style="background: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);">
+<div class="page-banner">
     <div class="container">
-        <div class="page-banner-content text-center text-white">
+        <div class="page-banner-content text-center">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb justify-content-center mb-2">
-                    <li class="breadcrumb-item"><a href="/" class="text-white-50">Beranda</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('guest.infografis') }}" class="text-white-50">Infografis</a></li>
-                    <li class="breadcrumb-item active text-white" aria-current="page">Detail</li>
+                    <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('guest.infografis') }}">Infografis</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Detail</li>
                 </ol>
             </nav>
-            <h2 class="text-white fw-bold mb-0 fs-3">{{ $infografis->title }}</h2>
+            <h2 class="page-banner-title mb-0 fs-3">{{ $infografis->title }}</h2>
         </div>
     </div>
 </div>

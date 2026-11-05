@@ -1,11 +1,14 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-40 pb-40" style="background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);">
+<div class="page-banner">
     <div class="container">
-        <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Buku Publikasi & Rencana Terbit</h1>
-            <p class="text-white-50 mb-0">Menampilkan Koleksi Buku Publikasi Kegiatan Statistik serta Jadwal Rencana Terbit Publikasi Kegiatan Statistik</p>
+        <div class="page-banner-content text-center">
+            <div class="page-banner-pill">
+                <i class="fas fa-book text-info"></i> Satu Data Kabupaten Madiun
+            </div>
+            <h1 class="page-banner-title">Buku Publikasi & Rencana Terbit</h1>
+            <p class="page-banner-subtitle">Menampilkan Koleksi Buku Publikasi Kegiatan Statistik serta Jadwal Rencana Terbit Publikasi Kegiatan Statistik</p>
         </div>
     </div>
 </div>

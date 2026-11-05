@@ -63,11 +63,14 @@
 @endpush
 
 @section('content')
-<div class="page-banner pt-60 pb-60" style="background: linear-gradient(135deg, #0d3b66 0%, #001e3d 100%);">
+<div class="page-banner">
     <div class="container">
-        <div class="page-banner-content text-center text-white">
-            <h1 class="text-white fw-bold mb-2">Katalog Data</h1>
-            <p class="text-white-50 mb-0">Menampilkan Daftar Data Pemerintah Kabupaten Madiun</p>
+        <div class="page-banner-content text-center">
+            <div class="page-banner-pill">
+                <i class="fas fa-database text-info"></i> Satu Data Kabupaten Madiun
+            </div>
+            <h1 class="page-banner-title">Katalog Data</h1>
+            <p class="page-banner-subtitle">Menampilkan Daftar Data Pemerintah Kabupaten Madiun</p>
         </div>
     </div>
 </div>

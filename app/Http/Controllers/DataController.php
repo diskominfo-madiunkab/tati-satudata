@@ -841,7 +841,7 @@ class DataController extends Controller
         $dataPrioritas = ($klasifikasiData === 'Prioritas' || $request->data_prioritas == 1) ? 1 : 0;
 
         $updatePayload = [
-            'nama_data' => $cleanNamaData,
+            'nama_data' => (Auth::check() && Auth::user()->role_id == '3') ? $data->nama_data : $cleanNamaData,
             'opd_id' => $request->opd_id ?: $data->opd_id,
             'jenis_data' => $request->jenis_data ?: $data->jenis_data,
             'sumber_data' => $sumberRef ?: $data->sumber_data,

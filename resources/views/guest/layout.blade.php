@@ -392,6 +392,120 @@
         .sdi-drawer-link.active i {
             color: #0284c7;
         }
+
+        /* ========================================================
+           SDI MODERN PAGE BANNER (HEADER HALAMAN RESMI)
+           ======================================================== */
+        .page-banner {
+            position: relative;
+            background: #071527 !important;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.28) 0%, transparent 65%),
+                radial-gradient(circle at 85% 120%, rgba(2, 132, 199, 0.15) 0%, transparent 50%),
+                radial-gradient(rgba(255, 255, 255, 0.08) 1.25px, transparent 1.25px) !important;
+            background-size: 100% 100%, 100% 100%, 28px 28px !important;
+            padding: 56px 0 60px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(7, 21, 39, 0.5);
+            overflow: hidden;
+        }
+
+        /* Subtle glowing accent hairline on bottom */
+        .page-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+        }
+
+        .page-banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .page-banner-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 50px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: #bae6fd;
+            margin-bottom: 14px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .page-banner-content h1,
+        .page-banner-content h2,
+        .page-banner-title {
+            font-family: var(--sdi-font) !important;
+            font-size: clamp(1.85rem, 3.2vw, 2.35rem) !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            letter-spacing: -0.025em !important;
+            line-height: 1.25 !important;
+            margin-bottom: 8px !important;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .page-banner-content p,
+        .page-banner-subtitle {
+            font-family: var(--sdi-font) !important;
+            font-size: clamp(0.95rem, 1.4vw, 1.05rem) !important;
+            color: #cbd5e1 !important; /* Slate-300: crisp & highly legible */
+            line-height: 1.6 !important;
+            margin-bottom: 0 !important;
+            font-weight: 400 !important;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-banner .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 12px;
+        }
+
+        .page-banner .breadcrumb-item {
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+        .page-banner .breadcrumb-item a {
+            color: #94a3b8 !important;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .page-banner .breadcrumb-item a:hover {
+            color: #38bdf8 !important;
+        }
+
+        .page-banner .breadcrumb-item.active {
+            color: #e2e8f0 !important;
+            font-weight: 600;
+        }
+
+        .page-banner .breadcrumb-item + .breadcrumb-item::before {
+            color: #64748b;
+            content: "›";
+            font-size: 14px;
+            line-height: 1;
+            vertical-align: middle;
+        }
     </style>
     @stack('style')
 </head>

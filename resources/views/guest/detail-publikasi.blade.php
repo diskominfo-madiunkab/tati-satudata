@@ -46,18 +46,20 @@
         background-color: #000000;
     }
 </style>
-<section class="uni-banner">
+<div class="page-banner">
     <div class="container">
-        <div class="uni-banner-text-area">
-            <h1>Detail Publikasi</h1>
-            <ul>
-                <li><a href="{{('/')}}">Beranda</a></li>
-                <li><a href="{{('/publikasi-guest')}}">Publikasi</a></li>
-                <li>Detail Publikasi</li>
-            </ul>
+        <div class="page-banner-content text-center">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center mb-2">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Beranda</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/publikasi-guest') }}">Publikasi</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Detail Publikasi</li>
+                </ol>
+            </nav>
+            <h1 class="page-banner-title">Detail Publikasi</h1>
         </div>
     </div>
-</section>
+</div>
 
 <section class="blog-details ptb-100">
     <div class="container">

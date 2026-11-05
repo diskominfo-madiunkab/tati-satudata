@@ -1,17 +1,17 @@
 @extends('guest.layout')
 
 @section('content')
-<div class="page-banner pt-30 pb-30" style="background: linear-gradient(135deg, #0d3b66 0%, #0077b6 100%);">
+<div class="page-banner">
     <div class="container">
-        <div class="page-banner-content text-center text-white">
+        <div class="page-banner-content text-center">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb justify-content-center mb-2">
-                    <li class="breadcrumb-item"><a href="/" class="text-white-50">Beranda</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('guest.visualisasi') }}" class="text-white-50">Visualisasi</a></li>
-                    <li class="breadcrumb-item active text-white" aria-current="page">Detail</li>
+                    <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('guest.visualisasi') }}">Visualisasi</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Detail</li>
                 </ol>
             </nav>
-            <h2 class="text-white fw-bold mb-0 fs-3">{{ $visualisasi->title }}</h2>
+            <h2 class="page-banner-title mb-0 fs-3">{{ $visualisasi->title }}</h2>
         </div>
     </div>
 </div>
